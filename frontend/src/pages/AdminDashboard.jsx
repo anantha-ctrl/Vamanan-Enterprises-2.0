@@ -72,6 +72,11 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [settingsSubTab, setSettingsSubTab] = useState('profile'); // profile, company, security, protocol
   const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
   
   // Adjustment States
   const [adjForm, setAdjForm] = useState({ user_id: '', amount: '', type: 'credit', reason: '' });
@@ -193,10 +198,10 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/adjust_wallet.php`, adjForm);
       if(res.data.status === 'success') {
-        alert("Balance Adjusted Successfully!");
+        showToast("Balance adjusted and logged on secure ledger!", "success");
         const lastUserId = adjForm.user_id;
         setAdjForm({ user_id: '', amount: '', type: 'credit', reason: '', category: 'purchase' });
-        fetchData();
+        fetchData(true);
         // Re-fetch user specific payout info to update the yellow/white summary cards
         if (lastUserId) {
           fetchUserPayout(lastUserId);
@@ -204,7 +209,7 @@ const AdminDashboard = () => {
         setActiveTab('wallets_view'); // Redirect to ledger to see the update
       }
     } catch (err) {
-      alert("Error: " + (err.response?.data?.message || "Adjustment failed"));
+      showToast("Adjustment failed: " + (err.response?.data?.message || "Internal server error"), "error");
     } finally {
       setProcessing(false);
     }
@@ -216,13 +221,13 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/add_staff.php`, staffForm);
       if(res.data.status === 'success') {
-        alert("Staff Account Created Successfully!");
+        showToast("Staff credentials provisioned successfully!", "success");
         setStaffForm({ name: '', email: '', role: 'manager', password: '' });
         setActiveTab('users');
-        fetchData();
+        fetchData(true);
       }
     } catch (err) {
-      alert("Error: " + (err.response?.data?.message || "Failed to create staff account"));
+      showToast("Registration failed: " + (err.response?.data?.message || "Invalid payload"), "error");
     } finally {
       setProcessing(false);
     }
@@ -259,7 +264,7 @@ const AdminDashboard = () => {
     console.log("Attempting to dispatch notification...");
     
     if (!notifForm.title || !notifForm.message) {
-      alert("Please fill in both the Title and Message.");
+      showToast("Please fill in both the Title and Message.", "error");
       return;
     }
 
@@ -273,16 +278,16 @@ const AdminDashboard = () => {
       const res = await axios.post(`${API_BASE_URL}/admin/${endpoint}`, payload);
       
       if(res.data.status === 'success') {
-        alert(notifEditId ? "SUCCESS: Protocol Updated!" : "SUCCESS: Notification Dispatched!");
+        showToast(notifEditId ? "Notification dispatch node updated!" : "Notification broadcast dispatched successfully!", "success");
         setNotifForm({ user_id: '', title: '', message: '', type: 'info' });
         setNotifEditId(null);
-        fetchData();
+        fetchData(true);
       } else {
-        alert("SERVER ERROR: " + (res.data.message || "Unknown error"));
+        showToast("Dispatch failed: " + (res.data.message || "Endpoint error"), "error");
       }
     } catch (err) {
       console.error("Dispatch Error:", err);
-      alert("CONNECTION ERROR: " + (err.message || "Could not reach server"));
+      showToast("Dispatch connection error: " + (err.message || "Failed to reach node"), "error");
     } finally {
       setProcessing(false);
     }
@@ -305,10 +310,11 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/delete_notification.php`, { id });
       if(res.data.status === 'success') {
-        fetchData();
+        showToast("Notification successfully retracted from dashboard feeds!", "success");
+        fetchData(true);
       }
     } catch (err) {
-      alert("Retraction failed: " + (err.response?.data?.message || "Error"));
+      showToast("Retraction error: Secure connection interrupted", "error");
     } finally {
       setProcessing(false);
     }
@@ -320,13 +326,13 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/process_withdrawal.php`, { id, status, transaction_id });
       if(res.data.status === 'success') {
-        alert("PROTOCOL DISPATCHED: " + res.data.message);
-        fetchData();
+        showToast(`Withdrawal request successfully marked as ${status.toUpperCase()}!`, "success");
+        fetchData(true);
       } else {
-        alert("PROTOCOL ERROR: " + res.data.message);
+        showToast("Error processing request: " + res.data.message, "error");
       }
     } catch (err) {
-      alert("CONNECTION ERROR: " + (err.message || "Failed to reach processing node"));
+      showToast("Connection fault: Failed to reach banking processing gateway", "error");
     } finally {
       setProcessing(false);
     }
@@ -354,14 +360,14 @@ const AdminDashboard = () => {
       });
 
       if (res.data.status === 'success') {
-        alert(res.data.message);
+        showToast(productForm.id ? "Asset node specs updated successfully!" : "New product asset successfully minted!", "success");
         setShowProductModal(false);
         setProductForm({ id: null, name: '', category: 'Gold Asset', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
-        fetchData();
+        fetchData(true);
       }
     } catch (err) {
       const msg = err.response?.data?.message || "Connection to database failed";
-      alert("Error: " + msg);
+      showToast("Error: " + msg, "error");
     } finally {
       setProcessing(false);
     }
@@ -373,11 +379,11 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/update_withdrawal.php`, { id, status });
       if (res.data.status === 'success') {
-        alert(`Payout ${status}!`);
-        fetchData();
+        showToast(`Payout status marked as ${status.toUpperCase()}!`, "success");
+        fetchData(true);
       }
     } catch (err) {
-      alert("Update failed");
+      showToast("Update failed: Secure communication channel fault", "error");
     } finally {
       setProcessing(false);
     }
@@ -390,11 +396,11 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/approve_investment.php`, { cycle_id, status });
       if (res.data.status === 'success') {
-        alert(`Investment ${status === 'active' ? 'Approved' : 'Rejected'}!`);
-        fetchData();
+        showToast(`Investment request successfully ${status === 'active' ? 'APPROVED' : 'REJECTED'}!`, "success");
+        fetchData(true);
       }
     } catch (err) {
-      alert("Action failed: " + (err.response?.data?.message || "Server error"));
+      showToast("Action failed: Connection to database node interrupted", "error");
     } finally {
       setProcessing(false);
     }
@@ -406,29 +412,29 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/update_profile.php`, adminForm);
       if (res.data.status === 'success') {
-        alert("Profile updated successfully!");
+        showToast("Institutional security profile synchronized successfully!", "success");
         setAdminData({ ...adminData, name: adminForm.name, email: adminForm.email });
         setEditAdminMode(false);
-        fetchData();
+        fetchData(true);
       }
     } catch (err) {
-      alert("Profile update failed");
+      showToast("Identity calibration failed: Credential invalid", "error");
     } finally {
       setProcessing(false);
     }
   };
 
   const handleUpdateSettings = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setProcessing(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/settings.php`, platformSettings);
       if (res.data.status === 'success') {
-        alert("Platform settings updated successfully!");
-        fetchData();
+        showToast("Platform settings successfully synchronized to blockchain ledger!", "success");
+        fetchData(true);
       }
     } catch (err) {
-      alert("Failed to update settings");
+      showToast("Settings update failed: Secure channel authentication fault", "error");
     } finally {
       setProcessing(false);
     }
@@ -440,12 +446,12 @@ const AdminDashboard = () => {
       const targetId = updates.id || selectedUser?.id;
       const res = await axios.post(`${API_BASE_URL}/admin/update_user.php`, { id: targetId, ...updates });
       if (res.data.status === 'success') {
-        alert("User updated successfully!");
+        showToast("User profile details successfully synchronized!", "success");
         setShowUserModal(false);
-        fetchData();
+        fetchData(true);
       }
     } catch (err) {
-      alert("Update failed");
+      showToast("Investor calibration failed", "error");
     } finally {
       setProcessing(false);
     }
@@ -457,12 +463,12 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/delete_user.php`, { id });
       if (res.data.status === 'success') {
-        alert("Investor node purged successfully.");
+        showToast("Investor dossier permanently purged from ledger system", "success");
         setShowUserModal(false);
-        fetchData();
+        fetchData(true);
       }
     } catch (err) {
-      alert("Purge operation failed.");
+      showToast("Purge failed: Access permissions mismatch", "error");
     } finally {
       setProcessing(false);
     }
@@ -474,11 +480,11 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/delete_product.php`, { id });
       if (res.data.status === 'success') {
-        alert("Product deleted!");
-        fetchData();
+        showToast("Product deleted from storefront database", "success");
+        fetchData(true);
       }
     } catch (err) {
-      alert("Delete failed");
+      showToast("Deletion failed: Resource locked", "error");
     } finally {
       setProcessing(false);
     }
@@ -556,13 +562,13 @@ const AdminDashboard = () => {
                try {
                  const res = await axios.get(`${API_BASE_URL}/cron/process_cashback.php?t=${Date.now()}`);
                  if (res.data.status === 'success') {
-                   alert("PROTOCOL COMPLETE: " + (res.data.message || "Daily yields have been dispatched."));
-                   fetchData();
+                   showToast("DAILY YIELD PROTOCOL FULLY DISPATCHED!", "success");
+                   fetchData(true);
                  } else {
-                   alert("PROTOCOL FAILED: " + (res.data.message || "Unknown error"));
+                   showToast("Protocol failed: " + (res.data.message || "Unknown error"), "error");
                  }
                } catch (err) {
-                 alert("NETWORK ERROR: " + (err.message || "Failed to reach processing node"));
+                 showToast("Connection fault: Cron processing server offline", "error");
                } finally {
                  setProcessing(false);
                }
@@ -3065,6 +3071,27 @@ const AdminDashboard = () => {
                 </div>
              </motion.div>
            </div>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Toast Notification System */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, scale: 0.9, x: '-50%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-4 bg-slate-900/90 text-white px-8 py-5 rounded-[2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-md min-w-[320px] max-w-[90%]"
+          >
+            <div className={`p-2 rounded-full ${toast.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : toast.type === 'error' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}`}>
+              {toast.type === 'success' ? <CheckCircle size={20} /> : toast.type === 'error' ? <XCircle size={20} /> : <AlertTriangle size={20} />}
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{toast.type === 'success' ? 'Protocol Success' : toast.type === 'error' ? 'Protocol Breach' : 'Protocol Alert'}</p>
+              <p className="text-xs font-bold mt-1 tracking-tight text-white">{toast.message}</p>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
