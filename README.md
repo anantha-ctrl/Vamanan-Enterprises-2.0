@@ -47,8 +47,8 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 ### 2. Implementation Steps
 1.  **Repository Setup**:
     ```bash
-    git clone https://github.com/anantha-ctrl/Vamanan-Enterprises.git
-    cd Vamanan-Enterprises
+    git clone https://github.com/anantha-ctrl/Vamanan-Enterprises-2.0.git
+    cd Vamanan-Enterprises-2.0
     ```
 2.  **Server Configuration**:
     - Move the root folder to your local server directory (e.g., `C:\xampp\htdocs\Makkal_Gold`).
