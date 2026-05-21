@@ -61,7 +61,12 @@ const AdminDashboard = () => {
     support_phone: '+91 90000 00000',
     support_email: 'support@makkalgold.com',
     company_name: 'Vamanan Enterprises',
-    company_address: '123, Gold Plaza, Main Road, City, State, 600001'
+    company_address: '123, Gold Plaza, Main Road, City, State, 600001',
+    bank_name: '',
+    bank_account_name: '',
+    bank_account_no: '',
+    bank_ifsc: '',
+    bank_branch: ''
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -2767,6 +2772,62 @@ const AdminDashboard = () => {
                                            onChange={e => setPlatformSettings({...platformSettings, upi_id: e.target.value})}
                                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 pl-16 pr-8 text-lg font-black text-amber-500 outline-none focus:border-amber-500 transition-all italic"
                                          />
+                                      </div>
+                                   </div>
+
+                                   <div className="border-t border-white/10 pt-10">
+                                      <h5 className="text-sm font-black uppercase italic text-slate-400 mb-6">Institutional Bank Details</h5>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                         <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">Bank Name</label>
+                                            <input 
+                                              type="text" 
+                                              placeholder="e.g., State Bank of India"
+                                              value={platformSettings.bank_name || ''}
+                                              onChange={e => setPlatformSettings({...platformSettings, bank_name: e.target.value})}
+                                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-slate-200 outline-none focus:border-amber-500 transition-all"
+                                            />
+                                         </div>
+                                         <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">Account Holder Name</label>
+                                            <input 
+                                              type="text" 
+                                              placeholder="e.g., Vamanan Enterprises"
+                                              value={platformSettings.bank_account_name || ''}
+                                              onChange={e => setPlatformSettings({...platformSettings, bank_account_name: e.target.value})}
+                                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-slate-200 outline-none focus:border-amber-500 transition-all"
+                                            />
+                                         </div>
+                                         <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">Account Number</label>
+                                            <input 
+                                              type="text" 
+                                              placeholder="e.g., 123456789012"
+                                              value={platformSettings.bank_account_no || ''}
+                                              onChange={e => setPlatformSettings({...platformSettings, bank_account_no: e.target.value})}
+                                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-slate-200 outline-none focus:border-amber-500 transition-all"
+                                            />
+                                         </div>
+                                         <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">IFSC Code</label>
+                                            <input 
+                                              type="text" 
+                                              placeholder="e.g., SBIN0001234"
+                                              value={platformSettings.bank_ifsc || ''}
+                                              onChange={e => setPlatformSettings({...platformSettings, bank_ifsc: e.target.value})}
+                                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-slate-200 outline-none focus:border-amber-500 transition-all"
+                                            />
+                                         </div>
+                                         <div className="space-y-4 md:col-span-2">
+                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic ml-1">Branch Name</label>
+                                            <input 
+                                              type="text" 
+                                              placeholder="e.g., Main Branch, Chennai"
+                                              value={platformSettings.bank_branch || ''}
+                                              onChange={e => setPlatformSettings({...platformSettings, bank_branch: e.target.value})}
+                                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-bold text-slate-200 outline-none focus:border-amber-500 transition-all"
+                                            />
+                                         </div>
                                       </div>
                                    </div>
 

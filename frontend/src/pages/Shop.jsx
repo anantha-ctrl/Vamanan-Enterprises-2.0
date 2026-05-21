@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUp, Menu, Loader2, CheckCircle2, AlertCircle, Search, ArrowRight, ShieldCheck, Zap, Coins, RefreshCw, X
+  TrendingUp, Menu, Loader2, CheckCircle2, AlertCircle, Search, ArrowRight, ShieldCheck, Zap, Coins, RefreshCw, X, Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,19 @@ const Shop = () => {
   const [supportPhone, setSupportPhone] = useState('919876543210');
   const [upiId, setUpiId] = useState('anantha130404-1@oksbi');
   const [companyName, setCompanyName] = useState('Vamanan Enterprises');
+  const [bankName, setBankName] = useState('');
+  const [bankAccountName, setBankAccountName] = useState('');
+  const [bankAccountNo, setBankAccountNo] = useState('');
+  const [bankIfsc, setBankIfsc] = useState('');
+  const [bankBranch, setBankBranch] = useState('');
+  const [paymentMode, setPaymentMode] = useState('upi'); // 'upi' or 'bank'
+  const [copiedField, setCopiedField] = useState(''); // '' or 'account' or 'ifsc'
+
+  const handleCopy = (text, fieldName) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    setTimeout(() => setCopiedField(''), 2000);
+  };
    const [minInvestment, setMinInvestment] = useState(1000);
    const [dailyRate, setDailyRate] = useState(1); // Default 1%
    const [weight, setWeight] = useState(1);
@@ -51,6 +64,11 @@ const Shop = () => {
          if (res.data.data.company_name) setCompanyName(res.data.data.company_name);
          if (res.data.data.min_investment) setMinInvestment(parseFloat(res.data.data.min_investment));
          if (res.data.data.daily_cashback_rate) setDailyRate(parseFloat(res.data.data.daily_cashback_rate));
+         if (res.data.data.bank_name) setBankName(res.data.data.bank_name);
+         if (res.data.data.bank_account_name) setBankAccountName(res.data.data.bank_account_name);
+         if (res.data.data.bank_account_no) setBankAccountNo(res.data.data.bank_account_no);
+         if (res.data.data.bank_ifsc) setBankIfsc(res.data.data.bank_ifsc);
+         if (res.data.data.bank_branch) setBankBranch(res.data.data.bank_branch);
        }
     } catch (err) {
       console.error("Failed to load settings");
@@ -308,23 +326,105 @@ const Shop = () => {
                 <X size={20} />
               </button>
 
-              {/* Left Side: QR Code */}
-              <div className="w-full md:w-1/2 bg-slate-900 p-8 sm:p-12 md:p-16 lg:p-20 flex flex-col items-center justify-center text-center relative overflow-hidden shrink-0">
+              {/* Left Side: QR Code / Bank Details */}
+              <div className="w-full md:w-1/2 bg-slate-900 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col items-center justify-start text-center relative overflow-hidden shrink-0">
                 <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                 
-                <div className="relative z-10 w-full max-w-[180px] sm:max-w-[220px] md:max-w-[280px] mt-4 md:mt-0">
-                  <div className="bg-white p-3 sm:p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] mb-4 md:mb-10 group transition-transform hover:scale-105 duration-500">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}%26cu=INR`}
-                      alt="Payment QR Code" 
-                      className="w-full h-full object-contain rounded-xl sm:rounded-2xl" 
-                      onError={(e) => { e.target.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}`; }}
-                    />
-                  </div>
-                  <h3 className="text-amber-500 text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Scan & Transact</h3>
-                  <p className="text-slate-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic mb-4 md:mb-8">Amount Payable: ₹{totalAmount.toLocaleString()}</p>
-                  
-                  <div className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 md:gap-4 text-left">
+                {/* Segmented Control */}
+                <div className="relative z-10 flex p-1.5 bg-white/5 border border-white/10 rounded-2xl mb-8 w-full max-w-[280px]">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode('upi')}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all italic ${paymentMode === 'upi' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    UPI QR Code
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode('bank')}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all italic ${paymentMode === 'bank' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Bank Details
+                  </button>
+                </div>
+
+                <div className="relative z-10 w-full max-w-[280px] sm:max-w-[320px] flex-1 flex flex-col justify-center items-center">
+                  {paymentMode === 'upi' ? (
+                    <div className="w-full flex flex-col items-center">
+                      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] mb-4 md:mb-6 group transition-transform hover:scale-105 duration-500 w-full max-w-[200px] sm:max-w-[240px]">
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}%26cu=INR`}
+                          alt="Payment QR Code" 
+                          className="w-full h-full object-contain rounded-xl sm:rounded-2xl" 
+                          onError={(e) => { e.target.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}`; }}
+                        />
+                      </div>
+                      <h3 className="text-amber-500 text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Scan & Transact</h3>
+                      <p className="text-slate-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic mb-6">Amount Payable: ₹{totalAmount.toLocaleString()}</p>
+                    </div>
+                  ) : (
+                    <div className="w-full text-left space-y-4 mb-6">
+                      <div className="bg-white/5 border border-white/10 rounded-[1.8rem] p-6 shadow-[0_0_40px_rgba(0,0,0,0.2)] relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500 text-white"><Coins size={80} /></div>
+                        
+                        <p className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-4 italic">Corporate Settlement Node</p>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Beneficiary Bank</span>
+                            <span className="text-sm font-black text-white uppercase italic">{bankName || 'State Bank of India'}</span>
+                          </div>
+                          
+                          <div>
+                            <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Account Holder</span>
+                            <span className="text-sm font-black text-white uppercase italic">{bankAccountName || companyName}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between border-t border-white/5 pt-3">
+                            <div>
+                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Account Number</span>
+                              <span className="text-sm font-black text-amber-500 tracking-wider font-mono">{bankAccountNo || '123456789012'}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(bankAccountNo || '123456789012', 'account')}
+                              className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors"
+                            >
+                              {copiedField === 'account' ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between border-t border-white/5 pt-3">
+                            <div>
+                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">IFSC / Routing Node</span>
+                              <span className="text-sm font-black text-amber-500 tracking-wider font-mono">{bankIfsc || 'SBIN0001234'}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(bankIfsc || 'SBIN0001234', 'ifsc')}
+                              className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors"
+                            >
+                              {copiedField === 'ifsc' ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                            </button>
+                          </div>
+
+                          {bankBranch && (
+                            <div className="border-t border-white/5 pt-3">
+                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Branch Location</span>
+                              <span className="text-[10px] font-black text-slate-300 uppercase italic">{bankBranch}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center">
+                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-1 italic">Transfer Amount</span>
+                        <span className="text-lg font-black text-amber-500 italic">₹{totalAmount.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 md:gap-4 text-left w-full mt-auto">
                     <ShieldCheck className="text-amber-500 shrink-0" size={20} />
                     <div>
                       <p className="text-[7px] md:text-[8px] text-slate-400 font-black uppercase tracking-widest italic">Institutional Trust</p>

@@ -38,7 +38,12 @@ try {
         'support_email' => 'support@makkalgold.com',
         'company_name' => 'Vamanan Enterprises',
         'company_address' => '123, Gold Plaza, Main Road, City, State, 600001',
-        'upi_id' => 'vamanan@upi'
+        'upi_id' => 'vamanan@upi',
+        'bank_name' => 'State Bank of India',
+        'bank_account_name' => 'Vamanan Enterprises',
+        'bank_account_no' => '123456789012',
+        'bank_ifsc' => 'SBIN0001234',
+        'bank_branch' => 'Main Branch'
     ];
 
     foreach ($defaults as $key => $val) {

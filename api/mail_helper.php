@@ -61,10 +61,10 @@ function sendOTPMail($to_email, $otp) {
         <head>
             <style>
                 .container { font-family: 'Inter', sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 24px; overflow: hidden; background: #fff; }
-                .header { background: #0A2540; color: #D4AF37; padding: 40px; text-align: center; }
+                .header { background: #000; color: #D4AF37; padding: 40px; text-align: center; }
                 .content { padding: 40px; color: #333; line-height: 1.6; }
                 .otp-box { background: #fdfaf0; padding: 30px; border-radius: 20px; text-align: center; margin: 30px 0; border: 2px dashed #D4AF37; }
-                .otp-code { font-size: 42px; font-weight: 900; letter-spacing: 8px; color: #0A2540; margin: 0; font-family: 'Courier New', Courier, monospace; }
+                .otp-code { font-size: 42px; font-weight: 900; letter-spacing: 8px; color: #000; margin: 0; font-family: 'Courier New', Courier, monospace; }
                 .footer { background: #f8f9fa; padding: 24px; text-align: center; font-size: 11px; color: #999; }
                 .security-note { font-size: 12px; color: #666; margin-top: 24px; border-top: 1px solid #eee; pt: 16px; }
             </style>
@@ -75,7 +75,7 @@ function sendOTPMail($to_email, $otp) {
                     <h1 style='margin:0; letter-spacing: -1px; font-size: 28px;'>MAKKAL GOLD</h1>
                 </div>
                 <div class='content'>
-                    <h2 style='color: #0A2540; margin-top: 0;'>Secure OTP Verification</h2>
+                    <h2 style='color: #000; margin-top: 0;'>Secure OTP Verification</h2>
                     <p>We received a request to access your Makkal Gold account. For your security, please use the verification code below to authorize this session.</p>
                     
                     <div class='otp-box'>
