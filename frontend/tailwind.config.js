@@ -1,0 +1,76 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'gold-primary': '#D4AF37',
+        'gold-secondary': '#C5A028',
+        'dark-bg': '#0B0B0B',
+        'dark-card': '#161616',
+        'light-bg': '#FFFFFF',
+        'light-card': '#F9FAFB',
+        black: '#1E3A8A',
+        slate: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1D4ED8',
+          900: '#1E40AF',
+          950: '#1E3A8A',
+        },
+        gray: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1D4ED8',
+          900: '#1E40AF',
+          950: '#1E3A8A',
+        },
+        zinc: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1D4ED8',
+          900: '#1E40AF',
+          950: '#1E3A8A',
+        },
+        neutral: {
+          50: '#EFF6FF',
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          800: '#1D4ED8',
+          900: '#1E40AF',
+          950: '#1E3A8A',
+        }
+      },
+      fontFamily: {
+        'inter': ['Inter', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
+}

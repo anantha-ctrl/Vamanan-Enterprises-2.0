@@ -1,0 +1,22 @@
+[2026-04-30 08:52:49] {"user_id":6,"product_id":1}
+[2026-04-30 09:39:25] {"user_id":6,"product_id":1}
+[2026-04-30 09:42:50] {"user_id":6,"product_id":1}
+[2026-04-30 10:34:08] {"user_id":6,"product_id":1}
+[2026-05-02 10:12:50] INPUT: {"user_id":5,"weight":1}
+[2026-05-02 10:12:50] ERROR: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`makkal_gold`.`agreements`, CONSTRAINT `agreements_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE)
+[2026-05-02 10:15:45] INPUT: {"user_id":5,"weight":35}
+[2026-05-02 10:15:45] SUCCESS: cycle_id=4 user=5
+[2026-05-02 10:16:17] INPUT: {"user_id":5,"weight":30}
+[2026-05-02 10:16:17] ERROR: You already have a pending investment request. Please wait for admin approval.
+[2026-05-02 10:18:22] INPUT: {"user_id":5,"weight":10}
+[2026-05-02 10:18:22] SUCCESS: cycle_id=5 user=5
+[2026-05-02 14:20:47] INPUT: {"user_id":9,"weight":5}
+[2026-05-02 14:20:47] SUCCESS: cycle_id=6 user=9
+[2026-05-05 12:31:35] INPUT: {"user_id":10,"weight":1,"asset_type":"gold"}
+[2026-05-05 12:31:35] SUCCESS: cycle_id=7 user=10
+[2026-05-06 07:46:48] INPUT: {"user_id":6,"weight":1,"asset_type":"silver"}
+[2026-05-06 07:46:48] SUCCESS: cycle_id=8 user=6
+[2026-05-06 13:34:49] INPUT: 
+[2026-05-06 13:36:35] INPUT: 
+[2026-05-06 13:42:06] INPUT: 
+[2026-05-06 13:42:19] INPUT: 
