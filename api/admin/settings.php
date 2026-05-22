@@ -4,6 +4,9 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
 
@@ -51,16 +54,62 @@ try {
         $stmt->execute([$key, $val]);
     }
 
+    $protectedNonEmpty = [
+        'upi_id',
+        'bank_name',
+        'bank_account_name',
+        'bank_account_no',
+        'bank_ifsc',
+        'bank_branch'
+    ];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
-        foreach ($data as $key => $val) {
-            $stmt = $db->prepare("UPDATE platform_settings SET config_value = ? WHERE config_key = ?");
-            $stmt->execute([$val, $key]);
+        if (!is_array($data)) {
+            $data = [];
         }
-        echo json_encode(["status" => "success", "message" => "Settings updated successfully"]);
+
+        $upsert = $db->prepare(
+            "INSERT INTO platform_settings (config_key, config_value)
+             VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)"
+        );
+
+        foreach ($data as $key => $val) {
+            $value = is_scalar($val) ? trim((string)$val) : '';
+
+            // Avoid accidental wipe of gateway details from empty payload values.
+            if (in_array($key, $protectedNonEmpty, true) && $value === '') {
+                continue;
+            }
+
+            $upsert->execute([$key, $value]);
+        }
+    }
+
+    $stmt = $db->query("SELECT config_key, config_value FROM platform_settings");
+    $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    // Guarantee usable gateway values even if DB has stale empty strings.
+    foreach ($protectedNonEmpty as $k) {
+        if (!isset($settings[$k]) || trim((string)$settings[$k]) === '') {
+            $settings[$k] = $defaults[$k];
+            $upsertFill = $db->prepare(
+                "INSERT INTO platform_settings (config_key, config_value)
+                 VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)"
+            );
+            $upsertFill->execute([$k, $defaults[$k]]);
+        }
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        echo json_encode([
+            "status" => "success",
+            "message" => "Settings updated successfully",
+            "data" => $settings
+        ]);
     } else {
-        $stmt = $db->query("SELECT config_key, config_value FROM platform_settings");
-        $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         echo json_encode(["status" => "success", "data" => $settings]);
     }
 } catch (PDOException $e) {

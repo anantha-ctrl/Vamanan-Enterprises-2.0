@@ -27,6 +27,7 @@ if (!isset($data->user_id) || !isset($data->weight)) {
 try {
     // Self-healing schema repair (ensure columns exist before processing)
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN transaction_id VARCHAR(255)"); } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Bank Transfer'"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_screenshot VARCHAR(255)"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN asset_type VARCHAR(20) DEFAULT 'gold'"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN weight DECIMAL(10,3) DEFAULT 0"); } catch (Exception $e) {}
@@ -66,6 +67,7 @@ try {
     $gst_percentage = isset($settings['gst_percentage']) ? (float)$settings['gst_percentage'] : 3;
 
     $asset_type = isset($data->asset_type) ? strtolower($data->asset_type) : 'gold';
+    $payment_method = (isset($data->payment_mode) && strtolower($data->payment_mode) === 'upi') ? 'UPI Scan' : 'Bank Transfer';
     $weight = (float)$data->weight;
     
     $base_price = ($asset_type === 'silver') ? $silver_base_price : $gold_base_price;
@@ -118,14 +120,15 @@ try {
     // 5. Create Cashback Cycle (Pending)
     $daily = round($total_price * 0.01, 2);
     $cStmt = $db->prepare(
-        "INSERT INTO cashback_cycles (user_id, total_value, daily_payout, transaction_id, payment_screenshot, asset_type, weight, status) 
-         VALUES (:user_id, :total, :daily, :tid, :shot, :asset, :weight, 'pending')"
+        "INSERT INTO cashback_cycles (user_id, total_value, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, status) 
+         VALUES (:user_id, :total, :daily, :tid, :payment_method, :shot, :asset, :weight, 'pending')"
     );
     $cStmt->execute([
         'user_id' => $data->user_id,
         'total'   => $total_price,
         'daily'   => $daily,
         'tid'     => isset($data->transaction_id) ? $data->transaction_id : null,
+        'payment_method' => $payment_method,
         'shot'    => $screenshot_path,
         'asset'   => $asset_type,
         'weight'  => $weight

@@ -5,6 +5,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
 require_once '../config.php';
+require_once '../mail_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
 
@@ -47,14 +48,26 @@ if(!empty($data->email) && !empty($data->password)) {
                     exit;
                 }
 
-                unset($user['password']); // Safety: remove hash from response
-                $user['phone'] = $user['phone'] ?? '';
-                $user['status'] = $accountStatus;
-                $user['permissions'] = $user['permissions'] ?? '';
+                // --- Generate Fintech OTP for Login Flow ---
+                $otp = sprintf("%06d", mt_rand(100000, 999999));
+                $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
+                $expires_at = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+                // Invalidate old login OTP sessions for this email
+                $delStmt = $pdo->prepare("DELETE FROM login_otps WHERE email = ?");
+                $delStmt->execute([$user['email']]);
+
+                // Insert new OTP record
+                $insStmt = $pdo->prepare("INSERT INTO login_otps (email, otp_hash, expires_at) VALUES (?, ?, ?)");
+                $insStmt->execute([$user['email'], $otp_hash, $expires_at]);
+
+                // Dispatch email
+                sendLoginOTPMail($user['email'], $otp);
+
                 echo json_encode([
-                    "status" => "success",
-                    "message" => "Welcome back, " . $user['name'],
-                    "user" => $user
+                    "status" => "otp_required",
+                    "message" => "Security verification code dispatched to your registered email address.",
+                    "email" => $user['email']
                 ]);
             } else {
                 echo json_encode(["status" => "error", "message" => "Incorrect password. Please try again."]);

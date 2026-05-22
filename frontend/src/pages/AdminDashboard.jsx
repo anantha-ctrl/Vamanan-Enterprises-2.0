@@ -62,6 +62,7 @@ const AdminDashboard = () => {
     support_email: 'support@makkalgold.com',
     company_name: 'Vamanan Enterprises',
     company_address: '123, Gold Plaza, Main Road, City, State, 600001',
+    upi_id: '',
     bank_name: '',
     bank_account_name: '',
     bank_account_no: '',
@@ -136,13 +137,6 @@ const AdminDashboard = () => {
     }
 
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(true);
-      if (adjForm.user_id) {
-        fetchUserPayout(adjForm.user_id);
-      }
-    }, 30000);
-    return () => clearInterval(interval);
   }, [activeTab, adjForm.user_id]);
 
   const fetchData = async (isSilent = false) => {
@@ -735,7 +729,7 @@ const AdminDashboard = () => {
                   <div className="flex justify-between items-center mb-10">
                      <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase italic">Investor Network Pulse</h3>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1 italic">Rolling 7-Day Enrollment Matrix</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Rolling 7-Day Enrollment Matrix</p>
                      </div>
                      <div className="flex items-center gap-3">
                         <div className="hidden sm:flex flex-col items-end">
@@ -1055,6 +1049,7 @@ const AdminDashboard = () => {
                            <div className="lg:col-span-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Payment Node</p>
                               <div className="flex flex-col gap-2">
+                                 <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic">{inv.payment_method || 'Bank Transfer'}</span>
                                  <span className="text-[10px] font-black text-slate-900 uppercase italic truncate">ID: {inv.transaction_id || 'N/A'}</span>
                                  {inv.payment_screenshot ? (
                                     <a 
@@ -1091,7 +1086,7 @@ const AdminDashboard = () => {
                         
                         <div className="mt-8 pt-8 border-t border-slate-50 flex flex-wrap items-center justify-between gap-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                            <div className="flex items-center gap-2 italic">
-                              <Clock size={12} className="text-amber-600" /> Submitted: {new Date(inv.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} at {new Date(inv.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                              <Clock size={12} className="text-amber-600" /> Submitted: {new Date(inv.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                            </div>
                            <div className="flex items-center gap-3">
                               <div className="flex items-center gap-2 italic text-amber-500">
@@ -1145,7 +1140,7 @@ const AdminDashboard = () => {
                           </td>
                           <td className="py-6 px-8">
                             <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{inv.user_name}</div>
-                            <div className="text-[10px] text-slate-500 font-bold mt-1 truncate max-w-[150px]">{inv.user_email}</div>
+                            <div className="text-[10px] text-slate-500 font-bold mt-1.5 truncate max-w-[150px]">{inv.user_email}</div>
                           </td>
                           <td className="py-6 px-8">
                             <div className="text-xs font-black text-slate-900 uppercase italic">
@@ -1160,6 +1155,7 @@ const AdminDashboard = () => {
                             <div className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1 italic">Daily: ₹{inv.daily_payout}</div>
                           </td>
                             <td className="py-6 px-8">
+                              <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mb-1 italic">{inv.payment_method || 'Bank Transfer'}</div>
                               <div className="text-xs font-black text-slate-900 uppercase italic truncate max-w-[120px]">{inv.transaction_id || 'N/A'}</div>
                               {inv.payment_screenshot && (
                                 <a 
@@ -1173,7 +1169,7 @@ const AdminDashboard = () => {
                               )}
                             </td>
                           <td className="py-6 px-8 text-right">
-                            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+                            <span className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                               inv.cycle_status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm' : 
                               inv.cycle_status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100 shadow-sm' :
                               inv.cycle_status === 'cancelled' ? 'bg-slate-50 text-slate-400 border-slate-200 shadow-sm' :
@@ -1350,11 +1346,11 @@ const AdminDashboard = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50">
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Available Capital</th>
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Cumulative Yield</th>
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Total Liquidation</th>
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Intervention</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Available Capital</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Cumulative Yield</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Total Liquidation</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Intervention</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1486,7 +1482,7 @@ const AdminDashboard = () => {
                     <div className="text-center relative z-10">
                       <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1.5 italic">Total Invested</p>
                       <p className="text-2xl font-black text-slate-900 italic tracking-tighter">₹{selectedUserPayout.total_invested.toLocaleString()}</p>
-                      <p className="text-[8px] text-amber-600 font-black uppercase mt-1 italic tracking-widest">
+                      <p className="text-[8px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">
                         {selectedUserPayout.cycles?.[0]?.asset_type === 'silver' ? 'Pure Silver' : '22K Gold'} Asset
                       </p>
                     </div>
@@ -1793,7 +1789,7 @@ const AdminDashboard = () => {
                          </div>
                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Role</p>
-                            <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-tighter">{u.role}</p>
+                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-1 italic">{u.role}</p>
                          </div>
                       </div>
 
@@ -1971,7 +1967,7 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'recruitment' && (
-          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto bg-white border border-slate-200 p-8 md:p-14 rounded-[3.5rem] shadow-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-12 pb-20">
              <div className="flex items-center gap-6 mb-16">
                 <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><UserPlus size={32}/></div>
                 <div>
@@ -2130,7 +2126,7 @@ const AdminDashboard = () => {
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-[10px] text-slate-900 font-black uppercase italic tracking-widest">{w.payment_method || 'Bank Transfer'}</div>
+                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">{w.payment_method || 'Bank Transfer'}</div>
                                  <div className="text-[9px] text-slate-400 font-bold mt-2 bg-slate-100 p-3 rounded-xl border border-slate-200 shadow-inner max-w-[200px] break-words">
                                     {w.bank_details || 'NODE: NO CREDENTIALS PROVIDED'}
                                  </div>
@@ -2140,7 +2136,7 @@ const AdminDashboard = () => {
                                  <div className="text-[9px] text-rose-500 font-black uppercase tracking-[0.2em] mt-1 italic">Capital Liquidation</div>
                               </td>
                               <td className="py-8 px-10">
-                                 <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-sm border italic ${
+                                 <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
                                     w.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
                                     w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
                                     'bg-amber-50 text-amber-600 border-amber-100'
@@ -2230,14 +2226,15 @@ const AdminDashboard = () => {
                           </td>
 
                           <td className="py-8 px-10">
-                             <div className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest">{p.category || 'Gold Asset'}</div>
+                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">{p.category || 'Gold Asset'}</div>
                              <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Institutional Class</div>
                           </td>
 
                           <td className="py-8 px-10 font-black text-xs text-slate-900 italic tracking-tighter uppercase">{p.weight} Grams • {p.purity}</td>
                           <td className="py-8 px-10 font-black text-xl text-slate-900 italic tracking-tighter">₹{parseFloat(p.price).toLocaleString()}</td>
                           <td className="py-8 px-10">
-                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${p.is_active == 1 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
+                              p.is_active == 1 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                                {p.is_active == 1 ? 'Live Protocol' : 'Node Locked'}
                             </span>
                           </td>
@@ -2507,11 +2504,11 @@ const AdminDashboard = () => {
                              {activityLogs.filter(log => log.action_type === 'payout' || log.action_type === 'commission').slice(0, 50).map((log, i) => (
                                 <tr key={i} className="hover:bg-slate-50/50 transition group">
                                    <td className="py-8 px-10">
-                                      <div className="text-[10px] font-black text-slate-900 uppercase italic tracking-tight">{new Date(log.created_at).toLocaleString()}</div>
+                                      <div className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{new Date(log.created_at).toLocaleString()}</div>
                                       <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">ISO Standardized</div>
                                    </td>
                                    <td className="py-8 px-10">
-                                      <div className="text-sm font-black text-slate-900 uppercase italic">User #{log.user_id}</div>
+                                      <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{log.user_id}</div>
                                       <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Entity ID Verified</div>
                                    </td>
                                    <td className="py-8 px-10">
@@ -2876,7 +2873,7 @@ const AdminDashboard = () => {
                                    </div>
 
                                    <div className="pt-6">
-                                      <button disabled={processing} className="w-full bg-amber-500 text-slate-900 py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-white transition shadow-2xl active:scale-95">
+                                      <button type="submit" disabled={processing} className="w-full bg-amber-500 text-slate-900 py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-white transition shadow-2xl active:scale-95">
                                          {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Deploy Payment Node</>}
                                       </button>
                                    </div>
@@ -2970,7 +2967,7 @@ const AdminDashboard = () => {
                                     onChange={e => setAdminForm({...adminForm, password: e.target.value})}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-widest"
                                   />
-                                  <button type="button" onClick={() => setShowStaffPassword(!showStaffPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-600 transition-colors p-2">{showStaffPassword ? <EyeOff size={24}/> : <Eye size={24}/>}</button>
+                                  <button type="button" onClick={() => setShowStaffPassword(!showStaffPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-600 transition-colors p-2">{showStaffPassword ? <EyeOff size={24} /> : <Eye size={24}/>}</button>
                                </div>
                                <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-2 ml-4 italic">Leave blank to maintain current encryption</p>
                             </div>

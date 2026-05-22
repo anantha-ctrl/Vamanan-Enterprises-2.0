@@ -10,10 +10,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 class Database {
+    // private $host = "localhost";
+    // private $db_name = "cwhycofr_makkal_gold";
+    // private $username = "cwhycofr_admin";
+    // private $password = "vamanan@gold123";
+
     private $host = "localhost";
-    private $db_name = "cwhycofr_makkal_gold";
-    private $username = "cwhycofr_admin";
-    private $password = "vamanan@gold123";
+    private $db_name = "makkal_gold";
+    private $username = "root";
+    private $password = "anantha";
     public $conn;
 
     public function getConnection() {

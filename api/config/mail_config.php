@@ -8,7 +8,7 @@ return [
     'smtp_user' => 'anantha130404@gmail.com', // Enter your Gmail address
     'smtp_pass' => 'hfxw dyil akkx marx',   // Enter your 16-character Gmail App Password
     'from_email' => 'anantha130404@gmail.com',
-    'from_name' => 'Makkal Gold Security'
+    'from_name' => 'Vamanan Gold Security'
 
 ];
 ?>

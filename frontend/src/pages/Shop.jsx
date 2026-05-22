@@ -22,14 +22,16 @@ const Shop = () => {
   const [silverPrice, setSilverPrice] = useState(100);
   const [gstPercent, setGstPercent] = useState(3);
   const [supportPhone, setSupportPhone] = useState('919876543210');
-  const [upiId, setUpiId] = useState('anantha130404-1@oksbi');
-  const [companyName, setCompanyName] = useState('Vamanan Enterprises');
-  const [bankName, setBankName] = useState('');
-  const [bankAccountName, setBankAccountName] = useState('');
-  const [bankAccountNo, setBankAccountNo] = useState('');
-  const [bankIfsc, setBankIfsc] = useState('');
-  const [bankBranch, setBankBranch] = useState('');
-  const [paymentMode, setPaymentMode] = useState('upi'); // 'upi' or 'bank'
+  const [paymentGateway, setPaymentGateway] = useState({
+    upiId: '',
+    companyName: '',
+    bankName: '',
+    bankAccountName: '',
+    bankAccountNo: '',
+    bankIfsc: '',
+    bankBranch: '',
+  });
+  const [paymentMode, setPaymentMode] = useState('bank'); // 'upi' or 'bank'
   const [copiedField, setCopiedField] = useState(''); // '' or 'account' or 'ifsc'
 
   const handleCopy = (text, fieldName) => {
@@ -51,24 +53,35 @@ const Shop = () => {
      return () => clearInterval(iv);
    }, []);
 
+   useEffect(() => {
+     if (!showPaymentModal) return undefined;
+
+     fetchSettings(true);
+     const iv = setInterval(() => fetchSettings(true), 10000);
+     return () => clearInterval(iv);
+   }, [showPaymentModal]);
+
    const fetchSettings = async (isSilent = false) => {
      if (isSilent) setRefreshing(true);
      try {
        const res = await axios.get(`${API_BASE_URL}/admin/settings.php`);
        if (res.data.status === 'success') {
+         const settings = res.data.data || {};
          if (res.data.data.gold_base_price) setGoldPrice(parseFloat(res.data.data.gold_base_price));
          if (res.data.data.silver_base_price) setSilverPrice(parseFloat(res.data.data.silver_base_price));
          if (res.data.data.gst_percentage) setGstPercent(parseFloat(res.data.data.gst_percentage));
          if (res.data.data.support_phone) setSupportPhone(res.data.data.support_phone.replace(/\+/g, '').replace(/\s/g, ''));
-         if (res.data.data.upi_id) setUpiId(res.data.data.upi_id);
-         if (res.data.data.company_name) setCompanyName(res.data.data.company_name);
          if (res.data.data.min_investment) setMinInvestment(parseFloat(res.data.data.min_investment));
          if (res.data.data.daily_cashback_rate) setDailyRate(parseFloat(res.data.data.daily_cashback_rate));
-         if (res.data.data.bank_name) setBankName(res.data.data.bank_name);
-         if (res.data.data.bank_account_name) setBankAccountName(res.data.data.bank_account_name);
-         if (res.data.data.bank_account_no) setBankAccountNo(res.data.data.bank_account_no);
-         if (res.data.data.bank_ifsc) setBankIfsc(res.data.data.bank_ifsc);
-         if (res.data.data.bank_branch) setBankBranch(res.data.data.bank_branch);
+         setPaymentGateway({
+           upiId: settings.upi_id || '',
+           companyName: settings.company_name || '',
+           bankName: settings.bank_name || '',
+           bankAccountName: settings.bank_account_name || '',
+           bankAccountNo: settings.bank_account_no || '',
+           bankIfsc: settings.bank_ifsc || '',
+           bankBranch: settings.bank_branch || '',
+         });
        }
     } catch (err) {
       console.error("Failed to load settings");
@@ -82,6 +95,9 @@ const Shop = () => {
   const baseAmount = weight * currentPrice;
   const gstAmount = baseAmount * (gstPercent / 100);
   const totalAmount = baseAmount + gstAmount;
+  const paymentCompanyName = paymentGateway.companyName || 'Vamanan Enterprises';
+  const upiPaymentData = `upi://pay?pa=${encodeURIComponent(paymentGateway.upiId)}&pn=${encodeURIComponent(paymentCompanyName)}&am=${totalAmount.toFixed(2)}&cu=INR`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiPaymentData)}`;
 
   const handlePurchaseInitiate = () => {
     if (!user.id) {
@@ -117,6 +133,7 @@ const Shop = () => {
       formData.append('asset_type', assetType);
       formData.append('transaction_id', paymentForm.transaction_id);
       formData.append('phone', paymentForm.phone || user.phone || '');
+      formData.append('payment_mode', paymentMode);
       formData.append('screenshot', paymentForm.screenshot);
 
       const response = await axios.post(`${API_BASE_URL}/shop/purchase.php`, formData, {
@@ -327,104 +344,126 @@ const Shop = () => {
               </button>
 
               {/* Left Side: QR Code / Bank Details */}
-              <div className="w-full md:w-1/2 bg-slate-900 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col items-center justify-start text-center relative overflow-hidden shrink-0">
+              <div className="w-full md:w-1/2 bg-slate-900 p-8 sm:p-12 md:p-16 lg:p-20 flex flex-col items-center justify-center text-center relative overflow-hidden shrink-0">
                 <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                 
-                {/* Segmented Control */}
-                <div className="relative z-10 flex p-1.5 bg-white/5 border border-white/10 rounded-2xl mb-8 w-full max-w-[280px]">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMode('upi')}
-                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all italic ${paymentMode === 'upi' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    UPI QR Code
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMode('bank')}
-                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all italic ${paymentMode === 'bank' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    Bank Details
-                  </button>
-                </div>
+                <div className="relative z-10 w-full max-w-[280px] mt-4 md:mt-0">
+                  <div className="mb-4 flex items-center justify-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-500 italic">
+                    <RefreshCw size={12} className={refreshing ? 'animate-spin text-amber-500' : 'text-slate-600'} />
+                    Live Admin Gateway
+                  </div>
 
-                <div className="relative z-10 w-full max-w-[280px] sm:max-w-[320px] flex-1 flex flex-col justify-center items-center">
+                  {/* Premium Payment Mode Toggle */}
+                  <div className="flex bg-white/5 border border-white/10 p-1 rounded-2xl mb-8">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMode('bank')}
+                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider italic rounded-xl transition-all ${paymentMode === 'bank' ? 'bg-amber-500 text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    >
+                      Bank Transfer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMode('upi')}
+                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider italic rounded-xl transition-all ${paymentMode === 'upi' ? 'bg-amber-500 text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    >
+                      UPI Scan
+                    </button>
+                    
+                  </div>
+
                   {paymentMode === 'upi' ? (
                     <div className="w-full flex flex-col items-center">
-                      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] mb-4 md:mb-6 group transition-transform hover:scale-105 duration-500 w-full max-w-[200px] sm:max-w-[240px]">
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}%26cu=INR`}
-                          alt="Payment QR Code" 
-                          className="w-full h-full object-contain rounded-xl sm:rounded-2xl" 
-                          onError={(e) => { e.target.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${upiId}%26pn=${encodeURIComponent(companyName)}%26am=${totalAmount}`; }}
-                        />
+                      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] mb-4 md:mb-10 group transition-transform hover:scale-105 duration-500">
+                        {paymentGateway.upiId ? (
+                          <img 
+                            src={qrCodeUrl}
+                            alt="Payment QR Code" 
+                            className="w-full h-full object-contain rounded-xl sm:rounded-2xl" 
+                          />
+                        ) : (
+                          <div className="w-[220px] h-[220px] flex items-center justify-center text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            UPI ID not configured
+                          </div>
+                        )}
                       </div>
                       <h3 className="text-amber-500 text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Scan & Transact</h3>
-                      <p className="text-slate-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic mb-6">Amount Payable: ₹{totalAmount.toLocaleString()}</p>
+                      <p className="text-white text-[10px] font-black uppercase tracking-widest italic mb-2 break-all">{paymentGateway.upiId || 'Admin UPI Pending'}</p>
+                      <p className="text-slate-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic mb-4 md:mb-8">Amount Payable: ₹{totalAmount.toLocaleString()}</p>
                     </div>
                   ) : (
-                    <div className="w-full text-left space-y-4 mb-6">
-                      <div className="bg-white/5 border border-white/10 rounded-[1.8rem] p-6 shadow-[0_0_40px_rgba(0,0,0,0.2)] relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500 text-white"><Coins size={80} /></div>
-                        
-                        <p className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-4 italic">Corporate Settlement Node</p>
-                        
-                        <div className="space-y-4">
-                          <div>
-                            <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Beneficiary Bank</span>
-                            <span className="text-sm font-black text-white uppercase italic">{bankName || 'State Bank of India'}</span>
-                          </div>
-                          
-                          <div>
-                            <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Account Holder</span>
-                            <span className="text-sm font-black text-white uppercase italic">{bankAccountName || companyName}</span>
-                          </div>
-
-                          <div className="flex items-center justify-between border-t border-white/5 pt-3">
-                            <div>
-                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Account Number</span>
-                              <span className="text-sm font-black text-amber-500 tracking-wider font-mono">{bankAccountNo || '123456789012'}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy(bankAccountNo || '123456789012', 'account')}
-                              className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors"
-                            >
-                              {copiedField === 'account' ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
-                            </button>
-                          </div>
-
-                          <div className="flex items-center justify-between border-t border-white/5 pt-3">
-                            <div>
-                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">IFSC / Routing Node</span>
-                              <span className="text-sm font-black text-amber-500 tracking-wider font-mono">{bankIfsc || 'SBIN0001234'}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy(bankIfsc || 'SBIN0001234', 'ifsc')}
-                              className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors"
-                            >
-                              {copiedField === 'ifsc' ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
-                            </button>
-                          </div>
-
-                          {bankBranch && (
-                            <div className="border-t border-white/5 pt-3">
-                              <span className="text-[7px] md:text-[8px] text-slate-500 font-black uppercase tracking-widest block mb-0.5 italic">Branch Location</span>
-                              <span className="text-[10px] font-black text-slate-300 uppercase italic">{bankBranch}</span>
-                            </div>
-                          )}
+                    <div className="w-full flex flex-col items-center animate-fadeIn">
+                      {/* Premium White Container Card for Bank Details */}
+                      <div className="w-full bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_50px_rgba(245,158,11,0.2)] mb-4 md:mb-10 text-left text-slate-800 space-y-4 transition-transform hover:scale-105 duration-500">
+                        <div>
+                          <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic mb-1">Beneficiary Name</p>
+                          <p className="text-xs text-slate-900 font-extrabold uppercase">{paymentGateway.bankAccountName || 'Vamanan Enterprises V'}</p>
                         </div>
+                        
+                        <div className="h-px bg-slate-100" />
+                        
+                        <div>
+                          <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic mb-1">Bank Institution</p>
+                          <p className="text-xs text-slate-900 font-extrabold uppercase">{paymentGateway.bankName || 'Canara Bank'}</p>
+                        </div>
+
+                        <div className="h-px bg-slate-100" />
+
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic mb-1">Account Number</p>
+                            <p className="text-sm text-slate-900 font-black tracking-wider break-all">{paymentGateway.bankAccountNo || '638492017451'}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(paymentGateway.bankAccountNo || '638492017451', 'account')}
+                            className="p-2 bg-slate-50 hover:bg-amber-500 hover:text-slate-900 rounded-xl transition-all text-slate-500 flex items-center gap-1 active:scale-95 border border-slate-100"
+                          >
+                            {copiedField === 'account' ? (
+                              <span className="text-[8px] font-black uppercase italic tracking-wider px-1 text-emerald-600">Copied</span>
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
+                        </div>
+
+                        <div className="h-px bg-slate-100" />
+
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic mb-1">IFSC Routing Code</p>
+                            <p className="text-sm text-amber-600 font-black tracking-wider break-all">{paymentGateway.bankIfsc || 'CNRB0002987'}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(paymentGateway.bankIfsc || 'CNRB0002987', 'ifsc')}
+                            className="p-2 bg-slate-50 hover:bg-amber-500 hover:text-slate-900 rounded-xl transition-all text-slate-500 flex items-center gap-1 active:scale-95 border border-slate-100"
+                          >
+                            {copiedField === 'ifsc' ? (
+                              <span className="text-[8px] font-black uppercase italic tracking-wider px-1 text-emerald-600">Copied</span>
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
+                        </div>
+
+                        {paymentGateway.bankBranch && (
+                          <>
+                            <div className="h-px bg-slate-100" />
+                            <div>
+                              <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic mb-1">Branch Location</p>
+                              <p className="text-xs text-slate-900 font-extrabold uppercase">{paymentGateway.bankBranch || 'T.Nagar Branch, Chennai'}</p>
+                            </div>
+                          </>
+                        )}
                       </div>
                       
-                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center">
-                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-1 italic">Transfer Amount</span>
-                        <span className="text-lg font-black text-amber-500 italic">₹{totalAmount.toLocaleString()}</span>
-                      </div>
+                      <h3 className="text-amber-500 text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Bank Transfer</h3>
+                      <p className="text-slate-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic mb-4 md:mb-8">Amount Payable: ₹{totalAmount.toLocaleString()}</p>
                     </div>
                   )}
-
-                  <div className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 md:gap-4 text-left w-full mt-auto">
+                  
+                  <div className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 md:gap-4 text-left">
                     <ShieldCheck className="text-amber-500 shrink-0" size={20} />
                     <div>
                       <p className="text-[7px] md:text-[8px] text-slate-400 font-black uppercase tracking-widest italic">Institutional Trust</p>

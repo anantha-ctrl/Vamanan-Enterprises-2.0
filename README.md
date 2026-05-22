@@ -18,6 +18,7 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
   - **Payout Analytics**: Institutional disbursement ledger with bank-grade artifact tracking (IFSC, A/C No) and daily velocity charts.
 - **Staff Permission Matrix**: Granular role-based access control (RBAC) allowing administrators to toggle module access for specific support personnel.
 - **Self-Healing Database Matrix**: Zero-config database initialization that automatically constructs schemas and relationships on first request, including automated migrations for new fiscal parameters.
+- **Secure Email OTP Authentication Matrix**: High-security, two-phase verification required for all logins. Upon password verification, generates a 6-digit OTP, stores its secure hash in a database session table, and dispatches a branded fintech HTML email via Gmail SMTP, integrated with segmented inputs, backspace navigation, auto-pasting, and live countdown timers in the frontend.
 
 ---
 
@@ -73,7 +74,7 @@ Makkal_Gold/
 │
 ├── api/                    # Sovereign Core Backend
 │   ├── admin/              # Administrative Audit & Sync Endpoints
-│   ├── auth/               # Secure Authentication Nodes
+│   ├── auth/               # Secure Authentication Nodes (Login, Register, OTP Verification & Resend)
 │   ├── cron/               # Automated Yield Engines (Daily Protocol)
 │   ├── customer/           # Investor-Facing Data & Ratification Nodes
 │   ├── models/             # Fiscal Business Logic (Wallet, Cycle)

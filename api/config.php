@@ -2,10 +2,14 @@
 // api/config.php
 // Unified database configuration using PDO with self-healing schema initialization
 
+// $host = "localhost";
+// $db_name = "cwhycofr_makkal_gold";
+// $username = "cwhycofr_admin";
+// $password = "vamanan@gold123";
 $host = "localhost";
-$db_name = "cwhycofr_makkal_gold";
-$username = "cwhycofr_admin";
-$password = "vamanan@gold123";
+$db_name = "makkal_gold";
+$username = "root";
+$password = "anantha";
 
 try {
     $pdo = new PDO("mysql:host=$host", $username, $password);
@@ -48,7 +52,8 @@ try {
         'bank_name' => "VARCHAR(255) AFTER avatar",
         'account_no' => "VARCHAR(50) AFTER bank_name",
         'ifsc_code' => "VARCHAR(20) AFTER account_no",
-        'status' => "ENUM('active', 'pending', 'suspended') DEFAULT 'pending' AFTER ifsc_code",
+        'branch_name' => "VARCHAR(255) AFTER ifsc_code",
+        'status' => "ENUM('active', 'pending', 'suspended') DEFAULT 'pending' AFTER branch_name",
         'notify_email' => "TINYINT(1) DEFAULT 1 AFTER status",
         'notify_system' => "TINYINT(1) DEFAULT 1 AFTER notify_email",
         'permissions' => "TEXT AFTER notify_system"
@@ -201,6 +206,16 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS password_resets (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
+        otp_hash VARCHAR(255) NOT NULL,
+        attempts INT DEFAULT 0,
+        expires_at DATETIME NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // 9b. Login OTP sessions (Fintech OTP login)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS login_otps (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
         otp_hash VARCHAR(255) NOT NULL,
         attempts INT DEFAULT 0,
         expires_at DATETIME NOT NULL,

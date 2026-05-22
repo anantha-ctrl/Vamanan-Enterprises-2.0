@@ -59,7 +59,7 @@ const Header = ({
       {/* Bottom Row: Search & Market Status */}
       <div className="flex flex-col sm:flex-row gap-3 w-full">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-600 transition-colors" size={16} />
+          <Search className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-600 transition-colors pointer-events-none" size={16} />
           <input 
             type="text" 
             placeholder="Search users, orders, assets..." 

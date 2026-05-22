@@ -43,6 +43,12 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
   - **Payout Command**: Bank-grade ledger for tracking all institutional disbursements.
 - **Live Market Synchronization**: Integrated `gold-api.com` for real-time XAU/INR pricing, including automated 10-minute database updates and direct TradingView market links.
 
+## 🔒 Phase 6: Secure Real-Time Email OTP Authentication (Fintech Hardening)
+**Objective**: Fortify user logins using dynamic two-phase OTP authentication.
+- **Fintech Secure Flow Protocol**: Refactored the authentication flow to perform credentials validation first. Upon matching password verification, the backend generates a random 6-digit OTP, records its hash in a dedicated session table `login_otps`, and sends a professional HTML email via Gmail SMTP.
+- **Segmented & Interactive OTP Interface**: Implemented a responsive custom code-entry page in React with automated focus shifting, smart backspacing, and clipboard auto-paste capabilities.
+- **Real-Time Security Controllers**: Integrated a 10-minute session expiry countdown timer and a rate-limited 60-second cooldown lock on resending OTP codes.
+
 ## 🛠️ Technical Specifications
 | Category | Technology |
 | :--- | :--- |
@@ -61,6 +67,7 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 - [x] Premium Gold-Black Reporting Suites
 - [x] Granular Staff Permission Matrix
 - [x] Institutional Branding Synchronization (Vamanan Enterprises V)
+- [x] Secure Real-Time Email OTP Authentication Suite (Fintech Hardening)
 
 ---
 **Institutional Note**: This project is architected for extreme scalability and fiscal transparency, ensuring that every milligram of gold and every rupee of yield is accounted for in the sovereign ledger.

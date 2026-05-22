@@ -36,6 +36,7 @@ function runMigrations($db) {
         "ALTER TABLE cashback_cycles ADD COLUMN asset_type ENUM('gold', 'silver') DEFAULT 'gold' AFTER user_id",
         "ALTER TABLE cashback_cycles ADD COLUMN weight DECIMAL(10, 3) DEFAULT 0 AFTER asset_type",
         "ALTER TABLE cashback_cycles ADD COLUMN transaction_id VARCHAR(255)",
+        "ALTER TABLE cashback_cycles ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Bank Transfer'",
         "ALTER TABLE cashback_cycles ADD COLUMN payment_screenshot VARCHAR(255)",
         "ALTER TABLE cashback_cycles ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     ];

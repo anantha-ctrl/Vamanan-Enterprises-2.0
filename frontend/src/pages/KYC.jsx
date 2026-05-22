@@ -251,6 +251,7 @@ const KYC = () => {
                        </div>
                     </div>
                     <button 
+                      type="button"
                       onClick={() => setDismissedRejected(true)}
                       className="p-2 hover:bg-rose-500/10 rounded-xl transition-all text-rose-400 hover:text-rose-600 active:scale-90"
                     >
