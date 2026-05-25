@@ -120,10 +120,21 @@ try {
     }
 
     $database->commit();
-    
+
+    // Notify the investor
+    try {
+        if ($status === 'active') {
+            $database->prepare("INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, 'success', 0, NOW())")
+                ->execute([$userId, 'Investment Approved', 'Your investment has been approved! Daily rewards are now active and will be credited every day.']);
+        } else {
+            $database->prepare("INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, 'warning', 0, NOW())")
+                ->execute([$userId, 'Investment Rejected', 'Your investment request was rejected. Please contact support for more details or resubmit.']);
+        }
+    } catch (Exception $notifErr) { /* Non-critical */ }
+
     $actionLabel = $status === 'active' ? 'Approved & Activated' : 'Rejected';
     echo json_encode([
-        "status" => "success", 
+        "status" => "success",
         "message" => "Investment has been $actionLabel successfully."
     ]);
 

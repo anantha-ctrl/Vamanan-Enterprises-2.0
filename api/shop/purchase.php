@@ -69,20 +69,62 @@ try {
     $asset_type = isset($data->asset_type) ? strtolower($data->asset_type) : 'gold';
     $payment_method = (isset($data->payment_mode) && strtolower($data->payment_mode) === 'upi') ? 'UPI Scan' : 'Bank Transfer';
     $weight = (float)$data->weight;
-    
-    $base_price = ($asset_type === 'silver') ? $silver_base_price : $gold_base_price;
-    $base_amount = $base_price * $weight;
-    $gst_amount = $base_amount * ($gst_percentage / 100);
-    $total_price = $base_amount + $gst_amount;
+
+    // Cart checkout — items JSON array takes priority
+    $items_json = isset($data->items) ? $data->items : null;
+    $items = $items_json ? json_decode($items_json, true) : null;
+
+    if ($items && count($items) > 0) {
+        // Multi-product cart: compute total from DB prices
+        $base_amount = 0;
+        $product_names = [];
+        $valid_product_id = null;
+        foreach ($items as $item) {
+            $pStmt = $db->prepare("SELECT id, name, price FROM products WHERE id = ? AND is_active = 1");
+            $pStmt->execute([(int)$item['product_id']]);
+            $prod = $pStmt->fetch(PDO::FETCH_ASSOC);
+            if ($prod) {
+                $qty = max(1, (int)($item['quantity'] ?? 1));
+                $base_amount += (float)$prod['price'] * $qty;
+                $product_names[] = $qty . 'x ' . $prod['name'];
+                if (!$valid_product_id) $valid_product_id = $prod['id'];
+            }
+        }
+        $gst_amount = $base_amount * ($gst_percentage / 100);
+        $total_price = $base_amount + $gst_amount;
+        $product_name = implode(', ', $product_names);
+        $weight = 1;
+        $asset_type = 'product';
+    } elseif ($asset_type === 'product' && !empty($data->product_id)) {
+        // Single product purchase
+        $pStmt = $db->prepare("SELECT id, name, price FROM products WHERE id = ? AND is_active = 1");
+        $pStmt->execute([(int)$data->product_id]);
+        $productRow = $pStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$productRow) {
+            throw new Exception("Product not found or is currently inactive.");
+        }
+        $base_price = (float)$productRow['price'];
+        $weight = 1;
+        $base_amount = $base_price;
+        $gst_amount = $base_amount * ($gst_percentage / 100);
+        $total_price = $base_amount + $gst_amount;
+        $product_name = $productRow['name'];
+        $valid_product_id = $productRow['id'];
+    } else {
+        $base_price = ($asset_type === 'silver') ? $silver_base_price : $gold_base_price;
+        $base_amount = $base_price * $weight;
+        $gst_amount = $base_amount * ($gst_percentage / 100);
+        $total_price = $base_amount + $gst_amount;
+        $asset_label = ($asset_type === 'silver') ? 'Silver' : '24K Gold';
+        $product_name = $weight . " Gram(s) " . $asset_label;
+        $valid_product_id = null;
+    }
 
     $min_investment = isset($settings['min_investment']) ? (float)$settings['min_investment'] : 1000;
-    
-    if ($total_price < $min_investment) {
+
+    if ($asset_type !== 'product' && $total_price < $min_investment) {
         throw new Exception("Minimum investment required is ₹" . number_format($min_investment) . ". Please increase the weight.");
     }
-    
-    $asset_label = ($asset_type === 'silver') ? 'Silver' : '24K Gold';
-    $product_name = $weight . " Gram(s) " . $asset_label;
 
     // Update User Phone if provided and currently missing
     if (!empty($data->phone)) {
@@ -136,15 +178,15 @@ try {
     $cycleId = $db->lastInsertId();
 
     // 6. Create Agreement (Pending)
-    $pStmt = $db->query("SELECT id FROM products LIMIT 1");
-    $firstProduct = $pStmt->fetch(PDO::FETCH_ASSOC);
-    
-    $valid_product_id = null;
-    if ($firstProduct) {
-        $valid_product_id = $firstProduct['id'];
-    } else {
-        $db->exec("INSERT INTO products (name, slug, price) VALUES ('Custom Gold Asset', 'custom-gold-asset', 7250)");
-        $valid_product_id = $db->lastInsertId();
+    if (!$valid_product_id) {
+        $pStmt = $db->query("SELECT id FROM products LIMIT 1");
+        $firstProduct = $pStmt->fetch(PDO::FETCH_ASSOC);
+        if ($firstProduct) {
+            $valid_product_id = $firstProduct['id'];
+        } else {
+            $db->exec("INSERT INTO products (name, slug, price) VALUES ('Custom Gold Asset', 'custom-gold-asset', 7250)");
+            $valid_product_id = $db->lastInsertId();
+        }
     }
 
     $agrId = "AGR-" . time() . "-" . $data->user_id;
@@ -162,6 +204,16 @@ try {
     ]);
 
     $db->commit();
+
+    // Send order submission notification to user
+    try {
+        $db->prepare("INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, 'success', 0, NOW())")
+            ->execute([
+                $data->user_id,
+                'Order Submitted',
+                "Your order for '{$product_name}' (₹" . number_format($total_price, 2) . ") has been submitted and is pending admin approval."
+            ]);
+    } catch (Exception $notifErr) { /* Non-critical */ }
 
     echo json_encode([
         "status"  => "success",
