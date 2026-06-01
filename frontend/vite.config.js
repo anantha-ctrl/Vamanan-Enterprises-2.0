@@ -6,12 +6,9 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   server: {
+    host: true,
     port: 5173,
     strictPort: true,
-    hmr: {
-      protocol: 'ws',
-      host: 'localhost',
-      port: 5173,
-    },
+    // Proxy not needed — config.js auto-detects localhost via window.location.hostname
   },
 })

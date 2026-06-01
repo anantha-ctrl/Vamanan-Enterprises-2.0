@@ -28,9 +28,26 @@ import ExportPayoutExcel from './pages/ExportPayoutExcel';
 import PayoutReconciliation from './pages/PayoutReconciliation';
 import PayoutReports from './pages/PayoutReports';
 import AdminReports from './pages/AdminReports';
+import Inventory from './pages/Inventory';
 import Recovery from './pages/Recovery';
 import Loader from './components/Loader';
 import BottomNav from './components/BottomNav';
+import { canAccessRoute, defaultRouteForRole, getStoredUser } from './utils/accessControl';
+
+function ProtectedRoute({ children, allowedRoles = [], permission }) {
+  const user = getStoredUser();
+  const role = user.role || '';
+
+  if (!user.id) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!canAccessRoute(user, permission, allowedRoles)) {
+    return <Navigate to={defaultRouteForRole(role)} replace />;
+  }
+
+  return children;
+}
 
 function AppRoutes() {
   const [isLoading, setIsLoading] = useState(true);
@@ -62,39 +79,40 @@ function AppRoutes() {
         <Route path="/admin/login" element={<Navigate to="/login" />} />
 
         {/* Customer Panel */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/referrals" element={<Referrals />} />
-        <Route path="/wallet" element={<WalletPage />} />
-        <Route path="/wallet-overview" element={<WalletOverview />} />
-        <Route path="/transaction-history" element={<TransactionHistory />} />
-        <Route path="/withdraw-history" element={<WithdrawHistory />} />
-        <Route path="/withdrawals" element={<WithdrawalsPage />} />
-        <Route path="/rules" element={<RulesPage />} />
-        <Route path="/kyc" element={<KYC />} />
-        <Route path="/agreement" element={<Agreement />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/cashback-plan" element={<CashbackPlan />} />
+        <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['customer']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/shop" element={<ProtectedRoute allowedRoles={['customer']}><Shop /></ProtectedRoute>} />
+        <Route path="/referrals" element={<ProtectedRoute allowedRoles={['customer']}><Referrals /></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute allowedRoles={['customer']}><WalletPage /></ProtectedRoute>} />
+        <Route path="/wallet-overview" element={<ProtectedRoute allowedRoles={['customer']}><WalletOverview /></ProtectedRoute>} />
+        <Route path="/transaction-history" element={<ProtectedRoute allowedRoles={['customer']}><TransactionHistory /></ProtectedRoute>} />
+        <Route path="/withdraw-history" element={<ProtectedRoute allowedRoles={['customer']}><WithdrawHistory /></ProtectedRoute>} />
+        <Route path="/withdrawals" element={<ProtectedRoute allowedRoles={['customer']}><WithdrawalsPage /></ProtectedRoute>} />
+        <Route path="/rules" element={<ProtectedRoute allowedRoles={['customer']}><RulesPage /></ProtectedRoute>} />
+        <Route path="/kyc" element={<ProtectedRoute allowedRoles={['customer']}><KYC /></ProtectedRoute>} />
+        <Route path="/agreement" element={<ProtectedRoute allowedRoles={['customer']}><Agreement /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute allowedRoles={['customer']}><Profile /></ProtectedRoute>} />
+        <Route path="/cashback-plan" element={<ProtectedRoute allowedRoles={['customer']}><CashbackPlan /></ProtectedRoute>} />
 
         {/* Staff Panel */}
-        <Route path="/staff" element={<StaffDashboard />} />
+        <Route path="/staff" element={<ProtectedRoute allowedRoles={['staff']}><StaffDashboard /></ProtectedRoute>} />
 
         {/* Manager Panel */}
-        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager" element={<ProtectedRoute allowedRoles={['manager']}><ManagerDashboard /></ProtectedRoute>} />
 
         {/* Advocate Panel */}
-        <Route path="/advocate" element={<AdvocateDashboard />} />
-        <Route path="/advocate-profile" element={<AdvocateProfile />} />
+        <Route path="/advocate" element={<ProtectedRoute allowedRoles={['advocate']}><AdvocateDashboard /></ProtectedRoute>} />
+        <Route path="/advocate-profile" element={<ProtectedRoute allowedRoles={['advocate']}><AdvocateProfile /></ProtectedRoute>} />
 
         {/* Admin Panel */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/wallets" element={<WalletListAdmin />} />
-        <Route path="/admin/cashbacks" element={<CashbackPayouts />} />
-        <Route path="/admin/export-payouts" element={<ExportPayoutExcel />} />
-        <Route path="/admin/payout-reconciliation" element={<PayoutReconciliation />} />
-        <Route path="/admin/payout-reports" element={<PayoutReports />} />
-        <Route path="/admin/reports/:type" element={<AdminReports />} />
-        <Route path="/admin/withdrawals" element={<AdminDashboard />} />
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/wallets" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="wallets_view"><WalletListAdmin /></ProtectedRoute>} />
+        <Route path="/admin/cashbacks" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="cashback_payouts"><CashbackPayouts /></ProtectedRoute>} />
+        <Route path="/admin/export-payouts" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="export_payouts"><ExportPayoutExcel /></ProtectedRoute>} />
+        <Route path="/admin/payout-reconciliation" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="payout_reconciliation"><PayoutReconciliation /></ProtectedRoute>} />
+        <Route path="/admin/payout-reports" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="payout_reports"><PayoutReports /></ProtectedRoute>} />
+        <Route path="/admin/inventory" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="inventory"><Inventory /></ProtectedRoute>} />
+        <Route path="/admin/reports/:type" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="fiscal_reports"><AdminReports /></ProtectedRoute>} />
+        <Route path="/admin/withdrawals" element={<ProtectedRoute allowedRoles={['admin']} permission="withdrawals"><AdminDashboard /></ProtectedRoute>} />
 
         {/* Fallback to Home */}
         <Route path="*" element={<Navigate to="/" />} />

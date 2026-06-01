@@ -10,6 +10,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const CashbackPlan = () => {
   const [data, setData]               = useState(null);
@@ -332,7 +333,7 @@ const CashbackPlan = () => {
                         <td className="px-8 md:px-12 py-5 text-center">
                           <div className={`inline-flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest ${tx.status === 'completed' ? 'text-emerald-500' : 'text-amber-500'}`}>
                             {tx.status === 'completed' ? <CheckCircle2 size={13} strokeWidth={3} /> : <Clock size={13} />}
-                            {tx.status}
+                            {humanStatus(tx.status)}
                           </div>
                         </td>
                       </motion.tr>

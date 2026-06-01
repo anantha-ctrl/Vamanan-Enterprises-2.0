@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu, Search, Activity, ExternalLink } from 'lucide-react';
+import { humanRole, humanize } from '../utils/humanLabels';
 
 const Header = ({ 
   setShowMobileMenu, 
@@ -12,7 +13,7 @@ const Header = ({
 }) => {
   const tabLabel = activeTab === 'overview' 
     ? 'Dashboard Overview' 
-    : activeTab.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    : humanize(activeTab);
 
   return (
     <header className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-10">
@@ -33,7 +34,7 @@ const Header = ({
               <div className="flex items-center gap-2 text-[8px] md:text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mb-0.5">
                 <span>Vamanan Gold</span>
                 <div className="w-1 h-1 rounded-full bg-amber-500 shrink-0"></div>
-                <span className="text-amber-600 truncate">{activeTab.replace(/_/g, ' ')}</span>
+                <span className="text-amber-600 truncate">{humanize(activeTab)}</span>
               </div>
               <h2 className="text-xl sm:text-2xl lg:text-4xl font-black capitalize tracking-tighter text-slate-900 leading-none truncate">
                 {tabLabel}
@@ -44,7 +45,7 @@ const Header = ({
         
         <div className="flex items-center gap-3 shrink-0">
           <div className="hidden sm:flex flex-col text-right">
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{adminData.role}</span>
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{humanRole(adminData.role)}</span>
             <span className="text-xs font-black text-slate-900">{adminData.name}</span>
           </div>
           <button 

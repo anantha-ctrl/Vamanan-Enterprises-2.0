@@ -28,7 +28,7 @@ if (!empty($data['id']) && !empty($data['name']) && !empty($data['email'])) {
         $password_clause = "";
         if (!empty($data['password'])) {
             $password_clause = ", password = :password";
-            $params['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $params['password'] = $data['password'];
         }
 
         $query = "UPDATE users SET 

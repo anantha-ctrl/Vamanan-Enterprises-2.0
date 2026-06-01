@@ -8,18 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once '../config/db.php';
-require_once '../config/migrate.php';
-
-$database = new Database();
-$db = $database->getConnection();
-
-if (!$db) {
-    die(json_encode(["status" => "error", "message" => "Database connection failed"]));
-}
-
-// Ensure database is up to date
-runMigrations($db);
+require_once '../config.php';
+$db = $pdo;
 
 // Check if it's multipart/form-data or JSON
 $contentType = $_SERVER["CONTENT_TYPE"] ?? "";
@@ -27,7 +17,7 @@ $contentType = $_SERVER["CONTENT_TYPE"] ?? "";
 if (strpos($contentType, "multipart/form-data") !== false) {
     $id = $_POST['id'] ?? null;
     $name = $_POST['name'] ?? '';
-    $category = $_POST['category'] ?? 'Gold Asset';
+    $category = $_POST['category'] ?? 'Gold';
     $price = $_POST['price'] ?? '';
     $weight = $_POST['weight'] ?? 0;
     $purity = $_POST['purity'] ?? '24K';
@@ -54,7 +44,7 @@ if (strpos($contentType, "multipart/form-data") !== false) {
     $data = json_decode(file_get_contents("php://input"));
     $id = $data->id ?? null;
     $name = $data->name ?? '';
-    $category = $data->category ?? 'Gold Asset';
+    $category = $data->category ?? 'Gold';
     $price = $data->price ?? '';
     $weight = $data->weight ?? 0;
     $purity = $data->purity ?? '24K';

@@ -126,7 +126,11 @@ try {
                 "status"             => $activeCycle ? $activeCycle['status'] : 'none',
                 "asset_type"         => $activeCycle['asset_type'] ?? 'gold',
                 "weight"             => (float)($activeCycle['weight'] ?? 0),
-                "product_name"       => $activeCycle ? (($activeCycle['asset_type'] === 'silver' ? 'Pure Silver' : '22K Gold') . ' Asset') : 'Investment Portfolio',
+                "product_name"       => $activeCycle
+                    ? (!empty($activeCycle['product_name'])
+                        ? $activeCycle['product_name']
+                        : ($activeCycle['asset_type'] === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'))
+                    : 'Investment Portfolio',
                 "today_earning"      => $todayEarning,
                 "total_referral_earned" => $totalReferralEarnings,
             ],

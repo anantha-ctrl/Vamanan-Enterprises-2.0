@@ -30,7 +30,7 @@ if (!empty($data['name']) && !empty($data['email'])) {
         if (!empty($data['password'])) {
             $query = "UPDATE users SET name = :name, email = :email, password = :password WHERE role = 'superadmin' OR role = 'admin' LIMIT 1";
             $stmt = $db->prepare($query);
-            $params['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $params['password'] = $data['password'];
         }
 
         if ($stmt->execute($params)) {

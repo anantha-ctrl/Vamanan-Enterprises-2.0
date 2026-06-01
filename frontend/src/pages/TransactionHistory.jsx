@@ -12,6 +12,7 @@ import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import MobileHeader from '../components/MobileHeader';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const TransactionHistory = () => {
   const [data, setData] = useState({
@@ -82,17 +83,17 @@ const TransactionHistory = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-xl">
               <div className="relative z-10">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Available Capital</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Available Balance</p>
                 <h3 className="text-4xl font-black italic tracking-tighter">₹{data.balance.toLocaleString()}</h3>
               </div>
               <WalletIcon className="absolute right-[-20px] bottom-[-20px] text-white/5 group-hover:scale-110 transition-transform" size={150} />
             </div>
             <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm group hover:border-amber-500/20 transition-all">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Total Yields</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Total Cashback</p>
               <h3 className="text-4xl font-black italic tracking-tighter text-slate-900">₹{(data.cashback_total || 0).toLocaleString()}</h3>
             </div>
             <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm group hover:border-amber-500/20 transition-all">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Reward Nodes</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Referral Rewards</p>
               <h3 className="text-4xl font-black italic tracking-tighter text-slate-900">₹{(data.referral_total || 0).toLocaleString()}</h3>
             </div>
           </div>
@@ -103,7 +104,7 @@ const TransactionHistory = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input 
                 type="text" 
-                placeholder="Search transmission ledger..."
+                placeholder="Search transactions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-12 pr-6 text-[11px] font-black uppercase italic outline-none focus:border-amber-500 transition-all"
@@ -118,11 +119,11 @@ const TransactionHistory = () => {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-10 pr-10 text-[9px] font-black uppercase italic outline-none appearance-none cursor-pointer"
                 >
-                  <option value="All">All Channels</option>
-                  <option value="cashback">Yield Nodes</option>
-                  <option value="referral">Reward Nodes</option>
-                  <option value="withdrawal">Disbursements</option>
-                  <option value="purchase">Asset Scaling</option>
+                  <option value="All">All Types</option>
+                  <option value="cashback">Cashback</option>
+                  <option value="referral">Referral Rewards</option>
+                  <option value="withdrawal">Withdrawals</option>
+                  <option value="purchase">Purchases</option>
                 </select>
               </div>
               <button 
@@ -140,11 +141,11 @@ const TransactionHistory = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Node ID</th>
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Execution Detail</th>
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Transmission Value</th>
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Protocol Status</th>
-                    <th className="px-8 py-6 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Timestamp</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">ID</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Details</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Amount</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Status</th>
+                    <th className="px-8 py-6 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -185,7 +186,7 @@ const TransactionHistory = () => {
                           t.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
-                          {t.status}
+                          {humanStatus(t.status)}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
@@ -201,7 +202,7 @@ const TransactionHistory = () => {
                       <td colSpan="5" className="px-8 py-24 text-center">
                         <div className="flex flex-col items-center gap-4">
                           <Activity size={48} className="text-slate-200" />
-                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Zero Active Transmissions Detected in Matrix</p>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">No transactions yet</p>
                         </div>
                       </td>
                     </tr>

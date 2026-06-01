@@ -65,7 +65,7 @@ const Register = () => {
              />
           </motion.div>
           <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase mb-2 md:mb-3 italic leading-none">Register</h2>
-          <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] italic">Secure Identity Registration Protocol</p>
+          <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] italic">Create your account</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -199,7 +199,7 @@ const Register = () => {
 
               <div className="flex items-center gap-4 px-5 py-5 md:py-6 bg-slate-50 rounded-[1.2rem] md:rounded-[1.5rem] border border-slate-200 shadow-inner">
                  <ShieldCheck size={18} md:size={20} className="text-amber-600 shrink-0" strokeWidth={2.5} />
-                 <span className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest italic leading-relaxed">Secured with AES-256 Protocol Initialization for Node Identity Creation</span>
+                 <span className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest italic leading-relaxed">Your information is kept safe and secure</span>
               </div>
 
               <button 
@@ -216,7 +216,7 @@ const Register = () => {
 
         <div className="mt-10 md:mt-12 pt-8 border-t border-slate-100 text-center">
            <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] italic leading-none">
-            Already Onboarded? <Link to="/login" className="text-amber-600 hover:text-slate-900 transition-colors underline decoration-amber-500/30 underline-offset-4 ml-1">Access Login Gateway</Link>
+            Already have an account? <Link to="/login" className="text-amber-600 hover:text-slate-900 transition-colors underline decoration-amber-500/30 underline-offset-4 ml-1">Log In</Link>
           </p>
         </div>
       </motion.div>      

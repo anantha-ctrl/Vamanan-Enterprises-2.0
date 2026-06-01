@@ -10,6 +10,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import API_BASE_URL from '../config';
+import { humanRole, humanStatus } from '../utils/humanLabels';
 
 const PayoutReconciliation = () => {
   const [payouts, setPayouts] = useState([]);
@@ -27,7 +28,7 @@ const PayoutReconciliation = () => {
       return { 
         name: u.name || 'Super Admin', 
         email: u.email || 'admin@makkalgold.com',
-        role: u.role ? u.role.charAt(0).toUpperCase() + u.role.slice(1) : 'Administrator' 
+        role: humanRole(u.role || 'admin') 
       };
     } catch { return { name: 'Super Admin', email: 'admin@makkalgold.com', role: 'Administrator' }; }
   });
@@ -259,7 +260,7 @@ const PayoutReconciliation = () => {
                   </div>
                   <div>
                     <h2 className="text-3xl font-black italic tracking-tighter uppercase">Bank Response Hub</h2>
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic">Institutional Payout Reconciliation Node</p>
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic">Payout Reconciliation</p>
                   </div>
                 </div>
 
@@ -267,7 +268,7 @@ const PayoutReconciliation = () => {
                   <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-3xl p-6 hover:border-amber-500 transition-all cursor-pointer bg-slate-800/50 group/upload">
                     <input type="file" className="hidden" accept=".csv, .xlsx, .xls, .pdf" onChange={handleFileUpload} disabled={processing} />
                     {processing ? <Loader2 size={32} className="text-amber-500 animate-spin" /> : <Upload size={32} className="text-slate-500 group-hover/upload:text-amber-500 transition-colors" />}
-                    <span className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Upload Response Node</span>
+                    <span className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Upload Bank Response</span>
                     <span className="text-[8px] text-slate-500 font-bold mt-1">Excel, CSV, or PDF Documents</span>
                   </label>
                   <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700 flex flex-col justify-between">
@@ -339,7 +340,7 @@ const PayoutReconciliation = () => {
                 className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all active:scale-95"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                Refresh Ledger Node
+                Refresh Records
               </button>
             </div>
           </div>
@@ -352,8 +353,8 @@ const PayoutReconciliation = () => {
                   <Database size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Protocol Status Matrix</h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Institutional Data Verification Hub</p>
+                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Status Matrix</h3>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Data Verification</p>
                 </div>
               </div>
 
@@ -379,9 +380,9 @@ const PayoutReconciliation = () => {
                 <thead>
                   <tr className="bg-slate-50">
                     <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Investor ID</th>
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Transaction Node</th>
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Institutional Status</th>
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Intervention Node</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Transaction</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Status</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Action Needed</th>
                     <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Actions</th>
                   </tr>
                 </thead>
@@ -416,7 +417,7 @@ const PayoutReconciliation = () => {
                             {p.status === 'success' || p.status === 'completed' ? <CheckCircle2 size={10} /> :
                              p.status === 'failed' ? <AlertCircle size={10} /> :
                              <Clock size={10} />}
-                            {p.status}
+                            {humanStatus(p.status)}
                           </span>
                           {p.failure_reason && (
                             <span className="text-[8px] font-bold text-rose-400 italic bg-rose-50/50 px-2 py-0.5 rounded border border-rose-100/50 w-fit">
@@ -427,7 +428,7 @@ const PayoutReconciliation = () => {
                       </td>
                       <td className="px-8 py-6">
                          <div className="flex flex-col">
-                           <span className="text-[9px] font-black text-slate-600 uppercase italic tracking-widest">{p.bank_name || 'Generic Protocol'}</span>
+                           <span className="text-[9px] font-black text-slate-600 uppercase italic tracking-widest">{p.bank_name || 'Not Specified'}</span>
                            <span className="text-[8px] font-bold text-slate-400 tracking-widest italic">{p.account_no}</span>
                          </div>
                       </td>
@@ -449,7 +450,7 @@ const PayoutReconciliation = () => {
                       <td colSpan="5" className="px-8 py-20 text-center">
                         <div className="flex flex-col items-center gap-3">
                           <History size={40} className="text-slate-200" />
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Zero Status Anomalies Detected in Current Matrix</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">No status issues found</p>
                         </div>
                       </td>
                     </tr>
@@ -465,3 +466,4 @@ const PayoutReconciliation = () => {
 };
 
 export default PayoutReconciliation;
+

@@ -10,6 +10,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import API_BASE_URL from '../config';
+import { humanRole, humanStatus } from '../utils/humanLabels';
 
 const PayoutReports = () => {
   const [data, setData] = useState({ summary: {}, chart: [], history: [] });
@@ -27,7 +28,7 @@ const PayoutReports = () => {
       return { 
         name: u.name || 'Super Admin', 
         email: u.email || 'admin@makkalgold.com',
-        role: u.role ? u.role.charAt(0).toUpperCase() + u.role.slice(1) : 'Administrator' 
+        role: humanRole(u.role || 'admin') 
       };
     } catch { return { name: 'Super Admin', email: 'admin@makkalgold.com', role: 'Administrator' }; }
   });
@@ -101,7 +102,7 @@ const PayoutReports = () => {
         p.account_no || 'N/A',
         p.ifsc_code || 'N/A',
         p.amount,
-        p.status.toUpperCase(),
+        humanStatus(p.status),
         p.failure_reason || 'N/A'
       ]);
 
@@ -378,7 +379,7 @@ const PayoutReports = () => {
                           p.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
-                          {p.status}
+                          {humanStatus(p.status)}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">

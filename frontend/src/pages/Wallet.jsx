@@ -10,6 +10,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const Wallet = () => {
   const [balance, setBalance] = useState(0);
@@ -74,7 +75,7 @@ const Wallet = () => {
       />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
-         <CustomerHeader setShowMobileMenu={setShowMobileMenu} activeTab="Capital Management" />
+         <CustomerHeader setShowMobileMenu={setShowMobileMenu} activeTab="Transaction History" />
 
         <main className="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 w-full max-w-[1500px] space-y-8 md:space-y-12 pb-32 lg:pb-16">
           
@@ -228,7 +229,7 @@ const Wallet = () => {
                                         <Clock size={10} md:size={12} className="text-amber-500" /> {date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} • {date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                                      </p>
                                      <span className={`px-3 md:px-4 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border shadow-sm italic ${statusBg}`}>
-                                        {tx.status}
+                                        {humanStatus(tx.status)}
                                      </span>
                                   </div>
                                </div>

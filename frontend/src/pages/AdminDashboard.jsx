@@ -7,6 +7,8 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import GenealogyTree from '../components/GenealogyTree';
 import API_BASE_URL from '../config';
+import { humanRole, humanStatus, humanize } from '../utils/humanLabels';
+import { hasPermission } from '../utils/accessControl';
 
 const AVAILABLE_PERMISSIONS = [
   { id: 'overview', label: 'Dashboard', icon: BarChart3 },
@@ -26,12 +28,9 @@ const AVAILABLE_PERMISSIONS = [
 const AdminDashboard = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const role = user.role || 'customer';
-  const permissions = user.permissions ? (typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions) : [];
   
   const isTabAllowed = (tabId) => {
-    if (role === 'admin') return true;
-    if (permissions.length === 0) return tabId === 'overview';
-    return permissions.includes(tabId);
+    return hasPermission(user, tabId);
   };
 
   const [stats, setStats] = useState({ revenue: 0, payouts: 0, users: 0, fraud: 0, withdrawals: [] });
@@ -89,11 +88,19 @@ const AdminDashboard = () => {
   const [notifEditId, setNotifEditId] = useState(null);
   
   // Product CRUD States
-  const [productForm, setProductForm] = useState({ id: null, name: '', category: 'Gold Asset', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+  const [productForm, setProductForm] = useState({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
   const [showProductModal, setShowProductModal] = useState(false);
+  const [adminCategories, setAdminCategories] = useState([]);
+  const [productType, setProductType] = useState('precious_metal'); // 'precious_metal' | 'general'
+  const [categorySearch, setCategorySearch] = useState('');
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [savingCategory, setSavingCategory] = useState(false);
   
   // User Management States
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserIds, setSelectedUserIds] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   
   const [processing, setProcessing] = useState(false);
@@ -139,6 +146,22 @@ const AdminDashboard = () => {
     fetchData();
   }, [activeTab, adjForm.user_id]);
 
+  useEffect(() => {
+    const refreshLiveData = () => {
+      if (!processing && document.visibilityState === 'visible') {
+        fetchData(true);
+      }
+    };
+
+    const interval = setInterval(refreshLiveData, 15000);
+    document.addEventListener('visibilitychange', refreshLiveData);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', refreshLiveData);
+    };
+  }, [activeTab, processing]);
+
   const fetchData = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
     try {
@@ -152,7 +175,8 @@ const AdminDashboard = () => {
         axios.get(`${API_BASE_URL}/admin/investment_history.php`),
         axios.get(`${API_BASE_URL}/admin/get_all_notifications.php`),
         axios.get(`${API_BASE_URL}/admin/settings.php`),
-        axios.get(`${API_BASE_URL}/admin/wallets.php`)
+        axios.get(`${API_BASE_URL}/admin/wallets.php`),
+        axios.get(`${API_BASE_URL}/admin/categories.php`),
       ]);
 
       const getData = (idx) => results[idx]?.status === 'fulfilled' && results[idx].value?.data?.status === 'success' ? results[idx].value.data.data : null;
@@ -165,8 +189,9 @@ const AdminDashboard = () => {
       const actLogs   = getData(5); if (actLogs) setActivityLogs(actLogs);
       const invHistData = getData(6); if (invHistData) setInvestmentHistory(invHistData);
       const notifData = getData(7); if (notifData) setNotifications(notifData);
-      const setData   = getData(8); if (setData) setPlatformSettings(setData);
+      const setData   = getData(8); if (setData && !(isSilent && activeTab === 'settings')) setPlatformSettings(setData);
       const walData   = getData(9); if (walData) setWalletsData(walData);
+      const catData   = getData(10); if (catData) setAdminCategories(catData);
 
       // Log any failed APIs for debugging
       results.forEach((r, i) => {
@@ -213,10 +238,10 @@ const AdminDashboard = () => {
     e.preventDefault();
     setProcessing(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/admin/add_staff.php`, staffForm);
+        const res = await axios.post(`${API_BASE_URL}/admin/add_staff.php`, staffForm);
       if(res.data.status === 'success') {
         showToast("Staff credentials provisioned successfully!", "success");
-        setStaffForm({ name: '', email: '', role: 'manager', password: '' });
+        setStaffForm({ name: '', email: '', role: 'manager', password: '', permissions: AVAILABLE_PERMISSIONS.map(p => p.id) });
         setActiveTab('users');
         fetchData(true);
       }
@@ -315,12 +340,12 @@ const AdminDashboard = () => {
   };
 
   const handleProcessWithdrawal = async (id, status, transaction_id = 'N/A') => {
-    if (!window.confirm(`Protocol: Confirm ${status.toUpperCase()} of this withdrawal request?`)) return;
+    if (!window.confirm(`Confirm ${humanStatus(status)} for this withdrawal request?`)) return;
     setProcessing(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/process_withdrawal.php`, { id, status, transaction_id });
       if(res.data.status === 'success') {
-        showToast(`Withdrawal request successfully marked as ${status.toUpperCase()}!`, "success");
+        showToast(`Withdrawal request marked as ${humanStatus(status)}.`, "success");
         fetchData(true);
       } else {
         showToast("Error processing request: " + res.data.message, "error");
@@ -341,9 +366,14 @@ const AdminDashboard = () => {
         : `${API_BASE_URL}/admin/products.php`;
       
       const formData = new FormData();
-      Object.keys(productForm).forEach(key => {
-        if (productForm[key] !== null && productForm[key] !== undefined) {
-          formData.append(key, productForm[key]);
+      const payload = {
+        ...productForm,
+        weight: productType === 'general' ? (productForm.weight || 0) : productForm.weight,
+        purity: productType === 'general' ? (productForm.purity || '') : productForm.purity,
+      };
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== null && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
         }
       });
 
@@ -356,7 +386,10 @@ const AdminDashboard = () => {
       if (res.data.status === 'success') {
         showToast(productForm.id ? "Asset node specs updated successfully!" : "New product asset successfully minted!", "success");
         setShowProductModal(false);
-        setProductForm({ id: null, name: '', category: 'Gold Asset', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+        setProductForm({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+        setProductType('precious_metal');
+        setCategorySearch('');
+        setShowCategoryDropdown(false);
         fetchData(true);
       }
     } catch (err) {
@@ -368,12 +401,12 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateWithdrawal = async (id, status) => {
-    if (!window.confirm(`Are you sure you want to ${status} this payout?`)) return;
+    if (!window.confirm(`Are you sure you want to mark this payout as ${humanStatus(status)}?`)) return;
     setProcessing(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/update_withdrawal.php`, { id, status });
       if (res.data.status === 'success') {
-        showToast(`Payout status marked as ${status.toUpperCase()}!`, "success");
+        showToast(`Payout status marked as ${humanStatus(status)}.`, "success");
         fetchData(true);
       }
     } catch (err) {
@@ -424,7 +457,8 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/settings.php`, platformSettings);
       if (res.data.status === 'success') {
-        showToast("Platform settings successfully synchronized to blockchain ledger!", "success");
+        if (res.data.data) setPlatformSettings(res.data.data);
+        showToast("Platform settings successfully synchronized to database!", "success");
         fetchData(true);
       }
     } catch (err) {
@@ -466,6 +500,25 @@ const AdminDashboard = () => {
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleBulkDeleteUsers = async () => {
+    if (selectedUserIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/delete_user.php`, { ids: [...selectedUserIds] });
+      if (res.data.status === 'success') {
+        showToast(`${res.data.deleted} user(s) permanently deleted.`, 'success');
+        setSelectedUserIds(new Set());
+        setShowBulkDeleteConfirm(false);
+        fetchData(true);
+      } else {
+        showToast(res.data.message || 'Bulk delete failed.', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Bulk delete failed. Check server logs.', 'error');
+    }
+    finally { setBulkDeleting(false); }
   };
 
   const handleDeleteProduct = async (id) => {
@@ -945,7 +998,7 @@ const AdminDashboard = () => {
                         <thead>
                            <tr className="bg-slate-50">
                               <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Processing Node</th>
-                              <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                              <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                               <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Capital Matrix</th>
                               <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right italic">Status Code</th>
                            </tr>
@@ -972,7 +1025,7 @@ const AdminDashboard = () => {
                                        'bg-amber-50 text-amber-600 border-amber-100'
                                     }`}>
                                        <div className={`w-1.5 h-1.5 rounded-full ${inv.cycle_status === 'active' ? 'bg-emerald-500' : inv.cycle_status === 'rejected' ? 'bg-rose-500' : 'bg-amber-500'} animate-pulse`}></div>
-                                       {inv.cycle_status}
+                                       {humanStatus(inv.cycle_status)}
                                     </span>
                                  </td>
                               </tr>
@@ -1124,7 +1177,7 @@ const AdminDashboard = () => {
                     <thead>
                       <tr className="bg-slate-50">
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Processing Node</th>
-                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Portfolio Insight</th>
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Capital Matrix</th>
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">UTR / Reference</th>
@@ -1176,7 +1229,7 @@ const AdminDashboard = () => {
                               'bg-amber-50 text-amber-600 border-amber-100 shadow-sm'
                             }`}>
                               {inv.cycle_status === 'active' ? <CheckCircle size={12} /> : inv.cycle_status === 'rejected' ? <XCircle size={12} /> : <AlertTriangle size={12} />}
-                              {inv.cycle_status}
+                              {humanStatus(inv.cycle_status)}
                             </span>
                           </td>
                         </tr>
@@ -1346,7 +1399,7 @@ const AdminDashboard = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50">
-                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                        <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                         <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Available Capital</th>
                         <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Cumulative Yield</th>
                         <th className="py-5 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Total Liquidation</th>
@@ -1422,7 +1475,7 @@ const AdminDashboard = () => {
             <form onSubmit={handleAdjustWallet} className="space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-3">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Target Investor Entity</label>
+                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Target Customer</label>
                    <select 
                       required 
                       value={adjForm.user_id} 
@@ -1710,7 +1763,7 @@ const AdminDashboard = () => {
                                         n.type === 'success' ? 'bg-emerald-500 text-white' :
                                         n.type === 'warning' ? 'bg-rose-500 text-white' :
                                         'bg-blue-500 text-white'
-                                     }`}>{n.type}</span>
+                                     }`}>{humanize(n.type)}</span>
                                   </div>
                                   <p className="text-xs text-slate-500 font-medium italic mb-2">{n.message}</p>
                                   <div className="flex items-center gap-4">
@@ -1747,41 +1800,84 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-         {activeTab === 'users' && (
+         {activeTab === 'users' && (() => {
+           const filteredUsers = users.filter(u =>
+             u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             u.email.toLowerCase().includes(searchTerm.toLowerCase())
+           );
+           const allFilteredSelected = filteredUsers.length > 0 && filteredUsers.every(u => selectedUserIds.has(u.id));
+           const toggleUser = (id) => setSelectedUserIds(prev => {
+             const next = new Set(prev);
+             next.has(id) ? next.delete(id) : next.add(id);
+             return next;
+           });
+           const toggleAll = () => {
+             if (allFilteredSelected) {
+               setSelectedUserIds(prev => { const next = new Set(prev); filteredUsers.forEach(u => next.delete(u.id)); return next; });
+             } else {
+               setSelectedUserIds(prev => { const next = new Set(prev); filteredUsers.forEach(u => next.add(u.id)); return next; });
+             }
+           };
+           return (
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
+
+             {/* Header */}
              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                 <div>
                    <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Investor Directory</h3>
                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Universal registry of all platform participants</p>
                 </div>
-                <div className="flex w-full md:w-auto gap-4">
+                <div className="flex w-full md:w-auto gap-3 items-center flex-wrap">
+                   {/* Select All toggle */}
+                   <button onClick={toggleAll}
+                     className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic border-2 transition-all ${allFilteredSelected ? 'bg-slate-900 text-amber-400 border-slate-900' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400'}`}>
+                     <input type="checkbox" readOnly checked={allFilteredSelected} className="w-3.5 h-3.5 accent-amber-500 pointer-events-none" />
+                     {allFilteredSelected ? 'Deselect All' : 'Select All'}
+                   </button>
+
+                   {/* Bulk Delete button — visible when ≥1 selected */}
+                   {selectedUserIds.size > 0 && (
+                     <button onClick={() => setShowBulkDeleteConfirm(true)}
+                       className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-rose-600 text-white border-2 border-rose-600 hover:bg-rose-700 transition-all shadow-lg">
+                       <Trash2 size={13} /> Delete ({selectedUserIds.size})
+                     </button>
+                   )}
+
                    <div className="relative flex-1 md:flex-none">
                       <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
-                        type="text" 
-                        placeholder="SEARCH BY IDENTITY..." 
+                      <input
+                        type="text"
+                        placeholder="SEARCH BY IDENTITY..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full md:w-80 bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 text-[10px] font-black uppercase tracking-widest outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" 
+                        className="w-full md:w-72 bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 text-[10px] font-black uppercase tracking-widest outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner"
                       />
                    </div>
                 </div>
              </div>
 
+             {/* User Grid */}
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {users.filter(u => 
-                   u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                   u.email.toLowerCase().includes(searchTerm.toLowerCase())
-                ).map((u) => (
-                   <div key={u.id} className="p-8 bg-white border border-slate-100 rounded-[3rem] hover:border-amber-500/50 transition-all group shadow-sm">
+                {filteredUsers.map((u) => {
+                   const isSelected = selectedUserIds.has(u.id);
+                   return (
+                   <div key={u.id}
+                     onClick={() => toggleUser(u.id)}
+                     className={`relative p-8 bg-white border-2 rounded-[3rem] transition-all cursor-pointer group shadow-sm select-none ${isSelected ? 'border-rose-400 shadow-rose-100 shadow-lg bg-rose-50/30' : 'border-slate-100 hover:border-amber-400/60'}`}>
+
+                     {/* Checkbox top-right */}
+                     <div className={`absolute top-5 right-5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-rose-500 border-rose-500' : 'border-slate-200 bg-white'}`}>
+                       {isSelected && <CheckCircle2 size={14} className="text-white" strokeWidth={3} />}
+                     </div>
+
                       <div className="flex items-center gap-5 mb-8">
-                         <div className="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center text-amber-500 font-black uppercase text-2xl shadow-xl border border-white/10">{u.name[0]}</div>
-                         <div className="min-w-0">
+                         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center font-black uppercase text-2xl shadow-xl border border-white/10 transition-colors ${isSelected ? 'bg-rose-600 text-white' : 'bg-slate-900 text-amber-500'}`}>{u.name[0]}</div>
+                         <div className="min-w-0 pr-8">
                             <h4 className="text-sm font-black text-slate-900 uppercase italic leading-none truncate">{u.name}</h4>
                             <p className="text-[10px] text-slate-400 font-bold mt-1.5 truncate uppercase tracking-widest">Joined {new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
                          </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-8">
                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Wallet</p>
@@ -1789,7 +1885,7 @@ const AdminDashboard = () => {
                          </div>
                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Role</p>
-                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-1 italic">{u.role}</p>
+                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-1 italic">{humanRole(u.role)}</p>
                          </div>
                       </div>
 
@@ -1797,20 +1893,56 @@ const AdminDashboard = () => {
                          <div className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-sm border ${
                             u.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : u.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'
                          }`}>
-                            {u.status}
+                            {humanStatus(u.status)}
                          </div>
-                         <button 
-                           onClick={() => { setSelectedUser(u); setShowUserModal(true); }}
+                         <button
+                           onClick={e => { e.stopPropagation(); setSelectedUser(u); setShowUserModal(true); }}
                            className="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl flex items-center justify-center transition-all shadow-sm border border-slate-200 active:scale-95"
                          >
                             <Settings size={18} />
                          </button>
                       </div>
                    </div>
-                ))}
+                   );
+                })}
              </div>
+
+             {/* Bulk Delete Confirm Modal */}
+             <AnimatePresence>
+               {showBulkDeleteConfirm && (
+                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
+                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                     className="bg-white rounded-[3rem] p-10 md:p-14 w-full max-w-lg shadow-2xl border border-slate-100 text-center">
+                     <div className="w-20 h-20 bg-rose-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                       <Trash2 size={36} className="text-rose-600" strokeWidth={2} />
+                     </div>
+                     <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-3">Confirm Bulk Delete</h3>
+                     <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">
+                       You are about to permanently delete
+                     </p>
+                     <p className="text-4xl font-black text-rose-600 italic mb-2">{selectedUserIds.size}</p>
+                     <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-10">
+                       user account{selectedUserIds.size > 1 ? 's' : ''} and all their records. This cannot be undone.
+                     </p>
+                     <div className="flex gap-4">
+                       <button onClick={() => setShowBulkDeleteConfirm(false)} disabled={bulkDeleting}
+                         className="flex-1 py-5 bg-slate-50 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-slate-200 hover:bg-slate-100 transition-all italic">
+                         Cancel
+                       </button>
+                       <button onClick={handleBulkDeleteUsers} disabled={bulkDeleting}
+                         className="flex-1 py-5 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl active:scale-95 italic flex items-center justify-center gap-2">
+                         {bulkDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                         {bulkDeleting ? 'Deleting...' : 'Delete All'}
+                       </button>
+                     </div>
+                   </motion.div>
+                 </div>
+               )}
+             </AnimatePresence>
+
            </motion.div>
-        )}
+           );
+         })()}
 
         {activeTab === 'kyc' && (
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm mt-8">
@@ -1829,7 +1961,7 @@ const AdminDashboard = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50">
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Submission Node</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Digital Credential</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Authorization</th>
@@ -1983,7 +2115,7 @@ const AdminDashboard = () => {
                       <input type="text" placeholder="e.g. MARCUS AURELIUS" required value={staffForm.name} onChange={e => setStaffForm({...staffForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
                    </div>
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Institutional Email</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Email</label>
                       <input type="email" placeholder="staff.node@makkalgold.com" required value={staffForm.email} onChange={e => setStaffForm({...staffForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
                    </div>
                    <div className="space-y-3">
@@ -2090,7 +2222,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Payout Matrix</h3>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Payout List</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Authorized liquidation of investor capital reserves</p>
                </div>
                <div className="bg-rose-50 text-rose-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-rose-100 shadow-sm flex items-center gap-2">
@@ -2103,11 +2235,11 @@ const AdminDashboard = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50">
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Channel</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Quantum (₹)</th>
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Protocol State</th>
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Node Actions</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Status</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -2141,7 +2273,7 @@ const AdminDashboard = () => {
                                     w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
                                     'bg-amber-50 text-amber-600 border-amber-100'
                                  }`}>
-                                    {w.status}
+                                    {humanStatus(w.status)}
                                  </span>
                               </td>
                               <td className="py-8 px-10 text-right">
@@ -2181,12 +2313,16 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Gold Vault</h3>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Gold Inventory</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Registry of physical assets and digital investment instruments</p>
                </div>
-               <button 
+               <button
                  onClick={() => {
-                   setProductForm({ id: null, name: '', category: 'Gold Asset', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+                   const defaultCat = adminCategories[0]?.name || 'Gold';
+                   setProductForm({ id: null, name: '', category: defaultCat, weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+                   setProductType('precious_metal');
+                   setCategorySearch('');
+                   setShowCategoryDropdown(false);
                    setShowProductModal(true);
                  }}
                  className="w-full md:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl font-black text-xs flex items-center justify-center gap-3 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest"
@@ -2205,8 +2341,8 @@ const AdminDashboard = () => {
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Classification</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Metric / Purity</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Market Value</th>
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Protocol State</th>
-                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Node Actions</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Status</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -2226,8 +2362,8 @@ const AdminDashboard = () => {
                           </td>
 
                           <td className="py-8 px-10">
-                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">{p.category || 'Gold Asset'}</div>
-                             <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Institutional Class</div>
+                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">{p.category || 'Gold'}</div>
+                             <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Asset Type</div>
                           </td>
 
                           <td className="py-8 px-10 font-black text-xs text-slate-900 italic tracking-tighter uppercase">{p.weight} Grams • {p.purity}</td>
@@ -2235,24 +2371,28 @@ const AdminDashboard = () => {
                           <td className="py-8 px-10">
                             <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
                               p.is_active == 1 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                               {p.is_active == 1 ? 'Live Protocol' : 'Node Locked'}
+                               {p.is_active == 1 ? 'Active' : 'Inactive'}
                             </span>
                           </td>
                           <td className="py-8 px-10 text-right">
                              <div className="flex items-center justify-end gap-3">
                                 <button 
                                   onClick={() => {
+                                    const isPrecious = /^(22K|24K|18K|999)$/.test(p.purity || '') || parseFloat(p.weight || 0) > 0;
                                     setProductForm({
                                       id: p.id,
                                       name: p.name || '',
-                                      category: p.category || 'Gold Asset',
+                                      category: p.category || 'Gold',
                                       weight: p.weight || '',
-                                      purity: p.purity || '24K',
+                                      purity: p.purity || (isPrecious ? '24K' : ''),
                                       price: p.price || '',
                                       description: p.description || '',
                                       image: p.image || '',
                                       is_active: p.is_active
                                     });
+                                    setProductType(isPrecious ? 'precious_metal' : 'general');
+                                    setCategorySearch('');
+                                    setShowCategoryDropdown(false);
                                     setShowProductModal(true);
                                   }}
                                   className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-lg active:scale-95"
@@ -2281,33 +2421,150 @@ const AdminDashboard = () => {
                     <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white border border-slate-100 p-10 md:p-16 rounded-[4rem] w-full max-w-5xl relative overflow-y-auto max-h-[90vh] shadow-2xl">
                        <button onClick={() => setShowProductModal(false)} className="absolute top-10 right-10 text-slate-400 hover:text-slate-900 p-2 bg-slate-50 rounded-full transition-colors"><XCircle size={28}/></button>
                        
-                       <div className="mb-12">
+                       <div className="mb-10">
                           <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">{productForm.id ? 'Calibrate Asset' : 'Provision New Asset'}</h3>
-                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">Institutional node for gold inventory management</p>
+                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">
+                            {productType === 'precious_metal' ? 'Gold, silver & jewellery inventory' : 'Electronics, accessories & general products'}
+                          </p>
                        </div>
-                       
+
+                       {/* ── Product Type Selector ── */}
+                       <div className="flex gap-3 mb-2">
+                         <button type="button"
+                           onClick={() => { setProductType('precious_metal'); setProductForm(f => ({...f, purity: '24K', weight: f.weight || ''})); }}
+                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'precious_metal' ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
+                           <Zap size={15} /> Precious Metal
+                         </button>
+                         <button type="button"
+                           onClick={() => { setProductType('general'); setProductForm(f => ({...f, purity: '', weight: ''})); }}
+                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'general' ? 'bg-slate-900 text-emerald-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-emerald-300'}`}>
+                           <Package size={15} /> General Product
+                         </button>
+                       </div>
+
                        <form onSubmit={handleSaveProduct} className="space-y-10">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                              <div className="space-y-3">
-                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Asset Nomenclature</label>
-                                <input type="text" required placeholder="e.g. MAKKAL GOLD BAR 10G" value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">
+                                 {productType === 'precious_metal' ? 'Asset Nomenclature' : 'Product Name'}
+                               </label>
+                               <input type="text" required
+                                 placeholder={productType === 'precious_metal' ? 'e.g. MAKKAL GOLD BAR 10G' : 'e.g. SAMSUNG GALAXY S24'}
+                                 value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})}
+                                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
                              </div>
 
-                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Mass Displacement (Grams)</label>
-                                <input type="number" step="0.001" required value={productForm.weight} onChange={e => setProductForm({...productForm, weight: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
-                             </div>
-                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Metallurgical Purity</label>
-                                <select value={productForm.purity} onChange={e => setProductForm({...productForm, purity: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner appearance-none">
-                                   <option value="24K">PROTOCOL 24K (99.9% PURE)</option>
-                                   <option value="22K">STANDARD 22K (91.6% PURE)</option>
-                                   <option value="18K">COMMERCIAL 18K</option>
-                                </select>
-                             </div>
-                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Asset Classification</label>
-                                <input type="text" placeholder="e.g. GOLD ASSET PROTOCOL" value={productForm.category} onChange={e => setProductForm({...productForm, category: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                             {/* Weight — only for precious metals */}
+                             {productType === 'precious_metal' && (
+                               <div className="space-y-3">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Weight (Grams)</label>
+                                 <input type="number" step="0.001" required
+                                   placeholder="e.g. 10"
+                                   value={productForm.weight} onChange={e => setProductForm({...productForm, weight: e.target.value})}
+                                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                               </div>
+                             )}
+
+                             {/* Specification — only for general products */}
+                             {productType === 'general' && (
+                               <div className="space-y-3">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Specification / Model</label>
+                                 <input type="text"
+                                   placeholder="e.g. 128GB / 8GB RAM / 5G"
+                                   value={productForm.purity} onChange={e => setProductForm({...productForm, purity: e.target.value})}
+                                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                               </div>
+                             )}
+
+                             {/* Purity — only for precious metals */}
+                             {productType === 'precious_metal' && (
+                               <div className="space-y-3">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Purity / Karat</label>
+                                 <select value={productForm.purity} onChange={e => setProductForm({...productForm, purity: e.target.value})}
+                                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner appearance-none">
+                                   <option value="24K">24K — 99.9% PURE GOLD</option>
+                                   <option value="22K">22K — 91.6% PURE GOLD</option>
+                                   <option value="18K">18K — 75% PURE GOLD</option>
+                                   <option value="999">999 — PURE SILVER</option>
+                                 </select>
+                               </div>
+                             )}
+
+                             {/* ── Category Combobox ── */}
+                             <div className="space-y-3 relative">
+                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Category</label>
+                               <div className="relative">
+                                 <input
+                                   type="text"
+                                   autoComplete="off"
+                                   placeholder="Type to search or create..."
+                                   value={showCategoryDropdown ? categorySearch : (productForm.category || '')}
+                                   onFocus={() => { setShowCategoryDropdown(true); setCategorySearch(productForm.category || ''); }}
+                                   onBlur={() => {
+                                     if (categorySearch.trim()) {
+                                       setProductForm(f => ({ ...f, category: categorySearch.trim() }));
+                                     }
+                                     setTimeout(() => setShowCategoryDropdown(false), 180);
+                                   }}
+                                   onChange={e => { setCategorySearch(e.target.value); setProductForm(f => ({ ...f, category: e.target.value })); }}
+                                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner pr-12"
+                                 />
+                                 <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none text-xs">▼</span>
+
+                                 {showCategoryDropdown && (
+                                   <div
+                                     className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[999] overflow-hidden mt-2 max-h-64 overflow-y-auto"
+                                     onMouseDown={e => e.preventDefault()}
+                                   >
+                                     {/* Filtered existing categories */}
+                                     {adminCategories
+                                       .filter(cat => cat?.name && cat.name.toLowerCase().includes((categorySearch || '').toLowerCase()))
+                                       .map(cat => (
+                                         <button key={cat.id} type="button"
+                                           onClick={() => { setProductForm(f => ({...f, category: cat.name})); setShowCategoryDropdown(false); setCategorySearch(''); }}
+                                           className={`w-full text-left px-8 py-4 text-sm font-black uppercase italic tracking-widest transition-colors hover:bg-amber-50 hover:text-amber-700 ${productForm.category === cat.name ? 'bg-amber-50 text-amber-600' : 'text-slate-700'}`}>
+                                           {cat.name}
+                                         </button>
+                                       ))
+                                     }
+
+                                     {/* "Create new" option */}
+                                     {categorySearch.trim() &&
+                                      !adminCategories.some(c => c?.name?.toLowerCase() === categorySearch.trim().toLowerCase()) && (
+                                       <button type="button"
+                                         disabled={savingCategory}
+                                         onClick={async () => {
+                                           const n = categorySearch.trim();
+                                           if (!n || savingCategory) return;
+                                           setSavingCategory(true);
+                                           try {
+                                             const res = await axios.post(`${API_BASE_URL}/admin/categories.php`, { name: n });
+                                             if (res.data.status === 'success') {
+                                               const nc = res.data.data;
+                                               setAdminCategories(prev => [...prev, nc]);
+                                               setProductForm(f => ({...f, category: nc.name}));
+                                               setShowCategoryDropdown(false);
+                                               setCategorySearch('');
+                                             }
+                                           } catch { alert('Failed to create category'); }
+                                           finally { setSavingCategory(false); }
+                                         }}
+                                         className="w-full text-left px-8 py-4 text-sm font-black uppercase italic tracking-widest text-amber-600 hover:bg-amber-50 transition-colors border-t border-slate-100 flex items-center gap-2">
+                                         <Plus size={14} />
+                                         {savingCategory ? 'Creating...' : `Create "${categorySearch.trim()}"`}
+                                       </button>
+                                     )}
+
+                                     {/* Empty state */}
+                                     {adminCategories.filter(c => c?.name?.toLowerCase().includes((categorySearch||'').toLowerCase())).length === 0 &&
+                                      !categorySearch.trim() && (
+                                       <div className="px-8 py-4 text-[10px] font-black uppercase italic tracking-widest text-slate-300">
+                                         Start typing to search or create...
+                                       </div>
+                                     )}
+                                   </div>
+                                 )}
+                               </div>
                              </div>
                              <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Valuation (₹)</label>
@@ -2495,7 +2752,7 @@ const AdminDashboard = () => {
                           <thead>
                              <tr className="bg-slate-50">
                                 <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Temporal Stamp</th>
-                                <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                                <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                                 <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Operational Type</th>
                                 <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic text-right">Value Node</th>
                              </tr>
@@ -2590,7 +2847,7 @@ const AdminDashboard = () => {
                              <div className="w-40 h-40 bg-white rounded-[3rem] flex items-center justify-center text-slate-900 font-black text-6xl italic border-8 border-white/10 shadow-2xl relative z-10">{adminData.name[0]}</div>
                              <div className="text-center md:text-left relative z-10">
                                 <h4 className="text-4xl font-black uppercase italic tracking-tighter mb-2">{adminData.name}</h4>
-                                <p className="text-amber-500 text-[11px] font-black uppercase tracking-[0.5em] mb-6 italic">{adminData.role} Node</p>
+                                <p className="text-amber-500 text-[11px] font-black uppercase tracking-[0.5em] mb-6 italic">{humanRole(adminData.role)} Account</p>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
                                    <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest italic">{adminData.email}</span>
                                    <span className="px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-widest italic text-emerald-400">Authenticated Session</span>
@@ -2916,7 +3173,7 @@ const AdminDashboard = () => {
                       <div className="w-32 h-32 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-amber-500 font-black text-5xl italic border-4 border-white shadow-2xl">{adminData.name[0]}</div>
                       <div className="text-center md:text-left">
                          <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tight">{adminData.name}</h4>
-                         <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mt-2 italic">{adminData.role}</p>
+                         <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mt-2 italic">{humanRole(adminData.role)}</p>
                          <div className="flex items-center justify-center md:justify-start gap-2 mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
                             <CreditCard size={14} /> {adminData.email}
                          </div>
@@ -2954,7 +3211,7 @@ const AdminDashboard = () => {
                                <input type="text" required value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner uppercase italic" />
                             </div>
                             <div className="space-y-3">
-                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Institutional Email</label>
+                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Email</label>
                                <input type="email" required value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner italic" />
                             </div>
                             <div className="space-y-3">
@@ -3052,7 +3309,7 @@ const AdminDashboard = () => {
                    <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row gap-4">
                       <button 
                         onClick={() => {
-                           alert(`INVESTOR DOSSIER: ${selectedUser.name}\n\nEmail: ${selectedUser.email}\nRole: ${selectedUser.role}\nStatus: ${selectedUser.status}\nJoined: ${new Date(selectedUser.created_at).toLocaleDateString()}\nWallet Balance: ₹${parseFloat(selectedUser.balance || 0).toLocaleString()}`);
+                           alert(`Customer Details: ${selectedUser.name}\n\nEmail: ${selectedUser.email}\nRole: ${humanRole(selectedUser.role)}\nStatus: ${humanStatus(selectedUser.status)}\nJoined: ${new Date(selectedUser.created_at).toLocaleDateString()}\nWallet Balance: ₹${parseFloat(selectedUser.balance || 0).toLocaleString()}`);
                         }}
                         className="flex-1 bg-slate-50 text-slate-900 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-900 hover:text-white transition shadow-sm border border-slate-200 active:scale-95"
                       >
@@ -3096,3 +3353,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

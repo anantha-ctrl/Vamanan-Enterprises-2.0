@@ -12,6 +12,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
+import { humanKycStatus } from '../utils/humanLabels';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -156,7 +157,7 @@ const Profile = () => {
     <div className="min-h-screen bg-white flex items-center justify-center text-amber-600">
       <div className="flex flex-col items-center gap-6">
         <Loader2 className="animate-spin" size={60} strokeWidth={3} />
-        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Accessing Identity Vault...</p>
+        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Loading...</p>
       </div>
     </div>
   );
@@ -169,7 +170,7 @@ const Profile = () => {
       />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
-         <CustomerHeader setShowMobileMenu={setShowMobileMenu} activeTab="Account Security" />
+         <CustomerHeader setShowMobileMenu={setShowMobileMenu} activeTab="My Profile" />
 
         <main className="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 w-full max-w-[1500px] space-y-8 md:space-y-12 pb-32 lg:pb-16">
           
@@ -181,10 +182,10 @@ const Profile = () => {
              <div>
                 <div className="flex items-center gap-3 mb-3 md:mb-4">
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                   <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Identity Protocol</span>
+                   <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">My Account</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Security Hub</h1>
-                <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Manage institutional credentials and identity nodes</p>
+                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">My Profile</h1>
+                <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Manage your account details and password</p>
              </div>
           </motion.div>
 
@@ -215,12 +216,12 @@ const Profile = () => {
                         ) : (
                             <div className="flex flex-col items-center">
                                <span className="text-5xl md:text-8xl font-black text-slate-300 italic leading-none">{(profileData?.user?.name || 'U')[0]}</span>
-                               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2 italic">Node Active</p>
+                               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2 italic">No Photo</p>
                             </div>
                         )}
                         <label className="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 text-white cursor-pointer backdrop-blur-md">
                            {uploading ? <Loader2 className="animate-spin" size={24} /> : <Camera size={32} />}
-                           <p className="text-[9px] font-black uppercase mt-3 tracking-widest text-center px-4 text-amber-500 italic">Update Node</p>
+                           <p className="text-[9px] font-black uppercase mt-3 tracking-widest text-center px-4 text-amber-500 italic">Change Photo</p>
                            <input type="file" className="hidden" onChange={handlePhotoUpload} accept="image/*" />
                         </label>
                      </div>
@@ -242,9 +243,9 @@ const Profile = () => {
                     transition={{ delay: 0.3 }}
                     className="flex flex-wrap items-center justify-center sm:justify-start gap-3 md:gap-4 mt-4 md:mt-6"
                   >
-                    <span className="px-4 py-1.5 bg-slate-900 text-amber-500 text-[9px] md:text-[10px] font-black rounded-xl md:rounded-2xl uppercase tracking-[0.2em] shadow-lg italic">Vault ID: #{user.id}</span>
+                    <span className="px-4 py-1.5 bg-slate-900 text-amber-500 text-[9px] md:text-[10px] font-black rounded-xl md:rounded-2xl uppercase tracking-[0.2em] shadow-lg italic">User ID: #{user.id}</span>
                     <span className={`px-4 py-1.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                      {profileData?.user?.kyc_status || 'PENDING'} VERIFICATION
+                      {humanKycStatus(profileData?.user?.kyc_status || 'pending')}
                     </span>
                   </motion.div>
                </div>
@@ -288,13 +289,13 @@ const Profile = () => {
 
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-16 relative z-10">
                      {[
-                       { label: 'Legal Identity Name', name: 'name', icon: User, value: profileData?.user?.name },
-                       { label: 'Verified Communication', name: 'email', icon: Mail, value: profileData?.user?.email },
-                       { label: 'Protocol Access Phone', name: 'phone', icon: Phone, value: profileData?.user?.phone },
-                       { label: 'Residential Node', name: 'address', icon: MapPin, value: profileData?.user?.address },
-                       { label: 'Financial Institution (Bank)', name: 'bank_name', icon: Landmark, value: profileData?.user?.bank_name },
-                       { label: 'Account Matrix Number', name: 'account_no', icon: Hash, value: profileData?.user?.account_no },
-                       { label: 'Bank Routing Code (IFSC)', name: 'ifsc_code', icon: ShieldCheck, value: profileData?.user?.ifsc_code },
+                       { label: 'Full Name', name: 'name', icon: User, value: profileData?.user?.name },
+                       { label: 'Email', name: 'email', icon: Mail, value: profileData?.user?.email },
+                       { label: 'Phone Number', name: 'phone', icon: Phone, value: profileData?.user?.phone },
+                       { label: 'Address', name: 'address', icon: MapPin, value: profileData?.user?.address },
+                       { label: 'Bank Name', name: 'bank_name', icon: Landmark, value: profileData?.user?.bank_name },
+                       { label: 'Account Number', name: 'account_no', icon: Hash, value: profileData?.user?.account_no },
+                       { label: 'IFSC Code', name: 'ifsc_code', icon: ShieldCheck, value: profileData?.user?.ifsc_code },
                      ].map((field, i) => (
                         <div key={i} className="space-y-3">
                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 md:ml-8 italic">{field.label}</p>
@@ -303,7 +304,7 @@ const Profile = () => {
                               {editing ? (
                                  <input name={field.name} value={formData[field.name]} onChange={handleInputChange} className="bg-transparent w-full outline-none text-sm md:text-base font-black text-slate-900 placeholder:text-slate-300 italic" />
                               ) : (
-                                 <p className="text-sm md:text-base font-black text-slate-900 tracking-tight truncate uppercase italic">{field.value || 'NOT_FOUND'}</p>
+                                 <p className="text-sm md:text-base font-black text-slate-900 tracking-tight truncate uppercase italic">{field.value || 'Not added'}</p>
                               )}
                            </div>
                         </div>
@@ -320,18 +321,18 @@ const Profile = () => {
                >
                   <h3 className="text-[9px] md:text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center gap-4 md:gap-6 mb-10 md:mb-20 italic">
                      <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-50 text-blue-600 rounded-xl md:rounded-3xl flex items-center justify-center border border-slate-100 shadow-sm"><ShieldCheck size={20} md:size={32} /></div>
-                     Institutional Records
+                     Verification & Bank
                   </h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-14">
                      <div className="p-8 md:p-14 bg-slate-50 border border-slate-100 rounded-[2rem] md:rounded-[4rem] relative group overflow-hidden shadow-inner">
-                        <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em] mb-4 md:mb-6 italic">Identity Status</p>
+                        <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em] mb-4 md:mb-6 italic">KYC Status</p>
                         <div className="flex items-center gap-4 mb-6 md:mb-10">
                            <span className={`px-6 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
-                              {profileData?.user?.kyc_status || 'NOT_FOUND'}
+                              {humanKycStatus(profileData?.user?.kyc_status || 'not_found')}
                            </span>
                         </div>
-                        <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate italic">Vault Reference: {profileData?.user?.aadhar_no ? 'ENCRYPTED' : 'MISSING'}</p>
+                        <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate italic">Aadhaar: {profileData?.user?.aadhar_no ? 'On file' : 'Not added'}</p>
                      </div>
   
                      <div className="p-8 md:p-14 bg-slate-900 text-white rounded-[2rem] md:rounded-[4rem] relative group overflow-hidden shadow-2xl">
@@ -346,15 +347,15 @@ const Profile = () => {
 
                   <div className="mt-8 md:mt-14 space-y-4 md:space-y-6">
                      {[
-                       { label: 'Aadhar Identification', value: profileData?.user?.aadhar_no, color: 'bg-blue-50 text-blue-600', icon: Fingerprint },
-                       { label: 'PAN Reference', value: profileData?.user?.pan_no, color: 'bg-rose-50 text-rose-600', icon: CreditCard }
+                       { label: 'Aadhaar Card', value: profileData?.user?.aadhar_no, color: 'bg-blue-50 text-blue-600', icon: Fingerprint },
+                       { label: 'PAN Card', value: profileData?.user?.pan_no, color: 'bg-rose-50 text-rose-600', icon: CreditCard }
                      ].map((doc, i) => (
                         <div key={i} className="p-6 md:p-10 bg-slate-50 border border-slate-200 rounded-[1.8rem] md:rounded-[3rem] flex items-center justify-between group hover:border-amber-500 transition-all shadow-sm">
                            <div className="flex items-center gap-6 md:gap-10 min-w-0">
                               <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center shrink-0 border border-slate-200 bg-white shadow-xl ${doc.color}`}><doc.icon size={20} md:size={32} /></div>
                               <div className="min-w-0">
                                  <p className="text-sm md:text-xl font-black text-slate-900 uppercase tracking-tight truncate italic">{doc.label}</p>
-                                 <p className="text-[9px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.25em] mt-1 md:mt-2 truncate italic">{doc.value ? 'ENCRYPTED RECORD VALID' : 'ACTION REQUIRED'}</p>
+                                 <p className="text-[9px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.25em] mt-1 md:mt-2 truncate italic">{doc.value ? 'Submitted' : 'Not added yet'}</p>
                               </div>
                            </div>
                            <ChevronRight size={20} md:size={28} className="text-slate-300 group-hover:text-amber-500 transition-colors shrink-0" />
@@ -371,12 +372,12 @@ const Profile = () => {
                  animate={{ opacity: 1, x: 0 }}
                  className="bg-white border border-slate-200/60 p-6 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-sm overflow-hidden"
                >
-                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em] mb-10 md:mb-16 italic border-l-4 border-amber-500 pl-4">Vault Analytics</h3>
+                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em] mb-10 md:mb-16 italic border-l-4 border-amber-500 pl-4">My Summary</h3>
                   <div className="space-y-10 md:space-y-12">
                      {[
-                       { label: 'Capital Allocated', value: `₹${parseFloat(profileData?.stats?.total_invested || 0).toLocaleString()}`, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
-                       { label: 'Active Cycles', value: profileData?.stats?.active_cycles || 0, icon: ShieldCheck, color: 'bg-emerald-50 text-emerald-600' },
-                       { label: 'Direct Partners', value: profileData?.stats?.referral_count || 0, icon: Award, color: 'bg-blue-50 text-blue-600' },
+                       { label: 'Total Invested', value: `₹${parseFloat(profileData?.stats?.total_invested || 0).toLocaleString()}`, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
+                       { label: 'Active Plans', value: profileData?.stats?.active_cycles || 0, icon: ShieldCheck, color: 'bg-emerald-50 text-emerald-600' },
+                       { label: 'Referrals', value: profileData?.stats?.referral_count || 0, icon: Award, color: 'bg-blue-50 text-blue-600' },
                      ].map((stat, i) => (
                         <div key={i} className="flex justify-between items-end border-b border-slate-100 pb-10 md:pb-12 last:border-0 last:pb-0">
                            <div className="min-w-0">
@@ -398,13 +399,13 @@ const Profile = () => {
                   <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
                     <ShieldCheck size={100} className="text-white" />
                   </div>
-                  <h3 className="text-xl md:text-4xl font-black mb-10 md:mb-16 uppercase tracking-tighter leading-none italic">Institutional <br/>Security Node</h3>
+                  <h3 className="text-xl md:text-4xl font-black mb-10 md:mb-16 uppercase tracking-tighter leading-none italic">Account <br/>Security</h3>
                   <div className="space-y-4 md:space-y-6 relative z-10">
                       <button 
                         onClick={() => setShowPasswordModal(true)}
                         className="w-full bg-white/5 hover:bg-amber-600 hover:text-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-between transition-all group border border-white/5 shadow-xl italic"
                       >
-                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em]">Modify Key</span>
+                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em]">Change Password</span>
                         <ChevronRight size={20} className="group-hover:translate-x-2 transition-transform" />
                       </button>
                      <button className="w-full bg-white/5 hover:bg-blue-600 hover:text-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-between transition-all group border border-white/5 shadow-xl italic">
@@ -444,8 +445,8 @@ const Profile = () => {
               
               <div className="flex justify-between items-start mb-10 md:mb-16 relative z-10">
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter mb-2 md:mb-3 italic uppercase">Key Sync</h3>
-                  <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Institutional Protocol</p>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter mb-2 md:mb-3 italic uppercase">Change Password</h3>
+                  <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Update your login password</p>
                 </div>
                 <button 
                   onClick={() => setShowPasswordModal(false)}
@@ -457,7 +458,7 @@ const Profile = () => {
 
               <div className="space-y-6 md:space-y-10 relative z-10">
                 <div className="space-y-3 md:space-y-4">
-                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 md:ml-6 italic">New Secret</p>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 md:ml-6 italic">New Password</p>
                   <div className="relative group">
                     <input 
                       type={showPassword ? "text" : "password"}
@@ -476,7 +477,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="space-y-3 md:space-y-4">
-                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 md:ml-6 italic">Confirm Node</p>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 md:ml-6 italic">Confirm Password</p>
                   <div className="relative group">
                     <input 
                       type={showPassword ? "text" : "password"}
@@ -501,7 +502,7 @@ const Profile = () => {
                   className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl flex items-center justify-center gap-3 md:gap-4 mt-6 md:mt-8 active:scale-[0.98] italic"
                 >
                   {saving ? <Loader2 className="animate-spin" size={20} /> : <ShieldCheck size={24} md:size={28} strokeWidth={2.5} />}
-                  Sync New Protocol
+                  Update Password
                 </button>
               </div>
             </motion.div>

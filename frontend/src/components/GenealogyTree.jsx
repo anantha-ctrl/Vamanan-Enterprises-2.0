@@ -97,8 +97,8 @@ const GenealogyTree = ({ data, loading }) => {
       <div className="mb-6 p-6 bg-slate-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-2xl border border-white/5">
         <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12"><Network size={150} /></div>
         <div className="relative z-10 text-center md:text-left">
-          <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Neural Network Topology</h3>
-          <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">Institutional hierarchy visualization engine</p>
+          <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Your Referral Tree</h3>
+          <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">See your members across all 5 levels</p>
         </div>
         <div className="relative z-10 flex flex-wrap justify-center gap-2">
           {['L1','L2','L3','L4','L5'].map((l, i) => (

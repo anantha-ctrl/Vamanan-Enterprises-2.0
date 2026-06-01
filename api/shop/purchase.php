@@ -160,20 +160,23 @@ try {
     ]);
 
     // 5. Create Cashback Cycle (Pending)
-    $daily = round($total_price * 0.01, 2);
+    $daily_rate_setting = isset($settings['daily_cashback_rate']) ? (float)$settings['daily_cashback_rate'] : 1;
+    $daily = round($base_amount * ($daily_rate_setting / 100), 2);
     $cStmt = $db->prepare(
-        "INSERT INTO cashback_cycles (user_id, total_value, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, status) 
-         VALUES (:user_id, :total, :daily, :tid, :payment_method, :shot, :asset, :weight, 'pending')"
+        "INSERT INTO cashback_cycles (user_id, total_value, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, product_id, product_name, status)
+         VALUES (:user_id, :total, :daily, :tid, :payment_method, :shot, :asset, :weight, :product_id, :product_name, 'pending')"
     );
     $cStmt->execute([
-        'user_id' => $data->user_id,
-        'total'   => $total_price,
-        'daily'   => $daily,
-        'tid'     => isset($data->transaction_id) ? $data->transaction_id : null,
+        'user_id'      => $data->user_id,
+        'total'        => $total_price,
+        'daily'        => $daily,
+        'tid'          => isset($data->transaction_id) ? $data->transaction_id : null,
         'payment_method' => $payment_method,
-        'shot'    => $screenshot_path,
-        'asset'   => $asset_type,
-        'weight'  => $weight
+        'shot'         => $screenshot_path,
+        'asset'        => $asset_type,
+        'weight'       => $weight,
+        'product_id'   => $valid_product_id ?? null,
+        'product_name' => $product_name ?? null,
     ]);
     $cycleId = $db->lastInsertId();
 
@@ -211,7 +214,7 @@ try {
             ->execute([
                 $data->user_id,
                 'Order Submitted',
-                "Your order for '{$product_name}' (₹" . number_format($total_price, 2) . ") has been submitted and is pending admin approval."
+                "Your order for '{$product_name}' (₹" . number_format($total_price, 2) . ") has been submitted and is pending admin approval. Estimated delivery within 48-72 hours of approval."
             ]);
     } catch (Exception $notifErr) { /* Non-critical */ }
 

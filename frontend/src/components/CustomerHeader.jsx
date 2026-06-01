@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 
+const portalLabel = (role) => {
+  const map = { admin: 'Admin Portal', manager: 'Manager Portal', staff: 'Staff Portal', advocate: 'Advocate Portal' };
+  return map[role] || '{portal}';
+};
+
 const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -12,6 +17,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const portal = portalLabel(user.role);
 
   useEffect(() => {
     if (user.id) {
@@ -89,7 +95,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
             <div className="flex items-center gap-2 text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mb-0.5">
               <span>Vamanan Gold</span>
               <div className="w-1 h-1 rounded-full bg-amber-500"></div>
-              <span className="text-amber-600 italic">Customer Portal</span>
+              <span className="text-amber-600 italic">{portal}</span>
             </div>
             <h1 className="text-2xl font-black tracking-tighter uppercase italic text-slate-900 leading-none">
               {activeTab}
@@ -104,7 +110,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
           </div>
           <div className="flex flex-col justify-center">
              <h1 className="text-[12px] font-black tracking-tighter uppercase leading-none text-slate-900 italic">Vamanan Gold</h1>
-             <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-0.5">Customer Portal</span>
+             <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-0.5">{portal}</span>
           </div>
         </div>
       </div>
@@ -118,8 +124,8 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
             <Activity size={16} className="animate-pulse" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Session Active</span>
-            <span className="text-[10px] font-black text-slate-900 italic tracking-tight">Connected</span>
+            <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Status</span>
+            <span className="text-[10px] font-black text-slate-900 italic tracking-tight">Online</span>
           </div>
         </div>
 

@@ -17,7 +17,61 @@ runMigrations($db);
 
 $data = json_decode(file_get_contents("php://input"));
 
+$allowedRoles = ['manager', 'staff', 'advocate'];
+$allowedPermissions = [
+    'overview',
+    'investments',
+    'investment_history',
+    'inventory',
+    'users',
+    'genealogy',
+    'wallets_view',
+    'wallet_adj',
+    'kyc',
+    'withdrawals',
+    'tickets',
+    'market_rates',
+    'recruitment',
+    'settings',
+    'fiscal_reports',
+    'cashback_reports',
+    'withdrawal_reports',
+    'transaction_reports',
+    'investment_reports',
+    'referral_reports',
+    'payout_reports',
+    'payout_reports_module',
+    'cashback_payouts',
+    'export_payouts',
+    'payout_reconciliation',
+    'wallets_list',
+    'broadcast',
+    'agreements'
+];
+
+function normalizePermissions($permissions, $allowedPermissions) {
+    if (is_string($permissions)) {
+        $decoded = json_decode($permissions, true);
+        $permissions = is_array($decoded) ? $decoded : array_filter(array_map('trim', explode(',', $permissions)));
+    }
+
+    if (!is_array($permissions)) {
+        return [];
+    }
+
+    return array_values(array_intersect(array_unique($permissions), $allowedPermissions));
+}
+
 if(!empty($data->name) && !empty($data->email) && !empty($data->password) && !empty($data->role)) {
+    $role = strtolower(trim($data->role));
+    if (!in_array($role, $allowedRoles, true)) {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Invalid staff role."]);
+        exit;
+    }
+
+    $permissions = normalizePermissions($data->permissions ?? [], $allowedPermissions);
+
     // 1. Check if user exists
     $checkQuery = "SELECT id FROM users WHERE email = :email";
     $checkStmt = $db->prepare($checkQuery);
@@ -35,17 +89,17 @@ if(!empty($data->name) && !empty($data->email) && !empty($data->password) && !em
         $db->beginTransaction();
 
         // 2. Create Staff User
-        $query = "INSERT INTO users (name, email, password, role, referral_code, permissions) 
-                  VALUES (:name, :email, :password, :role, :referral_code, :permissions)";
+        $query = "INSERT INTO users (name, email, password, role, referral_code, status, permissions) 
+                  VALUES (:name, :email, :password, :role, :referral_code, 'active', :permissions)";
         
         $stmt = $db->prepare($query);
         $stmt->execute([
             'name' => $data->name,
             'email' => $data->email,
             'password' => $data->password, // Stored as plain text per project pattern
-            'role' => $data->role,
+            'role' => $role,
             'referral_code' => $referralCode,
-            'permissions' => isset($data->permissions) ? (is_array($data->permissions) ? json_encode($data->permissions) : $data->permissions) : null
+            'permissions' => json_encode($permissions)
         ]);
 
         $userId = $db->lastInsertId();

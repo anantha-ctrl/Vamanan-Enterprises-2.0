@@ -137,10 +137,10 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(user));
         redirectUser(user);
       } else {
-        setError(response.data.message || 'Authentication protocol failed.');
+        setError(response.data.message || 'Login failed. Please check your details.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Authentication synchronization error.');
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -273,10 +273,10 @@ const Login = () => {
           </motion.div>
           
           <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter mb-2 md:mb-3 uppercase italic leading-none">
-            {step === 'credentials' ? 'Access Login Gateway' : 'Security Verification'}
+            {step === 'credentials' ? 'Log In' : 'Verify OTP'}
           </h2>
           <p className="text-slate-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] italic">
-            {step === 'credentials' ? 'Institutional Security Protocol' : 'Fintech Authentication Node'}
+            {step === 'credentials' ? 'Welcome back, please log in' : 'Enter the code sent to you'}
           </p>
         </div>
 
@@ -366,7 +366,7 @@ const Login = () => {
               <div className="flex items-center justify-between px-2">
                  <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Node Sync Active</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Secure</span>
                  </div>
                  <Link to="/recovery" className="text-[8px] md:text-[9px] font-black text-amber-600 uppercase tracking-widest italic hover:text-slate-900 transition-colors">Recover Key?</Link>
               </div>
@@ -377,7 +377,7 @@ const Login = () => {
                 className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-[11px] italic group overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
-                {loading ? <Loader2 className="animate-spin" size={20} /> : <>Verify Credentials <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" /></>}
+                {loading ? <Loader2 className="animate-spin" size={20} /> : <>Continue <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" /></>}
               </button>
             </motion.form>
           ) : (
@@ -434,7 +434,7 @@ const Login = () => {
                   className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-[11px] italic group overflow-hidden relative"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
-                  {loading ? <Loader2 className="animate-spin" size={20} /> : <>Verify & Access Node <Zap size={14} className="text-amber-400 shrink-0" /></>}
+                  {loading ? <Loader2 className="animate-spin" size={20} /> : <>Verify & Log In <Zap size={14} className="text-amber-400 shrink-0" /></>}
                 </button>
 
                 {/* Resend Controller */}

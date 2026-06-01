@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import API_BASE_URL from '../config';
+import { humanAgreementType, humanKycStatus, humanStatus } from '../utils/humanLabels';
 
 const AdvocateDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -298,7 +299,7 @@ const AdvocateDashboard = () => {
                           <table className="w-full text-left min-w-[900px]">
                              <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100">
-                                   <th className="py-10 px-12 text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Protocol ID</th>
+                                   <th className="py-10 px-12 text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Reference ID</th>
                                    <th className="py-10 px-12 text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Entity Node</th>
                                    <th className="py-10 px-12 text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Deed Type</th>
                                    <th className="py-10 px-12 text-[11px] font-black text-slate-400 uppercase tracking-widest italic text-right">Adjudication</th>
@@ -319,7 +320,7 @@ const AdvocateDashboard = () => {
                                             </div>
                                          </td>
                                          <td className="py-12 px-12">
-                                            <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-widest">{agr.type}</p>
+                                            <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-widest">{humanAgreementType(agr.type)}</p>
                                          </td>
                                          <td className="py-12 px-12 text-right">
                                             <div className="flex items-center justify-end gap-3 transition-opacity">
@@ -385,7 +386,7 @@ const AdvocateDashboard = () => {
                                    <div>
                                       <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-1 leading-none">PROTOCOL STATUS</p>
                                       <span className={`px-3 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase italic ${member.kyc_status === 'verified' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                         {member.kyc_status} Entity
+                                         {humanKycStatus(member.kyc_status)}
                                       </span>
                                    </div>
                                    <div className="text-right">
@@ -434,7 +435,7 @@ const AdvocateDashboard = () => {
                                             </div>
                                          </td>
                                          <td className="py-12 px-12">
-                                            <p className="text-xs font-black text-slate-400 uppercase italic mb-1">{agr.type}</p>
+                                            <p className="text-xs font-black text-slate-400 uppercase italic mb-1">{humanAgreementType(agr.type)}</p>
                                             <p className="text-[10px] text-amber-600 font-bold tracking-widest italic">{agr.agreement_id}</p>
                                          </td>
                                          <td className="py-12 px-12">
@@ -466,7 +467,7 @@ const AdvocateDashboard = () => {
                                    <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase italic border ${dis.priority === 'high' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-amber-50 text-amber-500 border-amber-100'}`}>
                                       {dis.priority} Priority
                                    </div>
-                                   <p className="text-[10px] font-black text-slate-300 uppercase italic tracking-widest">{dis.status}</p>
+                                   <p className="text-[10px] font-black text-slate-300 uppercase italic tracking-widest">{humanStatus(dis.status)}</p>
                                 </div>
                                 <div>
                                    <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-2">{dis.subject}</h4>
@@ -542,7 +543,7 @@ const AdvocateDashboard = () => {
                                            selectedMember.kyc_status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
                                            'bg-amber-50 text-amber-600 border-amber-100'
                                         }`}>
-                                           {selectedMember.kyc_status} ENTITY
+                                           {humanKycStatus(selectedMember.kyc_status)}
                                         </span>
                                         {selectedMember.kyc_status === 'verified' && (
                                            <div className="flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100">
@@ -652,7 +653,7 @@ const AdvocateDashboard = () => {
                               <img src="/vamanan-logo.png" alt="Logo" className="w-full h-full object-contain" />
                            </div>
                         </div>
-                        <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 mb-2 uppercase italic leading-tight">{selectedDoc.type || 'Institutional Gold Agreement'}</h1>
+                        <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 mb-2 uppercase italic leading-tight">{humanAgreementType(selectedDoc.type || 'Gold Purchase Agreement')}</h1>
                         <p className="text-amber-600 text-[10px] font-black tracking-[0.4em] uppercase italic">Artifact ID: {selectedDoc.agreement_id}</p>
                      </div>
 
@@ -786,3 +787,4 @@ const AdvocateDashboard = () => {
 };
 
 export default AdvocateDashboard;
+

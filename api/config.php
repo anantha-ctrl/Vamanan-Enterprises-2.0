@@ -103,26 +103,28 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS products (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
+        category VARCHAR(100) DEFAULT 'Gold',
         slug VARCHAR(255) UNIQUE NOT NULL,
-        description TEXT,
+        weight DECIMAL(8,3) DEFAULT 0,
+        purity VARCHAR(100) DEFAULT '24K',
         price DECIMAL(15,2) NOT NULL,
-        weight VARCHAR(50) DEFAULT '1 Gram',
-        purity VARCHAR(50) NOT NULL DEFAULT '24K',
-        stock INT DEFAULT 0,
-        image_url VARCHAR(255),
+        image VARCHAR(255),
+        description TEXT,
+        is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
 
-    // Ensure products columns exist (Safe Migrations)
+    // Safe migrations for products — add any missing columns
     $prodCols = [
-        'slug' => "VARCHAR(255) UNIQUE NOT NULL AFTER name",
-        'purity' => "VARCHAR(50) NOT NULL DEFAULT '24K' AFTER weight"
+        'category'    => "VARCHAR(100) DEFAULT 'Gold' AFTER name",
+        'weight'      => "DECIMAL(8,3) DEFAULT 0 AFTER slug",
+        'purity'      => "VARCHAR(100) DEFAULT '24K' AFTER weight",
+        'image'       => "VARCHAR(255) AFTER price",
+        'is_active'   => "TINYINT(1) DEFAULT 1 AFTER description",
     ];
     foreach ($prodCols as $col => $definition) {
-        try {
-            $pdo->exec("ALTER TABLE products ADD COLUMN $col $definition");
-        } catch (PDOException $e) {}
+        try { $pdo->exec("ALTER TABLE products ADD COLUMN $col $definition"); } catch (PDOException $e) {}
     }
 
     // 4. Transactions Table
@@ -154,28 +156,53 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS cashback_cycles (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
+        asset_type ENUM('gold','silver','product') DEFAULT 'gold',
+        weight DECIMAL(10,3) DEFAULT 0,
+        product_id INT DEFAULT NULL,
+        product_name VARCHAR(255) DEFAULT NULL,
         total_value DECIMAL(15,2) NOT NULL,
         daily_payout DECIMAL(15,2) NOT NULL,
         days_paid INT DEFAULT 0,
         paid_amount DECIMAL(15,2) DEFAULT 0.00,
         transaction_id VARCHAR(255),
+        payment_method VARCHAR(50) DEFAULT 'Bank Transfer',
         payment_screenshot VARCHAR(255),
-        status ENUM('active', 'completed', 'paused', 'pending') DEFAULT 'pending',
+        status ENUM('active','completed','paused','pending') DEFAULT 'pending',
         last_paid_at DATE DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
 
-    // Ensure columns exist (Safe Migrations)
+    // Safe migrations for cashback_cycles
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN asset_type ENUM('gold','silver','product') DEFAULT 'gold' AFTER user_id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN asset_type ENUM('gold','silver','product') DEFAULT 'gold'"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN weight DECIMAL(10,3) DEFAULT 0 AFTER asset_type"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN product_id INT DEFAULT NULL AFTER weight"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN product_name VARCHAR(255) DEFAULT NULL AFTER product_id"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN transaction_id VARCHAR(255) AFTER paid_amount"); } catch (PDOException $e) {}
-    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_screenshot VARCHAR(255) AFTER transaction_id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Bank Transfer' AFTER transaction_id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_screenshot VARCHAR(255) AFTER payment_method"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN last_paid_at DATE DEFAULT NULL AFTER status"); } catch (PDOException $e) {}
-    try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN status ENUM('active', 'completed', 'paused', 'pending') DEFAULT 'pending'"); } catch (PDOException $e) {}
-    
-    // Add safe migrations for column renames if necessary
+    try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN status ENUM('active','completed','paused','pending') DEFAULT 'pending'"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles CHANGE days_completed days_paid INT DEFAULT 0"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles CHANGE total_earned paid_amount DECIMAL(15,2) DEFAULT 0.00"); } catch (PDOException $e) {}
+
+    // 11. Categories Table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    // Seed product categories used by admin inventory and customer shop.
+    $pdo->exec("INSERT IGNORE INTO categories (name, slug) VALUES
+        ('Gold', 'gold'),
+        ('House Construction', 'house-construction'),
+        ('All Construction Material', 'all-construction-material'),
+        ('Electronics', 'electronics'),
+        ('Vehicles (2wheeler/4wheeler)', 'vehicles-2wheeler-4wheeler'),
+        ('Groceries', 'groceries')");
 
     // 7. Agreements Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS agreements (
@@ -241,26 +268,24 @@ try {
     // --- SEED INITIAL DATA ---
     $count = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
     if ($count == 0) {
-        $pdo->exec("INSERT INTO products (name, slug, description, price, weight, purity) VALUES 
-            ('22K Gold Coin (1g)', '22k-gold-coin-1g', 'Pure 22K Gold Coin with BIS Hallmark.', 7850.00, '1 Gram', '22K'),
-            ('22K Gold Coin (2g)', '22k-gold-coin-2g', 'Pure 22K Gold Coin with BIS Hallmark.', 15700.00, '2 Grams', '22K'),
-            ('22K Gold Coin (5g)', '22k-gold-coin-5g', 'Pure 22K Gold Coin with BIS Hallmark.', 39250.00, '5 Grams', '22K')");
+        $pdo->exec("INSERT INTO products (name, category, slug, weight, purity, price, description, is_active) VALUES
+            ('22K Gold Coin (1g)', 'Gold', '22k-gold-coin-1g', 1.000, '22K', 7850.00, 'Pure 22K Gold Coin with BIS Hallmark.', 1),
+            ('22K Gold Coin (2g)', 'Gold', '22k-gold-coin-2g', 2.000, '22K', 15700.00, 'Pure 22K Gold Coin with BIS Hallmark.', 1),
+            ('22K Gold Coin (5g)', 'Gold', '22k-gold-coin-5g', 11.997, '22K', 39255.00, 'Pure 22K Gold Coin with BIS Hallmark.', 1)");
     }
 
     // Seed Admin if not exists
     $adminCount = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
     if ($adminCount == 0) {
-        $adminPass = password_hash('admin123', PASSWORD_BCRYPT);
         $pdo->prepare("INSERT INTO users (name, email, password, role, referral_code, status) VALUES (?, ?, ?, ?, ?, ?)")
-            ->execute(['Super Admin', 'admin@makkalgold.com', $adminPass, 'admin', 'ADMIN001', 'active']);
+            ->execute(['Super Admin', 'admin@makkalgold.com', 'admin123', 'admin', 'ADMIN001', 'active']);
     }
 
     // Seed Manager if not exists
     $managerCount = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'manager'")->fetchColumn();
     if ($managerCount == 0) {
-        $managerPass = password_hash('manager123', PASSWORD_BCRYPT);
         $pdo->prepare("INSERT INTO users (name, email, password, role, referral_code, status) VALUES (?, ?, ?, ?, ?, ?)")
-            ->execute(['Operations Manager', 'manager@makkalgold.com', $managerPass, 'manager', 'MGR001', 'active']);
+            ->execute(['Operations Manager', 'manager@makkalgold.com', 'manager123', 'manager', 'MGR001', 'active']);
     }
 
     // Ensure existing admins/managers are active

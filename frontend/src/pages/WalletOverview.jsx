@@ -14,6 +14,7 @@ import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import MobileHeader from '../components/MobileHeader';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const WalletOverview = () => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const WalletOverview = () => {
   };
 
   const stats = [
-    { label: 'Active Yields', value: `₹${data.investment_total.toLocaleString()}`, icon: Target, color: 'text-amber-500', bg: 'bg-amber-50' },
+    { label: 'Total Invested', value: `₹${data.investment_total.toLocaleString()}`, icon: Target, color: 'text-amber-500', bg: 'bg-amber-50' },
     { label: 'Cashback Earned', value: `₹${data.cashback_total.toLocaleString()}`, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50' },
     { label: 'Referral Rewards', value: `₹${data.referral_total.toLocaleString()}`, icon: Award, color: 'text-blue-500', bg: 'bg-blue-50' },
     { label: 'Pending Payouts', value: `₹${data.pending_withdrawal.toLocaleString()}`, icon: Clock, color: 'text-rose-500', bg: 'bg-rose-50' }
@@ -86,7 +87,7 @@ const WalletOverview = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
                     <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] italic text-amber-500">Live Institutional Pulse</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] italic text-amber-500">Live Balance</span>
                   </div>
                   <div className="w-14 h-9 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
                     <div className="w-8 h-5 bg-gradient-to-r from-amber-400 to-amber-600 rounded-sm opacity-60" />
@@ -94,7 +95,7 @@ const WalletOverview = () => {
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] italic text-slate-400 mb-4">Total Liquid Capital</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] italic text-slate-400 mb-4">Available Balance</p>
                   <div className="flex items-baseline gap-4">
                     <h2 className="text-6xl md:text-8xl font-black italic tracking-tighter">₹{data.balance.toLocaleString()}</h2>
                     <span className="text-xl font-black text-amber-500 tracking-widest uppercase italic">INR</span>
@@ -107,7 +108,7 @@ const WalletOverview = () => {
                     className="px-8 py-4 bg-amber-500 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3"
                   >
                     <ArrowUpRight size={16} />
-                    Withdraw Capital
+                    Withdraw Money
                   </button>
                   <button 
                     onClick={() => navigate('/shop')}
@@ -149,8 +150,8 @@ const WalletOverview = () => {
             {[
               { label: 'Referral Link', icon: Share2, path: '/referrals', color: 'bg-indigo-50 text-indigo-600' },
               { label: 'View Agreement', icon: ShieldCheck, path: '/agreement', color: 'bg-emerald-50 text-emerald-600' },
-              { label: 'Market Access', icon: Globe, path: '/shop', color: 'bg-amber-50 text-amber-600' },
-              { label: 'Audit History', icon: History, path: '/wallet', color: 'bg-slate-100 text-slate-600' }
+              { label: 'Buy Gold', icon: Globe, path: '/shop', color: 'bg-amber-50 text-amber-600' },
+              { label: 'Transaction History', icon: History, path: '/wallet', color: 'bg-slate-100 text-slate-600' }
             ].map((item, i) => (
               <button 
                 key={i}
@@ -173,12 +174,12 @@ const WalletOverview = () => {
                   <Activity size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Transmission Ledger</h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Live Multi-Channel History</p>
+                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Recent Transactions</h3>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Your latest activity</p>
                 </div>
               </div>
               <button onClick={() => navigate('/wallet')} className="text-amber-500 text-[10px] font-black uppercase tracking-widest hover:translate-x-2 transition-transform flex items-center gap-2">
-                Full Audit <ChevronRight size={14} />
+                View All <ChevronRight size={14} />
               </button>
             </div>
 
@@ -186,11 +187,11 @@ const WalletOverview = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Transmission ID</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Transaction ID</th>
                     <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Category</th>
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Value</th>
-                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Protocol Status</th>
-                    <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Timestamp</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Amount</th>
+                    <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Status</th>
+                    <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -222,7 +223,7 @@ const WalletOverview = () => {
                           t.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
-                          {t.status}
+                          {humanStatus(t.status)}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right text-[9px] font-black text-slate-400 tracking-widest italic uppercase">

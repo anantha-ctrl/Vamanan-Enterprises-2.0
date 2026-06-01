@@ -14,6 +14,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import API_BASE_URL from '../config';
+import { humanAssetType, humanPaymentMethod, humanRole, humanStatus } from '../utils/humanLabels';
+import { hasPermission } from '../utils/accessControl';
 
 const AVAILABLE_PERMISSIONS = [
   { id: 'overview', label: 'Dashboard', icon: BarChart3 },
@@ -34,12 +36,9 @@ const ManagerDashboard = () => {
   const userStr = localStorage.getItem('user');
   const currentUser = userStr ? JSON.parse(userStr) : {};
   const role = currentUser.role || 'customer';
-  const permissions = currentUser.permissions ? (typeof currentUser.permissions === 'string' ? JSON.parse(currentUser.permissions) : currentUser.permissions) : [];
 
   const isTabAllowed = (tabId) => {
-    if (role === 'admin') return true;
-    if (permissions.length === 0) return tabId === 'overview';
-    return permissions.includes(tabId);
+    return hasPermission(currentUser, tabId);
   };
 
   const [stats, setStats] = useState({ revenue: 0, payouts: 0, users: 0, fraud: 0, withdrawals: [] });
@@ -51,6 +50,7 @@ const ManagerDashboard = () => {
   const [walletsData, setWalletsData] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [reports, setReports] = useState([]);
+  const [adminCategories, setAdminCategories] = useState([]);
   const [platformSettings, setPlatformSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -106,7 +106,8 @@ const ManagerDashboard = () => {
         axios.get(`${API_BASE_URL}/admin/settings.php`),
         axios.get(`${API_BASE_URL}/admin/wallets.php`),
         axios.get(`${API_BASE_URL}/admin/get_all_notifications.php`),
-        axios.get(`${API_BASE_URL}/admin/payout_reports.php`)
+        axios.get(`${API_BASE_URL}/admin/payout_reports.php`),
+        axios.get(`${API_BASE_URL}/admin/categories.php`)
       ]);
 
       const getData = (idx) => results[idx]?.status === 'fulfilled' && results[idx].value?.data?.status === 'success' ? results[idx].value.data.data : null;
@@ -123,6 +124,7 @@ const ManagerDashboard = () => {
       const walData   = getData(7); if (walData) setWalletsData(walData);
       const notifData = getData(8); if (notifData) setNotifications(notifData);
       const repData   = getData(9); if (repData) setReports(repData.history || []);
+      const catData   = getData(10); if (catData) setAdminCategories(catData);
 
     } catch (err) {
       console.error("Failed to fetch manager data:", err);
@@ -217,7 +219,7 @@ const ManagerDashboard = () => {
         setTimeout(() => setSuccessMessage(null), 5000);
         setShowAssetModal(false);
         setIsEditing(false);
-        setAssetForm({ name: '', category: 'Gold Asset', price: '', weight: '', purity: '24K', image: null, description: '', is_active: 1 });
+        setAssetForm({ name: '', category: adminCategories[0]?.name || 'Gold', price: '', weight: '', purity: '24K', image: null, description: '', is_active: 1 });
         fetchData();
       }
     } catch (err) {
@@ -271,7 +273,7 @@ const ManagerDashboard = () => {
         setSuccessMessage('Personnel successfully onboarded to the operations hub.');
         setTimeout(() => setSuccessMessage(null), 5000);
         setShowStaffModal(false);
-        setStaffForm({ name: '', email: '', role: 'staff', password: '' });
+        setStaffForm({ name: '', email: '', role: 'staff', password: '', permissions: ['overview', 'kyc', 'tickets'] });
         fetchData();
       }
     } catch (err) {
@@ -321,7 +323,7 @@ const ManagerDashboard = () => {
                          {activeTab.replace('_', ' ')}
                       </h2>
                    </div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2 ml-16 italic">Manager Command Node</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2 ml-16 italic">Manager Dashboard</p>
                 </div>
              </div>
           </div>
@@ -334,7 +336,7 @@ const ManagerDashboard = () => {
                    <div className={`absolute inset-0 ${stats.users?.total > 0 ? 'bg-emerald-500' : 'bg-amber-500'} rounded-full animate-ping opacity-20`}></div>
                 </div>
                 <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] italic group-hover:text-slate-900 transition-colors">
-                   {stats.users?.total || 0} Institutional Nodes Active
+                   {stats.users?.total || 0} Active Customers
                 </span>
              </div> */}
 
@@ -364,7 +366,7 @@ const ManagerDashboard = () => {
                    <div className="flex items-center gap-2 mt-2">
                       <div className="px-2 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20">
                          <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic flex items-center gap-1.5">
-                            <ShieldCheck size={10} /> {currentUser.role?.toUpperCase() || 'MANAGER'}
+                            <ShieldCheck size={10} /> {humanRole(currentUser.role || 'manager')}
                          </p>
                       </div>
                    </div>
@@ -407,7 +409,7 @@ const ManagerDashboard = () => {
                     <div className="p-3 bg-slate-50 text-slate-900 rounded-2xl shadow-inner"><Zap size={24}/></div>
                     <div className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full italic tracking-widest">{stats.revenue?.active_investments || 0} ACTIVE</div>
                   </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Active Protocols</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Active Tasks</p>
                   <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">{stats.revenue?.active_investments || 0} Members</h3>
                 </div>
                 <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
@@ -457,12 +459,12 @@ const ManagerDashboard = () => {
                           <div className="w-12 h-12 bg-slate-900 text-amber-500 rounded-xl flex items-center justify-center font-black italic"><Wallet size={20}/></div>
                           <div>
                             <p className="text-sm font-black italic uppercase">{w.user_name}</p>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase">{w.payment_method}</p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase">{humanPaymentMethod(w.payment_method)}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-black italic">₹{parseFloat(w.amount).toLocaleString()}</p>
-                          <p className={`text-[8px] font-black uppercase ${w.status === 'pending' ? 'text-amber-500' : 'text-emerald-500'}`}>{w.status}</p>
+                          <p className={`text-[8px] font-black uppercase ${w.status === 'pending' ? 'text-amber-500' : 'text-emerald-500'}`}>{humanStatus(w.status)}</p>
                         </div>
                       </div>
                     ))}
@@ -478,7 +480,7 @@ const ManagerDashboard = () => {
                 <h3 className="text-2xl font-black uppercase italic tracking-tighter">Investor Directory</h3>
                 <div className="relative w-full md:w-80">
                   <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input type="text" placeholder="Search Node..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-4 pl-14 pr-8 text-[11px] font-black uppercase italic outline-none focus:bg-white focus:border-amber-500 transition-all shadow-inner" />
+                  <input type="text" placeholder="Search Customers..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-4 pl-14 pr-8 text-[11px] font-black uppercase italic outline-none focus:bg-white focus:border-amber-500 transition-all shadow-inner" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -508,7 +510,7 @@ const ManagerDashboard = () => {
                           <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Status</p>
                           <div className="flex items-center gap-2">
                              <div className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-emerald-500' : u.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
-                             <p className={`text-[9px] font-black italic uppercase ${u.status === 'active' ? 'text-emerald-600' : u.status === 'pending' ? 'text-amber-500' : 'text-rose-500'}`}>{u.status}</p>
+                             <p className={`text-[9px] font-black italic uppercase ${u.status === 'active' ? 'text-emerald-600' : u.status === 'pending' ? 'text-amber-500' : 'text-rose-500'}`}>{humanStatus(u.status)}</p>
                           </div>
                        </div>
                     </div>
@@ -528,7 +530,7 @@ const ManagerDashboard = () => {
                             disabled={processing}
                             className="w-full bg-white border border-rose-100 text-rose-500 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-rose-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
                           >
-                             <ShieldAlert size={14} /> Suspend Institutional ID
+                             <ShieldAlert size={14} /> Suspend Account
                           </button>
                        ) : (
                           <button 
@@ -548,19 +550,19 @@ const ManagerDashboard = () => {
 
           {activeTab === 'investments' && (
             <div className="bg-white border border-slate-200 p-12 rounded-[4rem] shadow-sm">
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12">Pending Acquisition Protocol</h3>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12">Pending Purchase Requests</h3>
               <div className="space-y-6">
                 {investments.length === 0 ? (
                   <div className="py-24 text-center bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
                     <ShoppingCart size={60} className="mx-auto text-slate-200 mb-6" />
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">All acquisition protocols finalized</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">All purchase requests are completed</p>
                   </div>
                 ) : (
                   investments.map(inv => (
                     <div key={inv.cycle_id} className="p-10 bg-slate-50 border border-slate-100 hover:border-amber-500/30 hover:bg-white rounded-[3rem] transition-all group">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-center">
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Investor Entity</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Customer</p>
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black italic">{inv.user_name[0]}</div>
                             <div>
@@ -570,7 +572,7 @@ const ManagerDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Asset Matrix</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Asset Details</p>
                           <p className="text-sm font-black italic uppercase">{inv.asset_type === 'silver' ? 'Silver Asset' : 'Gold Asset'}</p>
                           <p className="text-[10px] text-amber-600 font-black uppercase mt-1 italic">{inv.weight} Grams</p>
                         </div>
@@ -593,7 +595,7 @@ const ManagerDashboard = () => {
 
           {activeTab === 'kyc' && (
             <div className="bg-white border border-slate-200 p-12 rounded-[4rem] shadow-sm">
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12">Identity Verification Terminal</h3>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12">Identity Verification</h3>
               <div className="space-y-6">
                 {users.filter(u => u.kyc_status === 'pending').map(u => (
                   <div key={u.id} className="p-10 bg-slate-50 border border-slate-100 hover:border-amber-500/30 hover:bg-white rounded-[3rem] transition-all group">
@@ -634,13 +636,13 @@ const ManagerDashboard = () => {
                         <div className="w-16 h-16 bg-slate-900 text-amber-500 rounded-[1.5rem] flex items-center justify-center font-black italic shadow-xl"><Landmark size={24}/></div>
                         <div>
                           <p className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">{w.user_name}</p>
-                          <p className="text-[10px] text-slate-400 font-black uppercase italic">{w.payment_method}</p>
+                          <p className="text-[10px] text-slate-400 font-black uppercase italic">{humanPaymentMethod(w.payment_method)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-12">
                         <div className="text-right">
                           <p className="text-3xl font-black text-slate-900 italic tracking-tighter leading-none mb-1">₹{parseFloat(w.amount).toLocaleString()}</p>
-                          <p className="text-[9px] font-black text-amber-500 uppercase italic tracking-widest">Pending Node</p>
+                          <p className="text-[9px] font-black text-amber-500 uppercase italic tracking-widest">Pending Review</p>
                         </div>
                         <div className="flex gap-4">
                           <button onClick={() => handleAction('approve_withdrawal', w.id)} className="p-4 bg-slate-900 text-amber-500 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5"><CheckCircle size={24}/></button>
@@ -666,9 +668,9 @@ const ManagerDashboard = () => {
                <div className="flex flex-wrap gap-4 mb-12">
                   {[
                     { id: 'personal', label: 'Identity & Security', icon: UserCircle },
-                    { id: 'permissions', label: 'Authorization Matrix', icon: ShieldCheck },
+                    { id: 'permissions', label: 'Permissions', icon: ShieldCheck },
                     { id: 'activity', label: 'Operational Footprint', icon: Activity },
-                    { id: 'notifications', label: 'Alert Protocols', icon: Megaphone }
+                    { id: 'notifications', label: 'Notifications', icon: Megaphone }
                   ].map(tab => (
                     <button 
                       key={tab.id}
@@ -687,8 +689,8 @@ const ManagerDashboard = () => {
                        <div className="flex items-center gap-8 mb-16 relative z-10">
                           <div className="w-20 h-20 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-amber-500 shadow-2xl border border-white/5"><UserCircle size={40}/></div>
                           <div>
-                             <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Identity</h3>
-                             <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Maintain your authenticated manager credentials</p>
+                             <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Account Details</h3>
+                             <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Keep your manager account details updated</p>
                           </div>
                        </div>
 
@@ -751,7 +753,7 @@ const ManagerDashboard = () => {
                                disabled={processing} 
                                className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95"
                              >
-                                {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Sync Credentials</>}
+                                {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Save Account Details</>}
                              </button>
                           </div>
                        </form>
@@ -765,7 +767,7 @@ const ManagerDashboard = () => {
                        <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-1000 rotate-12"><ShieldCheck size={260} /></div>
                        <div className="relative z-10">
                           <h4 className="text-3xl font-black uppercase italic tracking-tighter mb-6 flex items-center gap-4">
-                             <div className="w-2 h-8 bg-amber-500 rounded-full"></div> Authorization Matrix
+                             <div className="w-2 h-8 bg-amber-500 rounded-full"></div> Permissions
                           </h4>
                           <p className="text-[11px] text-slate-400 font-black uppercase tracking-[0.3em] mb-16 italic max-w-2xl leading-relaxed">
                             Your operational level provides high-priority clearance for asset management, KYC verification, and liquidity processing.
@@ -782,7 +784,7 @@ const ManagerDashboard = () => {
                                <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all group/perm">
                                   <div className="flex justify-between items-center mb-4">
                                      <p className="text-sm font-black italic uppercase tracking-tighter">{perm.label}</p>
-                                     <span className={`text-[8px] font-black px-3 py-1 rounded-full ${perm.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>{perm.status}</span>
+                                     <span className={`text-[8px] font-black px-3 py-1 rounded-full ${perm.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>{humanStatus(perm.status)}</span>
                                   </div>
                                   <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest italic">{perm.desc}</p>
                                </div>
@@ -827,11 +829,11 @@ const ManagerDashboard = () => {
                  <div className="space-y-12">
                     <div className="bg-white border border-slate-200 p-16 rounded-[4rem] shadow-sm">
                        <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12 flex items-center gap-4">
-                          <Megaphone size={24} className="text-amber-600" /> Alert Protocols
+                          <Megaphone size={24} className="text-amber-600" /> Notifications
                        </h3>
                        <div className="space-y-10">
                           {[
-                            { id: 'notify_email', label: 'Institutional Email Alerts', desc: 'Receive critical updates via authenticated email', icon: Mail },
+                            { id: 'notify_email', label: 'Email Alerts', desc: 'Receive critical updates via authenticated email', icon: Mail },
                             { id: 'notify_system', label: 'System Terminal Notifications', desc: 'Real-time alerts within the operations terminal', icon: Zap }
                           ].map(notif => (
                             <div key={notif.id} className="flex items-center justify-between p-10 bg-slate-50 rounded-[3rem] border border-slate-100">
@@ -856,7 +858,7 @@ const ManagerDashboard = () => {
                             onClick={handleUpdateProfile}
                             className="px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] italic shadow-2xl hover:bg-amber-600 transition-all"
                           >
-                             Apply Protocol Updates
+                             Save Notification Settings
                           </button>
                        </div>
                     </div>
@@ -891,13 +893,13 @@ const ManagerDashboard = () => {
                                     <p className="text-[9px] text-slate-400 font-bold">{inv.user_email}</p>
                                  </td>
                                  <td className="px-8 py-6">
-                                    <span className="text-[10px] font-black uppercase bg-slate-900 text-amber-500 px-3 py-1 rounded-lg italic">{inv.asset_type}</span>
+                                    <span className="text-[10px] font-black uppercase bg-slate-900 text-amber-500 px-3 py-1 rounded-lg italic">{humanAssetType(inv.asset_type)}</span>
                                  </td>
                                  <td className="px-8 py-6 text-sm font-black italic">{inv.weight}g</td>
                                  <td className="px-8 py-6 text-sm font-black italic">₹{parseFloat(inv.total_value).toLocaleString()}</td>
                                  <td className="px-8 py-6">
                                     <span className={`text-[9px] font-black uppercase italic px-3 py-1 rounded-full ${inv.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                       {inv.status}
+                                       {humanStatus(inv.status)}
                                     </span>
                                  </td>
                                  <td className="px-8 py-6 rounded-r-[2rem] text-[10px] font-black text-slate-400 italic">
@@ -920,10 +922,10 @@ const ManagerDashboard = () => {
                <div className="bg-white border border-slate-200 p-12 rounded-[4rem] shadow-sm">
                   <div className="flex justify-between items-center mb-12">
                      <h3 className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-4">
-                        <ShoppingBag size={24} className="text-amber-600" /> Institutional Asset Inventory
+                        <ShoppingBag size={24} className="text-amber-600" /> Asset Inventory
                      </h3>
                      <button 
-                       onClick={() => { setIsEditing(false); setAssetForm({ name: '', category: 'Gold Asset', price: '', weight: '', purity: '22K', description: '', is_active: 1 }); setShowAssetModal(true); }}
+                       onClick={() => { setIsEditing(false); setAssetForm({ name: '', category: adminCategories[0]?.name || 'Gold', price: '', weight: '', purity: '22K', description: '', is_active: 1 }); setShowAssetModal(true); }}
                        className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
                      >
                         <Plus size={18} /> Provision New Asset
@@ -1017,7 +1019,7 @@ const ManagerDashboard = () => {
             <div className="space-y-12">
                <div className="bg-white border border-slate-200 p-12 rounded-[4rem] shadow-sm">
                   <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-12 flex items-center gap-4">
-                     <MessageCircle size={24} className="text-amber-600" /> Resolution Center: Support Matrix
+                     <MessageCircle size={24} className="text-amber-600" /> Support Center
                   </h3>
                   <div className="space-y-6">
                      {(stats.tickets || []).map(ticket => (
@@ -1031,7 +1033,7 @@ const ManagerDashboard = () => {
                                  </div>
                               </div>
                               <div className="flex items-center gap-6 self-end md:self-auto">
-                                 <span className={`text-[8px] font-black px-4 py-2 rounded-full italic tracking-widest ${ticket.status === 'open' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>{ticket.status.toUpperCase()}</span>
+                                 <span className={`text-[8px] font-black px-4 py-2 rounded-full italic tracking-widest ${ticket.status === 'open' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>{humanStatus(ticket.status)}</span>
                                  <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-lg active:scale-95">Respond</button>
                               </div>
                            </div>
@@ -1053,13 +1055,13 @@ const ManagerDashboard = () => {
                <div className="bg-white border border-slate-200 p-12 rounded-[4rem] shadow-sm">
                   <div className="flex justify-between items-center mb-12">
                      <h3 className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-4">
-                        <Megaphone size={24} className="text-amber-600" /> Communication Hub: Broadcast Matrix
+                        <Megaphone size={24} className="text-amber-600" /> Broadcast Messages
                      </h3>
                      <button 
                        onClick={() => setShowBroadcastModal(true)}
                        className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
                      >
-                        <Plus size={18} /> New Institutional Alert
+                        <Plus size={18} /> New Notification
                      </button>
                   </div>
                   <div className="space-y-6">
@@ -1103,7 +1105,7 @@ const ManagerDashboard = () => {
                      <table className="w-full text-left border-separate border-spacing-y-4">
                         <thead>
                            <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
-                              <th className="px-8 pb-4">Protocol ID</th>
+                              <th className="px-8 pb-4">Reference ID</th>
                               <th className="px-8 pb-4">Recipient</th>
                               <th className="px-8 pb-4">Daily Yield</th>
                               <th className="px-8 pb-4">Accumulated</th>
@@ -1153,7 +1155,7 @@ const ManagerDashboard = () => {
                            <h4 className="text-lg font-black uppercase italic tracking-tighter leading-none mb-2">{staff.name}</h4>
                            <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-6">{staff.email}</p>
                            <div className="flex justify-between items-center">
-                              <span className="text-[9px] font-black px-4 py-2 bg-amber-50 text-amber-600 rounded-full italic uppercase tracking-widest">{staff.role}</span>
+                              <span className="text-[9px] font-black px-4 py-2 bg-amber-50 text-amber-600 rounded-full italic uppercase tracking-widest">{humanRole(staff.role)}</span>
                               <div className="flex gap-2">
                                  <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-slate-900 transition-all rounded-xl"><Edit3 size={18}/></button>
                                  <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-rose-500 transition-all rounded-xl"><Trash2 size={18}/></button>
@@ -1198,9 +1200,9 @@ const ManagerDashboard = () => {
                       <div className="space-y-3">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Asset Category</label>
                          <select value={assetForm.category} onChange={e => setAssetForm({...assetForm, category: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black uppercase italic focus:bg-white outline-none transition-all shadow-inner">
-                            <option>Gold Asset</option>
-                            <option>Silver Asset</option>
-                            <option>Institutional Bullion</option>
+                            {(adminCategories.length ? adminCategories : [{ name: 'Gold' }]).map(cat => (
+                              <option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>
+                            ))}
                          </select>
                       </div>
                       <div className="space-y-3">
@@ -1221,8 +1223,8 @@ const ManagerDashboard = () => {
                       </div>
                    </div>
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Protocol Description</label>
-                      <textarea rows="3" value={assetForm.description} onChange={e => setAssetForm({...assetForm, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Specifications and investment protocols..."></textarea>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Description</label>
+                      <textarea rows="3" value={assetForm.description} onChange={e => setAssetForm({...assetForm, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Specifications and purchase details..."></textarea>
                    </div>
                    <div className="pt-8 flex justify-end">
                       <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
@@ -1248,8 +1250,8 @@ const ManagerDashboard = () => {
                       <input required value={broadcastForm.title} onChange={e => setBroadcastForm({...broadcastForm, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black uppercase italic focus:bg-white outline-none transition-all shadow-inner" placeholder="E.G. SYSTEM MAINTENANCE SCHEDULE" />
                    </div>
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Institutional Message</label>
-                      <textarea required rows="4" value={broadcastForm.message} onChange={e => setBroadcastForm({...broadcastForm, message: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Detailed institutional communication..."></textarea>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Message</label>
+                      <textarea required rows="4" value={broadcastForm.message} onChange={e => setBroadcastForm({...broadcastForm, message: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Detailed message..."></textarea>
                    </div>
                    <div className="pt-8 flex justify-end">
                       <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
@@ -1267,7 +1269,7 @@ const ManagerDashboard = () => {
                 <button onClick={() => setShowStaffModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-slate-900 transition-all rounded-2xl"><X size={32} /></button>
                 <div className="mb-16">
                    <h3 className="text-4xl font-black text-slate-900 mb-3 italic uppercase tracking-tighter">Personnel Registration</h3>
-                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Onboard new institutional operations staff</p>
+                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Add a new staff member</p>
                 </div>
                 <form onSubmit={handleCreateStaff} className="space-y-10">
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -1276,7 +1278,7 @@ const ManagerDashboard = () => {
                          <input required value={staffForm.name} onChange={e => setStaffForm({...staffForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black uppercase italic focus:bg-white outline-none transition-all shadow-inner" placeholder="E.G. OFFICER RAJESH" />
                       </div>
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Institutional Email</label>
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Email</label>
                          <input required type="email" value={staffForm.email} onChange={e => setStaffForm({...staffForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner" placeholder="staff@makkalgold.com" />
                       </div>
                       <div className="space-y-3">
@@ -1351,9 +1353,9 @@ const ManagerDashboard = () => {
                    <div>
                       <div className="flex items-center gap-4 mb-2">
                          <div className="w-1.5 h-6 bg-amber-600 rounded-full"></div>
-                         <h3 className="text-2xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Identity Audit</h3>
+                         <h3 className="text-2xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Identity Review</h3>
                       </div>
-                      <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-6">Protocol for: <span className="text-amber-600 uppercase">{selectedKYC.name}</span></p>
+                      <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-6">Review for: <span className="text-amber-600 uppercase">{selectedKYC.name}</span></p>
                    </div>
                    <button 
                      onClick={() => setSelectedKYC(null)} 
@@ -1387,7 +1389,7 @@ const ManagerDashboard = () => {
                        {/* Identity & Bank Dossier */}
                        <div className="space-y-8">
                           <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
-                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 pb-3 italic">Identity Dossier</h4>
+                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 pb-3 italic">Identity Details</h4>
                              <div className="space-y-4">
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Contact Line</p>
@@ -1398,7 +1400,7 @@ const ManagerDashboard = () => {
                                    <p className="text-xs font-bold text-slate-900">{selectedKYC.aadhar_no || 'N/A'}</p>
                                 </div>
                                 <div>
-                                   <p className="text-[8px] font-black text-slate-400 uppercase italic">PAN Node</p>
+                                   <p className="text-[8px] font-black text-slate-400 uppercase italic">PAN Number</p>
                                    <p className="text-xs font-bold text-slate-900 uppercase">{selectedKYC.pan_no || 'N/A'}</p>
                                 </div>
                              </div>
@@ -1468,3 +1470,4 @@ const ManagerDashboard = () => {
 };
 
 export default ManagerDashboard;
+

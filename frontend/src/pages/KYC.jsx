@@ -139,7 +139,7 @@ const KYC = () => {
     <div className="min-h-screen bg-white flex items-center justify-center text-amber-600">
       <div className="flex flex-col items-center gap-6">
         <Loader2 className="animate-spin" size={60} strokeWidth={3} />
-        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Accessing Identity Vault...</p>
+        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Loading...</p>
       </div>
     </div>
   );
@@ -164,10 +164,10 @@ const KYC = () => {
              <div>
                 <div className="flex items-center gap-3 mb-3 md:mb-4">
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                   <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Security Protocol</span>
+                   <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Verification</span>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">KYC Verification</h1>
-                <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Establish institutional trust to enable capital operations</p>
+                <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Verify your identity to unlock withdrawals and rewards</p>
              </div>
           </motion.div>
 
@@ -194,27 +194,27 @@ const KYC = () => {
                 )}
                 
                 <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 tracking-tighter uppercase italic leading-tight">
-                   {kycStatus === 'verified' ? 'Status: Authenticated' : 'Status: Under Review'}
+                   {kycStatus === 'verified' ? 'Verified' : 'Under Review'}
                 </h2>
                 <p className="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest max-w-sm md:max-w-md mx-auto mb-10 md:mb-12 italic leading-relaxed">
-                   {kycStatus === 'verified' 
-                     ? 'Your institutional identity has been established. All terminal operations including withdrawals and cashback dividends are now active.' 
-                     : 'Compliance algorithms are currently validating your documentation. This process usually concludes within 24-48 business hours.'}
+                   {kycStatus === 'verified'
+                     ? 'Your identity is verified. You can now withdraw money and earn cashback.'
+                     : "We're reviewing your documents. This usually takes 24-48 hours."}
                 </p>
 
                 <div className="w-full max-w-md bg-slate-50 p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 text-left shadow-inner">
-                   <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5 md:mb-6 border-b border-slate-200 pb-3 italic">Vault Records</h4>
+                   <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5 md:mb-6 border-b border-slate-200 pb-3 italic">Your Details</h4>
                    <div className="space-y-4">
                       <div className="flex justify-between items-center gap-4">
                          <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic">Phone</span>
                          <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.phone || 'NOT_FOUND'}</span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
-                         <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic whitespace-nowrap">Aadhar Ref</span>
+                         <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic whitespace-nowrap">Aadhaar No</span>
                          <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.aadhar_no ? 'XXXX ' + formData.aadhar_no.slice(-4) : 'NOT_FOUND'}</span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
-                         <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic">PAN Node</span>
+                         <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic">PAN No</span>
                          <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.pan_no ? 'XXXX' + formData.pan_no.slice(-4) : 'NOT_FOUND'}</span>
                       </div>
                    </div>
@@ -270,12 +270,12 @@ const KYC = () => {
                 >
                   <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
                     <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><User size={20} /></div>
-                    <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Institutional Profile Data</h3>
+                    <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Personal Details</h3>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                     <div className="space-y-3">
-                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Communication Line</label>
+                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Phone Number</label>
                       <div className="relative group">
                         <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                         <input 
@@ -290,7 +290,7 @@ const KYC = () => {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Residency Anchor</label>
+                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Address</label>
                       <div className="relative group">
                         <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                         <input 
@@ -299,13 +299,13 @@ const KYC = () => {
                           required
                           value={formData.address}
                           onChange={handleInputChange}
-                          placeholder="Institutional Address" 
+                          placeholder="Your full address"
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                         />
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Aadhar Identification</label>
+                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Aadhaar Number</label>
                       <div className="relative group">
                         <Fingerprint className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                         <input 
@@ -320,7 +320,7 @@ const KYC = () => {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">PAN Identification</label>
+                      <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">PAN Number</label>
                       <div className="relative group">
                         <CreditCard className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                         <input 
@@ -346,12 +346,12 @@ const KYC = () => {
                 >
                    <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
                       <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Building2 size={20} /></div>
-                      <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Institutional Bank Vault</h3>
+                      <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Bank Details</h3>
                    </div>
 
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                       <div className="space-y-3">
-                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Financial Institution (Bank Name)</label>
+                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Bank Name</label>
                          <div className="relative group">
                             <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                             <input 
@@ -367,7 +367,7 @@ const KYC = () => {
                       </div>
 
                       <div className="space-y-3">
-                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Account Vault Number</label>
+                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Account Number</label>
                          <div className="relative group">
                             <Hash className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                             <input 
@@ -383,7 +383,7 @@ const KYC = () => {
                       </div>
 
                       <div className="space-y-3">
-                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Institutional IFSC Code</label>
+                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">IFSC Code</label>
                          <div className="relative group">
                             <Zap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                             <input 
@@ -399,7 +399,7 @@ const KYC = () => {
                       </div>
 
                       <div className="space-y-3">
-                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Branch Designation</label>
+                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-1">Branch Name</label>
                          <div className="relative group">
                             <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={18} md:size={20} />
                             <input 
@@ -426,7 +426,7 @@ const KYC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 pb-6 mb-8 md:mb-12">
                     <div className="flex items-center gap-4">
                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-amber-500 shadow-sm border border-slate-100"><FileText size={20} /></div>
-                       <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Institutional Artifacts</h3>
+                       <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Upload Documents</h3>
                     </div>
                     <div className="flex gap-2">
                        <div className="px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20 text-[7px] md:text-[8px] font-black text-amber-600 uppercase italic tracking-widest">Required: 03</div>
@@ -470,12 +470,12 @@ const KYC = () => {
                       </div>
                       {file ? (
                         <div>
-                          <p className="text-emerald-600 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-2 italic">Node Record Loaded</p>
+                          <p className="text-emerald-600 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-2 italic">File Selected</p>
                           <p className="text-xs md:text-sm font-black text-slate-900 italic opacity-60 truncate max-w-[200px] md:max-w-xs mx-auto">{file.name}</p>
                         </div>
                       ) : (
                         <>
-                          <p className="text-sm font-black text-slate-900 mb-2 uppercase italic tracking-tighter leading-none">Compile & Initialize Transfer</p>
+                          <p className="text-sm font-black text-slate-900 mb-2 uppercase italic tracking-tighter leading-none">Click to Upload</p>
                           <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] italic opacity-60">PDF / Images containing all docs (Max: 5MB)</p>
                         </>
                       )}
@@ -485,7 +485,7 @@ const KYC = () => {
                   <div className="mt-8 md:mt-12 flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-slate-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
                     <Shield className="text-amber-500 shrink-0 mt-1" size={20} md:size={24} strokeWidth={2.5} />
                     <p className="text-[8px] md:text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider italic">
-                      All identification nodes are encrypted with SHA-256 standards. Validation cycle is typically 24-48 business hours.
+                      Your documents are stored securely. Verification usually takes 24-48 hours.
                     </p>
                   </div>
                 </motion.div>

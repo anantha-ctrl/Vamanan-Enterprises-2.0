@@ -6,6 +6,8 @@ import {
   Home, FileText, UserCircle, ShoppingCart, Award, Zap, BookOpen, ChevronRight, X, Shield, Landmark, Settings, TrendingUp, Megaphone, Network
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { humanRole } from '../utils/humanLabels';
+import { hasPermission } from '../utils/accessControl';
 
 const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu }) => {
   const navigate = useNavigate();
@@ -35,38 +37,32 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
 
   const getNavItems = () => {
     let items = [];
-    let permissions = [];
-    
-    if (user.permissions) {
-      try {
-        permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
-      } catch (e) {
-        console.error("Failed to parse permissions", e);
-        permissions = [];
-      }
-    }
-
     const filterByPermission = (groupList) => {
-      if (role === 'admin') return groupList; // Admin sees everything
-      
-      // Strict enforcement: if no permissions are set, they can only see Dashboard
-      const effectivePermissions = (permissions && permissions.length > 0) ? permissions : ['overview'];
+      if (role === 'admin') return groupList;
 
       return groupList.map(group => ({
         ...group,
-        items: group.items.filter(item => effectivePermissions.includes(item.id))
+        items: group.items
+          .map(item => {
+            if (!item.subItems) return item;
+            return {
+              ...item,
+              subItems: item.subItems.filter(subItem => hasPermission(user, subItem.id)),
+            };
+          })
+          .filter(item => hasPermission(user, item.id) || item.subItems?.length > 0)
       })).filter(group => group.items.length > 0);
     };
 
     if (role === 'admin') {
       items = [
-        { group: 'Management Matrix', items: [
+        { group: 'Management', items: [
           { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-          { id: 'investments', label: 'Investment', icon: ShoppingCart },
-          { id: 'investment_history', label: 'Investment History', icon: FileText },
-          { id: 'inventory', label: 'Asset Inventory', icon: ShoppingBag },
-          { id: 'users', label: 'Entity Directory', icon: Users },
-          { id: 'genealogy', label: 'Genealogy Tree', icon: Network },
+          { id: 'investments', label: 'Purchases', icon: ShoppingCart },
+          { id: 'investment_history', label: 'Purchase History', icon: FileText },
+          { id: 'inventory', label: 'Asset Inventory', icon: ShoppingBag, path: '/admin/inventory' },
+          { id: 'users', label: 'Users', icon: Users },
+          { id: 'genealogy', label: 'Genealogy', icon: Network },
           // { id: 'agreements', label: 'Institutional Agreements', icon: FileSignature, path: '/advocate?tab=agreements' },
         ]},
         { group: 'Operations', items: [
@@ -77,12 +73,12 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
             { id: 'payout_reconciliation', label: 'Payout Reconciliation', path: '/admin/payout-reconciliation' },
             { id: 'payout_reports', label: 'Payout Reports', path: '/admin/payout-reports' },
           ]},
-          { id: 'wallet_adj', label: 'Quick Adjust', icon: CreditCard },
+          { id: 'wallet_adj', label: 'Wallet Adjustment', icon: CreditCard },
           { id: 'kyc', label: 'KYC', icon: ShieldCheck },
           { id: 'market_rates', label: 'Market Rates', icon: TrendingUp },
           { id: 'withdrawals', label: 'Withdrawals', icon: Landmark },
-          { id: 'tickets', label: 'Notification Hub', icon: Megaphone },
-          { id: 'fiscal_reports', label: 'Fiscal Reports', icon: FileText, subItems: [
+          { id: 'tickets', label: 'Notifications', icon: Megaphone },
+          { id: 'fiscal_reports', label: 'Reports', icon: FileText, subItems: [
             { id: 'cashback_reports', label: 'Cashback Reports', path: '/admin/reports/cashback' },
             { id: 'withdrawal_reports', label: 'Withdrawal Reports', path: '/admin/reports/withdrawal' },
             { id: 'transaction_reports', label: 'Transaction Reports', path: '/admin/reports/transaction' },
@@ -98,23 +94,23 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
       ];
     } else if (role === 'manager') {
       items = [
-        { group: 'Operational Hub', items: [
+        { group: 'Operations', items: [
           { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-          { id: 'users', label: 'Customer Directory', icon: Users },
-          { id: 'investments', label: 'Investment Requests', icon: ShoppingCart },
-          { id: 'investment_history', label: 'Investment History', icon: FileText },
-          { id: 'inventory', label: 'Manage Assets', icon: ShoppingBag },
-          { id: 'agreements', label: 'Ratification Hub', icon: FileSignature, path: '/advocate?tab=agreements' },
+          { id: 'users', label: 'Customers', icon: Users },
+          { id: 'investments', label: 'Purchase Requests', icon: ShoppingCart },
+          { id: 'investment_history', label: 'Purchase History', icon: FileText },
+          { id: 'inventory', label: 'Manage Assets', icon: ShoppingBag, path: '/admin/inventory' },
+          { id: 'agreements', label: 'Agreements', icon: FileSignature, path: '/advocate?tab=agreements' },
           { id: 'kyc', label: 'KYC Verification', icon: ShieldCheck },
         ]},
-        { group: 'Security & Finance', items: [
-          { id: 'wallets_view', label: 'Cashback Monitoring', icon: Wallet },
-          { id: 'withdrawals', label: 'Withdraw Requests', icon: Landmark },
+        { group: 'Finance', items: [
+          { id: 'wallets_view', label: 'Cashback', icon: Wallet },
+          { id: 'withdrawals', label: 'Withdrawals', icon: Landmark },
           { id: 'tickets', label: 'Support Tickets', icon: MessageCircle },
           { id: 'broadcast', label: 'Notifications', icon: Megaphone },
-          { id: 'payout_reports', label: 'Fiscal Reports', icon: TrendingUp },
+          { id: 'payout_reports', label: 'Reports', icon: TrendingUp },
         ]},
-        { group: 'System & Admin', items: [
+        { group: 'Settings', items: [
           { id: 'recruitment', label: 'Staff Management', icon: UserPlus },
           { id: 'settings', label: 'Profile', icon: UserCircle },
         ]}
@@ -122,23 +118,23 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
       return filterByPermission(items);
     } else if (role === 'advocate') {
       return [
-        { group: 'Legal Command Center', items: [
-          { id: 'overview', label: 'Overview Terminal', icon: BarChart3, path: '/advocate?tab=overview' },
-          { id: 'agreements', label: 'Ratification Hub', icon: FileSignature, path: '/advocate?tab=agreements' },
-          { id: 'registry', label: 'Member Registry', icon: Users, path: '/advocate?tab=registry' },
-          { id: 'archive', label: 'Ratification Archive', icon: Landmark, path: '/advocate?tab=archive' },
+        { group: 'Legal', items: [
+          { id: 'overview', label: 'Overview', icon: BarChart3, path: '/advocate?tab=overview' },
+          { id: 'agreements', label: 'Agreements', icon: FileSignature, path: '/advocate?tab=agreements' },
+          { id: 'registry', label: 'Members', icon: Users, path: '/advocate?tab=registry' },
+          { id: 'archive', label: 'Archive', icon: Landmark, path: '/advocate?tab=archive' },
           { id: 'disputes', label: 'Dispute Resolution', icon: Shield, path: '/advocate?tab=disputes' },
         ]},
-        { group: 'Identity Protocol', items: [
-          { id: 'profile', label: 'Security Profile', icon: Shield, path: '/advocate-profile' },
+        { group: 'Account', items: [
+          { id: 'profile', label: 'Profile', icon: Shield, path: '/advocate-profile' },
         ]}
       ];
     } else if (role === 'staff') {
       items = [
-        { group: 'Task Matrix', items: [
-          { id: 'overview', label: 'Support Command', icon: BarChart3 },
-          { id: 'kyc', label: 'Identity Processing', icon: ShieldCheck },
-          { id: 'tickets', label: 'Notification Hub', icon: Megaphone },
+        { group: 'Tasks', items: [
+          { id: 'overview', label: 'Dashboard', icon: BarChart3 },
+          { id: 'kyc', label: 'KYC', icon: ShieldCheck },
+          { id: 'tickets', label: 'Notifications', icon: Megaphone },
         ]}
       ];
       return filterByPermission(items);
@@ -225,7 +221,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
                       <h1 className="text-sm font-black tracking-tighter uppercase italic leading-none text-slate-900">Vamanan <span className="text-amber-600">Gold</span></h1>
                       <div className="flex items-center gap-1.5 mt-1">
                          <div className="w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>
-                         <span className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 italic">{role} Node</span>
+                         <span className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 italic">{humanRole(role)}</span>
                       </div>
                    </div>
                 </div>
@@ -319,7 +315,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
                     </div>
                     <div className="min-w-0">
                        <p className="text-[9px] font-black text-slate-900 uppercase italic truncate group-hover/footer:text-white transition-colors">{user.name || 'Anonymous'}</p>
-                       <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate mt-0.5 group-hover/footer:text-amber-500/70 transition-colors">Verified Partner</p>
+                       <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate mt-0.5 group-hover/footer:text-amber-500/70 transition-colors">Signed In</p>
                     </div>
                  </div>
               </div>
@@ -330,7 +326,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
               >
                 <div className="flex items-center gap-3">
                    <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
-                   <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">LogOut</span>
+                   <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Log Out</span>
                 </div>
                 <div className="w-1 h-1 rounded-full bg-slate-200 group-hover:bg-rose-500 transition-colors"></div>
               </button>

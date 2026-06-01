@@ -1,25 +1,13 @@
 <?php
 // api/admin/products.php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
 
-require_once '../config/db.php';
-require_once '../config/migrate.php';
-
-$database = new Database();
-$db = $database->getConnection();
-
-if (!$db) {
-    die(json_encode(["status" => "error", "message" => "Database connection failed"]));
-}
-
-// Ensure database is up to date
-runMigrations($db);
+require_once '../config.php';
+$db = $pdo;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -41,7 +29,7 @@ if ($method === 'GET') {
     
     if (strpos($contentType, "multipart/form-data") !== false) {
         $name = $_POST['name'] ?? '';
-        $category = $_POST['category'] ?? 'Gold Asset';
+        $category = $_POST['category'] ?? 'Gold';
         $price = $_POST['price'] ?? '';
         $weight = $_POST['weight'] ?? 0;
         $purity = $_POST['purity'] ?? '24K';
@@ -67,7 +55,7 @@ if ($method === 'GET') {
     } else {
         $data = json_decode(file_get_contents("php://input"));
         $name = $data->name ?? '';
-        $category = $data->category ?? 'Gold Asset';
+        $category = $data->category ?? 'Gold';
         $price = $data->price ?? '';
         $weight = $data->weight ?? 0;
         $purity = $data->purity ?? '24K';

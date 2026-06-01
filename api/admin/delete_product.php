@@ -8,10 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once '../config/db.php';
-
-$database = new Database();
-$db = $database->getConnection();
+require_once '../config.php';
+$db = $pdo;
 
 $data = json_decode(file_get_contents("php://input"));
 

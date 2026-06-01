@@ -8,9 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../config';
+import { humanPaymentMethod } from '../utils/humanLabels';
 
-const SITE_URL = API_BASE_URL.replace('/api', ''); // https://vamananenterprisesv.com
-const imgUrl = (path) => path ? `${SITE_URL}/${path}` : null;
+const SITE_URL = API_BASE_URL.replace('/api', '');
+const imgUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${SITE_URL}/${path}`;
+};
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 
@@ -60,6 +65,10 @@ const Shop = () => {
   const [products, setProducts]               = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productQtys, setProductQtys]         = useState({});   // {id: qty}
+  const [categories, setCategories]           = useState([]);
+  const [activeCategory, setActiveCategory]   = useState('all');
+  const [stockTracking, setStockTracking]     = useState(true);  // false → stock endpoint unavailable, treat all as in-stock
+  const stockTrackingRef = useRef(true);
 
   /* ── cart ── */
   const [cart, setCart]       = useState([]);
@@ -67,10 +76,9 @@ const Shop = () => {
   const [checkoutMode, setCheckoutMode] = useState('single'); // 'single'|'cart'
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  /* ── orders (live tracking) ── */
+  /* ── orders ── */
   const [orders, setOrders]               = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const ordersPollRef = useRef(null);
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}') || {};
@@ -87,10 +95,25 @@ const Shop = () => {
   const cartCount   = cart.reduce((s, i) => s + i.quantity, 0);
   const cartDailyPayout = cartPreGST * (dailyRate / 100);
 
+  const filteredProducts = activeCategory === 'all'
+    ? products
+    : products.filter(p => (p.category || '').toLowerCase() === activeCategory.toLowerCase());
+
   const effectiveAmount = checkoutMode === 'cart' ? cartTotal : totalAmount;
   const paymentCompanyName = paymentGateway.companyName || 'Vamanan Enterprises';
   const upiPaymentData = `upi://pay?pa=${encodeURIComponent(paymentGateway.upiId)}&pn=${encodeURIComponent(paymentCompanyName)}&am=${effectiveAmount.toFixed(2)}&cu=INR`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiPaymentData)}`;
+
+  /* ── delivery estimate: 48–72 hrs from order time ── */
+  const DELIVERY_MIN_HRS = 48;
+  const DELIVERY_MAX_HRS = 72;
+  const deliveryWindow = (createdAt) => {
+    const base = createdAt ? new Date(createdAt) : new Date();
+    const start = new Date(base.getTime() + DELIVERY_MIN_HRS * 3600 * 1000);
+    const end   = new Date(base.getTime() + DELIVERY_MAX_HRS * 3600 * 1000);
+    const fmt = (d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    return `${fmt(start)} – ${fmt(end)}`;
+  };
 
   /* ──────────── lifecycle ──────────── */
   useEffect(() => {
@@ -103,11 +126,7 @@ const Shop = () => {
     if (activeTab === 'products') {
       fetchProducts();
       fetchOrders();
-      ordersPollRef.current = setInterval(fetchOrders, 30000);
-    } else {
-      clearInterval(ordersPollRef.current);
     }
-    return () => clearInterval(ordersPollRef.current);
   }, [activeTab]);
 
   useEffect(() => {
@@ -144,15 +163,52 @@ const Shop = () => {
   const fetchProducts = async () => {
     setProductsLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/admin/products.php`);
-      if (res.data.status === 'success') {
-        const active = (res.data.data || []).filter(p => p.is_active == 1);
+      // Primary source: products.php (always available). Stock is enriched separately.
+      const prodReq = axios.get(`${API_BASE_URL}/admin/products.php`);
+      const stockReq = stockTrackingRef.current
+        ? axios.get(`${API_BASE_URL}/admin/inventory.php`).catch(() => null)
+        : Promise.resolve(null);
+
+      const categoryReq = axios.get(`${API_BASE_URL}/admin/categories.php`).catch(() => null);
+      const [prodRes, stockRes, categoryRes] = await Promise.all([prodReq, stockReq, categoryReq]);
+
+      if (prodRes.data.status === 'success') {
+        // Only show active products to customers
+        let active = (prodRes.data.data || []).filter(p => p.is_active == 1);
+
+        // Merge real-time stock data if inventory.php is reachable
+        if (stockRes && stockRes.data?.status === 'success') {
+          const stockMap = {};
+          (stockRes.data.data || []).forEach(r => { stockMap[r.id] = r; });
+          active = active.map(p => ({
+            ...p,
+            stock_quantity:      stockMap[p.id]?.stock_quantity,
+            stock_status:        stockMap[p.id]?.stock_status,
+            low_stock_threshold: stockMap[p.id]?.low_stock_threshold,
+          }));
+        } else if (stockTrackingRef.current) {
+          // inventory.php unreachable → stop trying, treat all products as available
+          stockTrackingRef.current = false;
+          setStockTracking(false);
+        }
+
         setProducts(active);
         const initQtys = {};
         active.forEach(p => { initQtys[p.id] = 1; });
         setProductQtys(prev => ({ ...initQtys, ...prev }));
+
+        // Categories: source of truth is categories.php; inventory/products are fallback.
+        let cats = [];
+        if (categoryRes && categoryRes.data?.status === 'success') {
+          cats = (categoryRes.data.data || []).map(cat => ({ id: cat.id, name: cat.name }));
+        } else if (stockRes && stockRes.data?.categories?.length) {
+          cats = stockRes.data.categories.map((name, i) => ({ id: i + 1, name }));
+        } else {
+          cats = [...new Set(active.map(p => p.category).filter(Boolean))].map((name, i) => ({ id: i + 1, name }));
+        }
+        setCategories(cats);
       }
-    } catch { console.error('Products fetch failed'); }
+    } catch (err) { console.error('Products fetch failed', err); }
     finally { setProductsLoading(false); }
   };
 
@@ -260,10 +316,10 @@ const Shop = () => {
           : assetType === 'product' ? selectedProduct?.name : `${weight}g ${assetType.toUpperCase()}`;
 
         const msg = encodeURIComponent(
-          `🛒 *New Purchase Request!*\n\n👤 *Customer:* ${user.name}\n📞 *Phone:* ${user.phone || 'N/A'}\n💰 *Asset:* ${itemLabel}\n💵 *Amount:* ₹${effectiveAmount.toLocaleString()}\n🆔 *UTR:* ${paymentForm.transaction_id}\n\n_Please verify screenshot in admin panel._`
+          `🛒 *New Purchase Request!*\n\n👤 *Customer:* ${user.name}\n📞 *Phone:* ${user.phone || 'N/A'}\n💰 *Asset:* ${itemLabel}\n💵 *Amount:* ₹${effectiveAmount.toLocaleString()}\n🆔 *UTR:* ${paymentForm.transaction_id}\n🚚 *Delivery:* Within 48–72 hours of approval\n\n_Please verify screenshot in admin panel._`
         );
         const waLink = `https://wa.me/${supportPhone}?text=${msg}`;
-        setStatus({ type: 'success', message: res.data.message + ' Redirecting to WhatsApp...' });
+        setStatus({ type: 'success', message: `${res.data.message} 🚚 Estimated delivery within 48–72 hours. Redirecting to WhatsApp...` });
         setShowPaymentModal(false);
         if (checkoutMode === 'cart') setCart([]);
         setPaymentForm({ transaction_id: '', screenshot: null, phone: '' });
@@ -279,7 +335,7 @@ const Shop = () => {
     <div className="min-h-screen bg-white flex items-center justify-center text-amber-600">
       <div className="flex flex-col items-center gap-6">
         <Loader2 className="animate-spin" size={60} strokeWidth={3} />
-        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Accessing Market Ticker...</p>
+        <p className="text-[10px] font-black animate-pulse uppercase tracking-[0.4em] italic">Loading...</p>
       </div>
     </div>
   );
@@ -300,10 +356,10 @@ const Shop = () => {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Institutional Ticker</span>
+                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Live Prices</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Asset Acquisition</h1>
-              <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">Establish long-term reserves with daily rewards</p>
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Buy Gold &amp; Silver</h1>
+              <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">Buy gold, silver or products and earn daily rewards</p>
             </div>
             <div className="flex items-center gap-3">
               {activeTab === 'products' && cartCount > 0 && (
@@ -349,9 +405,9 @@ const Shop = () => {
                   <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter italic">₹{currentPrice.toLocaleString()} <span className="text-sm md:text-lg text-slate-400">/ gram</span></h2>
                   <div className="flex flex-wrap items-center gap-4 mt-4 md:mt-6">
                     <div className="bg-emerald-50 text-emerald-600 px-4 md:px-6 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100 italic flex items-center gap-2">
-                      <TrendingUp size={14} strokeWidth={3} /> {assetType === 'gold' ? '+2.3%' : '+1.8%'} Marginal
+                      <TrendingUp size={14} strokeWidth={3} /> {assetType === 'gold' ? '+2.3%' : '+1.8%'} Today
                     </div>
-                    <p className="text-[8px] md:text-[9px] text-slate-300 font-black uppercase tracking-widest italic">Live Market Node</p>
+                    <p className="text-[8px] md:text-[9px] text-slate-300 font-black uppercase tracking-widest italic">Live Price</p>
                   </div>
                 </div>
                 <div className={`w-20 h-20 md:w-32 md:h-32 bg-slate-50 rounded-2xl md:rounded-[2rem] flex items-center justify-center border border-slate-100 shadow-inner group-hover:bg-slate-900 transition-all duration-500 ${assetType === 'gold' ? 'text-amber-500 group-hover:text-amber-500' : 'text-slate-400 group-hover:text-slate-200'}`}>
@@ -364,23 +420,23 @@ const Shop = () => {
                 <div className="p-8 md:p-16">
                   <div className="flex items-center gap-4 border-b border-slate-100 pb-6 md:pb-8 mb-8 md:mb-12">
                     <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Zap size={20} /></div>
-                    <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Capital Allocation Matrix</h3>
+                    <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Enter Amount</h3>
                   </div>
                   <div className="mb-8 md:mb-12">
-                    <label className="block text-[9px] md:text-[10px] font-black text-slate-400 mb-3 uppercase tracking-widest italic ml-1">Asset Mass (Grams)</label>
+                    <label className="block text-[9px] md:text-[10px] font-black text-slate-400 mb-3 uppercase tracking-widest italic ml-1">Weight (Grams)</label>
                     <div className="relative group">
                       <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-2xl md:rounded-[2rem] px-8 md:px-10 py-6 md:py-8 text-slate-900 focus:border-amber-500 focus:bg-white outline-none text-2xl md:text-3xl font-black transition-all shadow-inner italic"
                         value={weight} onChange={(e) => setWeight(Math.max(1, parseInt(e.target.value) || 1))} min="1" />
-                      <div className="absolute right-6 md:right-8 top-1/2 -translate-y-1/2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] italic hidden sm:block">Precision Input Node</div>
+                      <div className="absolute right-6 md:right-8 top-1/2 -translate-y-1/2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] italic hidden sm:block">Grams</div>
                     </div>
                   </div>
                   <div className="space-y-6 md:space-y-8 pt-8 border-t border-slate-50 mb-8">
                     <div className="flex justify-between items-center">
-                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Base Valuation</span>
+                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Base Amount</span>
                       <span className="text-lg md:text-xl font-black text-slate-900 italic">₹{baseAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Fiscal Levy ({gstPercent}%)</span>
+                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">GST ({gstPercent}%)</span>
                       <span className="text-lg md:text-xl font-black text-slate-900 italic">₹{gstAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-2xl border border-emerald-100/50">
@@ -396,12 +452,12 @@ const Shop = () => {
                   </div>
                   <button onClick={handleGoldSilverBuy} disabled={buying}
                     className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-2xl md:rounded-[2rem] font-black text-[9px] md:text-[10px] uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl active:scale-95 italic group flex items-center justify-center gap-3">
-                    {buying ? <Loader2 className="animate-spin" size={20} /> : <><span>Initialize {assetType === 'gold' ? 'Gold' : 'Silver'} Transfer</span> <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>}
+                    {buying ? <Loader2 className="animate-spin" size={20} /> : <><span>Buy {assetType === 'gold' ? 'Gold' : 'Silver'} Now</span> <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>}
                   </button>
                   <div className="mt-8 flex items-start gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
                     <ShieldCheck className="text-amber-500 shrink-0 mt-1" size={20} strokeWidth={2.5} />
                     <p className="text-[8px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider italic">
-                      Purchases cross-validated against global {assetType === 'gold' ? '22K' : 'Pure Silver'} spot price. Daily rewards activate at 00:00 UTC.
+                      Prices are based on the live {assetType === 'gold' ? '22K gold' : 'pure silver'} market rate. Your daily rewards start the next day.
                     </p>
                   </div>
                 </div>
@@ -413,65 +469,127 @@ const Shop = () => {
           {activeTab === 'products' && (
             <motion.div key="products-panel" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
 
+              {/* ── Category Filter ── */}
+              {categories.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setActiveCategory('all')}
+                    className={`py-2.5 px-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 ${activeCategory === 'all' ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}>
+                    All Products
+                  </button>
+                  {categories.map(cat => (
+                    <button key={cat.id}
+                      onClick={() => setActiveCategory(cat.name)}
+                      className={`py-2.5 px-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 ${activeCategory === cat.name ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}>
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Product Grid */}
               {productsLoading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <Loader2 className="animate-spin text-amber-500" size={40} strokeWidth={2} />
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-400">Loading Product Catalog...</p>
                 </div>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4 bg-white rounded-[2rem] border border-slate-100">
                   <Package size={56} className="text-slate-200" strokeWidth={1} />
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-300">No Products Available</p>
-                  <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic">Admin has not listed any products yet</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-300">
+                    {activeCategory === 'all' ? 'No Products Available' : `No Products in "${activeCategory}"`}
+                  </p>
+                  <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic">
+                    {activeCategory === 'all' ? 'Admin has not listed any products yet' : 'Try selecting a different category'}
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
-                  {products.map((product, idx) => {
-                    const inCart = cart.find(i => i.id === product.id);
-                    const qty = productQtys[product.id] || 1;
+                  {filteredProducts.map((product, idx) => {
+                    const inCart      = cart.find(i => i.id === product.id);
+                    const qty         = productQtys[product.id] || 1;
                     const productTotal = parseFloat(product.price) * qty;
-                    const productGST = productTotal * (gstPercent / 100);
+                    const productGST   = productTotal * (gstPercent / 100);
                     const productFinal = productTotal + productGST;
-                    const dailyPayout = productTotal * (dailyRate / 100);
+                    const dailyPayout  = productTotal * (dailyRate / 100);
+
+                    // ── Real-time stock from inventory (only when stock tracking is active) ──
+                    const hasStockData = stockTracking && product.stock_quantity != null;
+                    const stockQty    = parseInt(product.stock_quantity ?? 0);
+                    const threshold   = parseInt(product.low_stock_threshold ?? 10);
+                    // Without stock data, every active product is considered purchasable.
+                    const isOutOfStock = hasStockData && stockQty === 0;
+                    const isLowStock   = hasStockData && !isOutOfStock && stockQty <= threshold;
+                    const isInStock    = hasStockData && !isOutOfStock && !isLowStock;
+
                     return (
                       <motion.div key={product.id}
                         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-                        className={`flex flex-col bg-white rounded-[2rem] overflow-hidden border-2 shadow-sm transition-all duration-300 ${inCart ? 'border-emerald-400 shadow-emerald-100 shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'}`}>
+                        className={`flex flex-col bg-white rounded-[2rem] overflow-hidden border-2 shadow-sm transition-all duration-300 ${
+                          isOutOfStock ? 'border-rose-100 opacity-75'
+                          : inCart ? 'border-emerald-400 shadow-emerald-100 shadow-lg'
+                          : 'border-slate-100 hover:border-slate-200 hover:shadow-md'}`}>
 
-                        {/* Image */}
+                        {/* ── Image ── */}
                         <div className="relative h-52 bg-slate-50 overflow-hidden shrink-0">
                           {product.image ? (
                             <img src={imgUrl(product.image)} alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                              className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isOutOfStock ? 'grayscale' : ''}`} />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package size={56} className="text-slate-200" strokeWidth={1} />
                             </div>
                           )}
-                          {inCart && (
+
+                          {/* Purity badge — top left */}
+                          {product.purity && (
+                            <div className={`absolute top-3 left-3 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow ${/^(22K|24K|18K|999)$/.test(product.purity) ? 'bg-amber-500 text-slate-900' : 'bg-slate-800 text-white'}`}>
+                              {product.purity}
+                            </div>
+                          )}
+
+                          {/* In-cart badge — top right */}
+                          {inCart && !isOutOfStock && (
                             <div className="absolute top-3 right-3 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest italic px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
                               <CheckCircle2 size={10} strokeWidth={3} /> In Cart
                             </div>
                           )}
-                          {product.purity && (
-                            <div className="absolute top-3 left-3 bg-amber-500 text-slate-900 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow">
-                              {product.purity}
-                            </div>
-                          )}
+
+                          {/* Stock status overlay — bottom */}
+                          <div className="absolute bottom-0 left-0 right-0">
+                            {isOutOfStock && (
+                              <div className="bg-rose-600/90 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-widest py-2 text-center flex items-center justify-center gap-1.5">
+                                <X size={11} strokeWidth={3} /> Out of Stock
+                              </div>
+                            )}
+                            {isLowStock && (
+                              <div className="bg-amber-500/90 backdrop-blur-sm text-slate-900 text-[9px] font-black uppercase tracking-widest py-2 text-center flex items-center justify-center gap-1.5">
+                                <AlertCircle size={11} strokeWidth={2.5} /> Only {stockQty} left — Hurry!
+                              </div>
+                            )}
+                            {isInStock && (
+                              <div className="bg-emerald-500/80 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-widest py-1.5 text-center flex items-center justify-center gap-1.5">
+                                <CheckCircle2 size={10} strokeWidth={3} /> {stockQty} In Stock
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Content */}
+                        {/* ── Content ── */}
                         <div className="flex flex-col flex-1 p-5 gap-4">
                           {/* Name + badges */}
                           <div>
-                            <h4 className="text-sm font-black text-slate-900 uppercase italic tracking-tight leading-tight mb-2">{product.name}</h4>
+                            <h4 className={`text-sm font-black uppercase italic tracking-tight leading-tight mb-2 ${isOutOfStock ? 'text-slate-400' : 'text-slate-900'}`}>
+                              {product.name}
+                            </h4>
                             <div className="flex flex-wrap gap-1.5">
                               {product.category && (
                                 <span className="bg-slate-50 text-slate-400 text-[7px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border border-slate-100">{product.category}</span>
                               )}
                               {parseFloat(product.weight) > 0 && (
-                                <span className="bg-slate-50 text-slate-400 text-[7px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border border-slate-100">{product.weight}g</span>
+                                <span className="bg-slate-50 text-slate-400 text-[7px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border border-slate-100">
+                                  {/^(22K|24K|18K|999)$/.test(product.purity || '') ? `${product.weight}g` : product.weight}
+                                </span>
                               )}
                             </div>
                           </div>
@@ -482,50 +600,70 @@ const Shop = () => {
                           )}
 
                           {/* Price + daily payout */}
-                          <div className="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-100">
+                          <div className={`rounded-2xl p-4 space-y-2 border ${isOutOfStock ? 'bg-slate-50 border-slate-100' : 'bg-slate-50 border-slate-100'}`}>
                             <div className="flex justify-between items-center">
                               <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Unit Price</span>
-                              <span className="text-base font-black text-slate-900 italic tracking-tighter">₹{parseFloat(product.price).toLocaleString()}</span>
+                              <span className={`text-base font-black italic tracking-tighter ${isOutOfStock ? 'text-slate-400' : 'text-slate-900'}`}>
+                                ₹{parseFloat(product.price).toLocaleString()}
+                              </span>
                             </div>
-                            {qty > 1 && (
+                            {qty > 1 && !isOutOfStock && (
                               <div className="flex justify-between items-center">
                                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Total ({qty} pcs)</span>
                                 <span className="text-sm font-black text-slate-700 italic">₹{productFinal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                               </div>
                             )}
-                            <div className="flex justify-between items-center pt-1 border-t border-slate-200">
-                              <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic">Daily Payout</span>
-                              <span className="text-[11px] font-black text-emerald-600 italic">+₹{(dailyPayout).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}/day</span>
-                            </div>
+                            {!isOutOfStock && (
+                              <div className="flex justify-between items-center pt-1 border-t border-slate-200">
+                                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic">Daily Payout</span>
+                                <span className="text-[11px] font-black text-emerald-600 italic">+₹{dailyPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}/day</span>
+                              </div>
+                            )}
+                            {isOutOfStock && (
+                              <div className="flex items-center justify-center gap-2 pt-1 border-t border-slate-200">
+                                <span className="text-[8px] font-black text-rose-400 uppercase tracking-widest italic">Currently Unavailable</span>
+                              </div>
+                            )}
                           </div>
 
-                          {/* Quantity control */}
-                          <div className="flex items-center gap-3">
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic shrink-0">Qty</span>
-                            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden flex-1">
-                              <button onClick={() => setQty(product.id, qty - 1)}
-                                className="px-3 py-2.5 hover:bg-slate-200 transition-colors text-slate-500 hover:text-slate-900">
-                                <Minus size={12} strokeWidth={3} />
-                              </button>
-                              <span className="flex-1 text-center text-sm font-black text-slate-900 italic">{qty}</span>
-                              <button onClick={() => setQty(product.id, qty + 1)}
-                                className="px-3 py-2.5 hover:bg-slate-200 transition-colors text-slate-500 hover:text-slate-900">
-                                <Plus size={12} strokeWidth={3} />
-                              </button>
+                          {/* Quantity control — hidden when out of stock */}
+                          {!isOutOfStock && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic shrink-0">Qty</span>
+                              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden flex-1">
+                                <button onClick={() => setQty(product.id, qty - 1)}
+                                  className="px-3 py-2.5 hover:bg-slate-200 transition-colors text-slate-500 hover:text-slate-900">
+                                  <Minus size={12} strokeWidth={3} />
+                                </button>
+                                <span className="flex-1 text-center text-sm font-black text-slate-900 italic">{qty}</span>
+                                <button onClick={() => setQty(product.id, qty + 1)}
+                                  className="px-3 py-2.5 hover:bg-slate-200 transition-colors text-slate-500 hover:text-slate-900">
+                                  <Plus size={12} strokeWidth={3} />
+                                </button>
+                              </div>
                             </div>
-                          </div>
+                          )}
 
-                          {/* Action buttons — pushed to bottom */}
+                          {/* ── Action buttons ── */}
                           <div className="flex gap-2 mt-auto pt-2">
-                            <button onClick={() => addToCart(product)}
-                              className={`flex-1 py-3 rounded-xl font-black text-[8px] uppercase tracking-widest italic transition-all active:scale-95 flex items-center justify-center gap-1.5 border-2 ${inCart ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-900 hover:text-slate-900'}`}>
-                              <ShoppingCart size={11} />
-                              {inCart ? 'Add More' : 'Add to Cart'}
-                            </button>
-                            <button onClick={() => handleSingleBuy(product)}
-                              className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-black text-[8px] uppercase tracking-widest italic hover:bg-amber-600 transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                              Buy Now <ArrowRight size={11} />
-                            </button>
+                            {isOutOfStock ? (
+                              <button disabled
+                                className="flex-1 py-3 bg-slate-100 text-slate-300 rounded-xl font-black text-[8px] uppercase tracking-widest italic cursor-not-allowed flex items-center justify-center gap-1.5 border-2 border-slate-100">
+                                <X size={11} /> Sold Out
+                              </button>
+                            ) : (
+                              <>
+                                <button onClick={() => addToCart(product)}
+                                  className={`flex-1 py-3 rounded-xl font-black text-[8px] uppercase tracking-widest italic transition-all active:scale-95 flex items-center justify-center gap-1.5 border-2 ${inCart ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-900 hover:text-slate-900'}`}>
+                                  <ShoppingCart size={11} />
+                                  {inCart ? 'Add More' : 'Add to Cart'}
+                                </button>
+                                <button onClick={() => handleSingleBuy(product)}
+                                  className={`flex-1 py-3 rounded-xl font-black text-[8px] uppercase tracking-widest italic transition-all active:scale-95 flex items-center justify-center gap-1.5 ${isLowStock ? 'bg-amber-500 text-slate-900 hover:bg-amber-400' : 'bg-slate-900 text-white hover:bg-amber-600'}`}>
+                                  Buy Now <ArrowRight size={11} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </motion.div>
@@ -567,7 +705,7 @@ const Shop = () => {
                   <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg shrink-0"><ClipboardList size={18} /></div>
                   <div>
                     <h3 className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-[0.3em] italic">My Orders</h3>
-                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">Live investment tracking — updates every 30s</p>
+                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">Your purchase history</p>
                   </div>
                   {ordersLoading && <Loader2 size={14} className="animate-spin text-slate-300 ml-auto" />}
                 </div>
@@ -617,9 +755,19 @@ const Shop = () => {
                                 </p>
                               )}
                               {order.payment_method && (
-                                <p className="text-[8px] text-slate-300 font-bold uppercase tracking-widest italic">{order.payment_method}</p>
+                                <p className="text-[8px] text-slate-300 font-bold uppercase tracking-widest italic">{humanPaymentMethod(order.payment_method)}</p>
                               )}
                             </div>
+                            {/* ── Delivery estimate (48–72 hrs) ── */}
+                            {order.status === 'completed' ? (
+                              <p className="text-[8px] text-emerald-500 font-bold uppercase tracking-widest italic mt-1.5 flex items-center gap-1">
+                                <CheckCircle2 size={9} strokeWidth={3} /> Delivered
+                              </p>
+                            ) : order.status === 'rejected' ? null : (
+                              <p className="text-[8px] text-blue-500 font-bold uppercase tracking-widest italic mt-1.5 flex items-center gap-1">
+                                <Clock size={9} strokeWidth={2.5} /> Est. delivery: {deliveryWindow(order.created_at)} (48–72 hrs)
+                              </p>
+                            )}
                           </div>
 
                           {/* Date + UTR */}
@@ -748,7 +896,7 @@ const Shop = () => {
                 <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 <div className="relative z-10 w-full max-w-[280px] mt-4 md:mt-0">
                   <div className="mb-4 flex items-center justify-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-500 italic">
-                    <RefreshCw size={12} className={refreshing ? 'animate-spin text-amber-500' : 'text-slate-600'} /> Live Admin Gateway
+                    <RefreshCw size={12} className={refreshing ? 'animate-spin text-amber-500' : 'text-slate-600'} /> Payment Details
                   </div>
                   <div className="flex bg-white/5 border border-white/10 p-1 rounded-2xl mb-8">
                     <button onClick={() => setPaymentMode('bank')}
@@ -820,8 +968,8 @@ const Shop = () => {
                   <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 text-left">
                     <ShieldCheck className="text-amber-500 shrink-0" size={20} />
                     <div>
-                      <p className="text-[7px] text-slate-400 font-black uppercase tracking-widest italic">Institutional Trust</p>
-                      <p className="text-[9px] text-white font-bold uppercase tracking-tight">Secured Payment Gateway</p>
+                      <p className="text-[7px] text-slate-400 font-black uppercase tracking-widest italic">Safe &amp; Secure</p>
+                      <p className="text-[9px] text-white font-bold uppercase tracking-tight">Secure Payment</p>
                     </div>
                   </div>
                 </div>
@@ -830,10 +978,21 @@ const Shop = () => {
               {/* Right: Form */}
               <div className="w-full md:w-1/2 p-8 md:p-16 overflow-y-auto max-h-[60vh] md:max-h-[85vh]">
                 <div className="mb-8">
-                  <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-1">Submission Protocol</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-1">Confirm Your Payment</h2>
                   <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">
-                    {checkoutMode === 'cart' ? `Cart — ${cartCount} items · ₹${cartTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : 'Verify transaction to initiate asset transfer'}
+                    {checkoutMode === 'cart' ? `Cart — ${cartCount} items · ₹${cartTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : 'Enter your payment details to place the order'}
                   </p>
+                </div>
+
+                {/* ── Delivery estimate banner ── */}
+                <div className="mb-6 flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
+                  <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Clock size={16} className="text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic">Estimated Delivery</p>
+                    <p className="text-[10px] font-black text-blue-700 uppercase italic tracking-tight">Delivered within 48–72 hours</p>
+                  </div>
                 </div>
 
                 {/* Cart items preview */}
@@ -887,7 +1046,7 @@ const Shop = () => {
 
                   <button type="submit" disabled={buying}
                     className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] italic shadow-2xl hover:bg-amber-600 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-2">
-                    {buying ? <Loader2 className="animate-spin" size={18} /> : <><Bell size={16} /> Confirm &amp; Notify Admin <ArrowRight size={16} /></>}
+                    {buying ? <Loader2 className="animate-spin" size={18} /> : <><Bell size={16} /> Place Order <ArrowRight size={16} /></>}
                   </button>
                 </form>
               </div>

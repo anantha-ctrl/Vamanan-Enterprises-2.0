@@ -12,6 +12,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import API_BASE_URL from '../config';
+import { humanAssetType, humanRole, humanStatus } from '../utils/humanLabels';
 
 const AdminReports = () => {
   const { type } = useParams();
@@ -35,7 +36,7 @@ const AdminReports = () => {
       return { 
         name: u.name || 'Super Admin', 
         email: u.email || 'admin@makkalgold.com',
-        role: u.role ? u.role.charAt(0).toUpperCase() + u.role.slice(1) : 'Administrator' 
+        role: humanRole(u.role || 'admin') 
       };
     } catch { return { name: 'Super Admin', email: 'admin@makkalgold.com', role: 'Administrator' }; }
   });
@@ -927,7 +928,7 @@ const AdminReports = () => {
                                    <div className="flex flex-col">
                                       <p className="text-xs font-black text-slate-500 tracking-widest uppercase italic">{row.transaction_id || row.agreement_id || `#ID-${row.id}`}</p>
                                       {activeTab === 'cycles' && (
-                                         <p className="text-[9px] font-bold text-amber-600 mt-1 uppercase tracking-tighter">{row.asset_type} ({row.weight}g)</p>
+                                         <p className="text-[9px] font-bold text-amber-600 mt-1 uppercase tracking-tighter">{humanAssetType(row.asset_type)} ({row.weight}g)</p>
                                       )}
                                    </div>
                                 </td>
@@ -941,7 +942,7 @@ const AdminReports = () => {
                                 </td>
                                 <td className="py-8 px-10">
                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest italic border ${getStatusColor(row.status)}`}>
-                                      {row.status || 'Active'}
+                                      {humanStatus(row.status || 'active')}
                                    </span>
                                 </td>
                                 <td className="py-8 px-10 text-right">

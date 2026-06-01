@@ -124,7 +124,7 @@ const Dashboard = () => {
                   ₹{parseFloat(data?.active_cycle?.total_value || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest mt-3 italic">
-                  {data?.active_cycle?.product_name || 'Portfolio Acquisition'} · {parseFloat(data?.active_cycle?.weight || 0).toFixed(3)}g
+                  {data?.active_cycle?.product_name || 'Your Purchase'} · {parseFloat(data?.active_cycle?.weight || 0).toFixed(3)}g
                 </p>
               </motion.div>
 
@@ -156,7 +156,7 @@ const Dashboard = () => {
                   ₹{parseFloat(data?.active_cycle?.today_earning || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-3 italic">
-                   Institutional Yield Today
+                   Today's Earnings
                 </p>
               </motion.div>
 
@@ -172,7 +172,7 @@ const Dashboard = () => {
                    ₹{parseFloat(data?.active_cycle?.total_referral_earned || 0).toLocaleString()}
                  </h3>
                  <p className="text-[8px] font-bold text-blue-500 uppercase tracking-widest mt-3 italic flex items-center gap-2">
-                    <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span> 5-Level Passive Yield
+                    <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span> Earnings from 5 referral levels
                  </p>
                </motion.div>
 
@@ -382,7 +382,7 @@ const Dashboard = () => {
                     <div className="flex items-center gap-3 mb-8">
                       <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-2 text-center min-w-[100px]">
                         <p className="text-2xl font-black text-amber-400 italic">{data?.referrals_count || 0}</p>
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Active Nodes</p>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Referrals</p>
                       </div>
                       <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2 text-center min-w-[120px]">
                         <p className="text-2xl font-black text-white italic">₹{parseFloat(data?.active_cycle?.total_referral_earned || 0).toLocaleString()}</p>
@@ -401,7 +401,7 @@ const Dashboard = () => {
                         alert("Referral link copied!");
                      }}>
                        <div>
-                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] italic block mb-1">Your Protocol Code</span>
+                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] italic block mb-1">Your Referral Code</span>
                         <span className="text-base font-black text-amber-400 italic tracking-[0.2em]">{data.referral_code}</span>
                        </div>
                        <Copy size={16} className="text-slate-500 group-hover/code:text-amber-400 transition-colors" />
@@ -439,8 +439,8 @@ const Dashboard = () => {
            >
               <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-500 rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-lg shrink-0"><AlertCircle size={24} md:size={32} /></div>
               <div className="text-center md:text-left">
-                 <h4 className="text-base md:text-lg font-black text-amber-900 uppercase italic tracking-tight mb-1 md:mb-2">Institutional Protocol Notice</h4>
-                 <p className="text-[9px] md:text-[10px] text-amber-800/70 font-bold leading-relaxed uppercase tracking-tight">Systematic yields of 1% are processed daily at 00:00 UTC. Maximum asset realization is capped at 100% of primary investment principal.</p>
+                 <h4 className="text-base md:text-lg font-black text-amber-900 uppercase italic tracking-tight mb-1 md:mb-2">Important Notice</h4>
+                 <p className="text-[9px] md:text-[10px] text-amber-800/70 font-bold leading-relaxed uppercase tracking-tight">You earn 1% daily rewards, paid every day. Total rewards are capped at 100% of your purchase amount.</p>
               </div>
            </motion.div>
 

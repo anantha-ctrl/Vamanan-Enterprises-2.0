@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import API_BASE_URL from '../config';
+import { humanKycStatus, humanRole } from '../utils/humanLabels';
 
 const WalletListAdmin = () => {
   const [wallets, setWallets] = useState([]);
@@ -58,8 +59,8 @@ const WalletListAdmin = () => {
             <div className="flex items-center gap-4">
                 <button onClick={() => setShowMobileMenu(true)} className="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200"><Wallet size={20}/></button>
                 <div>
-                    <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">Wallet Matrix</h1>
-                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1 italic leading-none">Institutional Liquidity Control</p>
+                    <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">Wallet List</h1>
+                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1 italic leading-none">Wallet Balance Control</p>
                 </div>
             </div>
             <div className="flex items-center gap-3">
@@ -136,9 +137,9 @@ const WalletListAdmin = () => {
               <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="py-8 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
-                    <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Balance Matrix</th>
-                    <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-center italic">Portfolio Nodes</th>
+                    <th className="py-8 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
+                    <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Wallet Balance</th>
+                    <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-center italic">Active Purchases</th>
                     <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Last Yield</th>
                     <th className="py-8 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Intervention</th>
                   </tr>
@@ -149,7 +150,7 @@ const WalletListAdmin = () => {
                       <td colSpan="5" className="py-32 text-center">
                         <div className="flex flex-col items-center gap-4">
                           <Loader2 className="animate-spin text-amber-500" size={48} />
-                          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 italic animate-pulse">Scanning Institutional Ledger...</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 italic animate-pulse">Loading wallet records...</p>
                         </div>
                       </td>
                     </tr>
@@ -176,10 +177,10 @@ const WalletListAdmin = () => {
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 opacity-70 italic">{w.user_email}</p>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className={`px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest italic ${w.kyc_status === 'verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                                    {w.kyc_status?.toUpperCase() || 'UNVERIFIED'}
+                                    {humanKycStatus(w.kyc_status || 'unverified')}
                                 </span>
                                 <span className="px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest italic bg-blue-50 text-blue-600 border border-blue-100">
-                                    {w.role?.toUpperCase()}
+                                    {humanRole(w.role)}
                                 </span>
                             </div>
                           </div>
@@ -208,7 +209,7 @@ const WalletListAdmin = () => {
                             <p className="text-sm font-black text-slate-900 italic uppercase tracking-tight leading-none mb-1">
                                 {w.last_payout_at ? new Date(w.last_payout_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'NEVER'}
                             </p>
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic opacity-60">Protocol Dispatch</p>
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic opacity-60">Payout Details</p>
                         </div>
                       </td>
                       <td className="py-8 px-10 text-right">
@@ -245,7 +246,7 @@ const WalletListAdmin = () => {
                       <td colSpan="5" className="py-40 text-center">
                          <div className="flex flex-col items-center gap-6 opacity-40">
                             <Search size={60} className="text-slate-300" />
-                            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-400 italic">No nodes matching your protocol filters</p>
+                            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-400 italic">No records match your filters</p>
                          </div>
                       </td>
                     </tr>
@@ -256,7 +257,7 @@ const WalletListAdmin = () => {
 
             {/* Pagination Placeholder */}
             <div className="bg-slate-50/50 px-10 py-8 border-t border-slate-100 flex items-center justify-between">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Showing {filteredWallets.length} Institutional Entities</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Showing {filteredWallets.length} Customers</p>
                 <div className="flex items-center gap-3">
                     <button disabled className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-300 cursor-not-allowed"><ChevronRight size={18} className="rotate-180" /></button>
                     <button className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-900 font-black shadow-sm italic text-sm">1</button>
@@ -272,3 +273,4 @@ const WalletListAdmin = () => {
 };
 
 export default WalletListAdmin;
+

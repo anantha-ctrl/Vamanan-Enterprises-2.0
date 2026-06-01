@@ -95,7 +95,7 @@ const Referrals = () => {
 
   const copyLink = () => {
     if (!data?.referral_code) {
-      alert("Institutional data still synchronizing. Please wait...");
+      alert("Data is still loading. Please wait...");
       return;
     }
     const link = `${window.location.origin}/register?ref=${data.referral_code}`;
@@ -104,11 +104,11 @@ const Referrals = () => {
 
   const shareWhatsApp = () => {
     if (!data?.referral_code) {
-      alert("Institutional data still synchronizing. Please wait...");
+      alert("Data is still loading. Please wait...");
       return;
     }
     const link = `${window.location.origin}/register?ref=${data.referral_code}`;
-    const msg = `🏆 *MAKKAL GOLD | Institutional Opportunity*\n\nSecure your future with Vamanan Enterprises. Join our network and earn *1% Daily Cashback* on gold assets.\n\n✅ *Referral Code:* ${data.referral_code}\n✅ *Join Link:* ${link}\n\n_Start your journey today!_`;
+    const msg = `🏆 *Makkal Gold | Earn Daily Rewards*\n\nJoin Vamanan Enterprises and earn *1% Daily Cashback* on gold.\n\n✅ *Referral Code:* ${data.referral_code}\n✅ *Join Link:* ${link}\n\n_Start your journey today!_`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -145,7 +145,7 @@ const Referrals = () => {
           >
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Referral Network</h1>
-              <p className="text-[9px] md:text-[11px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3 italic">Institutional Hierarchy & Yield Protocols</p>
+              <p className="text-[9px] md:text-[11px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3 italic">Your referral network & earnings</p>
             </div>
             {/* <button type="button" onClick={() => fetchReferrals(true)}
               className="flex items-center gap-2 bg-white border border-slate-200 px-5 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"
@@ -164,9 +164,9 @@ const Referrals = () => {
               <div className="flex-1">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg mb-6">
                   <Star size={10} className="text-amber-600" />
-                  <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest italic">Institutional Node</p>
+                  <p className="text-[8px] font-black text-amber-700 uppercase tracking-widest italic">Member</p>
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 italic">Your Personal Referral Gateway</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 italic">Your Referral Code</p>
                 <div className="relative inline-block mb-8 group/code w-full">
                   <h2 
                     onClick={copyLink}
@@ -182,7 +182,7 @@ const Referrals = () => {
                     className={`group flex items-center justify-center gap-4 px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] sm:rounded-[2rem] text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all shadow-2xl active:scale-95 italic w-full sm:w-auto ${copied ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/30'}`}
                   >
                     <Copy size={16} className={copied ? '' : 'group-hover:rotate-12 transition-transform'} />
-                    {copied ? 'Link Copied!' : 'Copy Secure Link'}
+                    {copied ? 'Link Copied!' : 'Copy Link'}
                   </button>
                   <button type="button" onClick={shareWhatsApp}
                     className="group flex items-center justify-center gap-4 px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] sm:rounded-[2rem] text-[10px] sm:text-[11px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-500 hover:text-white transition-all shadow-xl active:scale-95 italic w-full sm:w-auto"
@@ -196,7 +196,7 @@ const Referrals = () => {
                  <div className="absolute top-0 right-0 p-8 opacity-10"><TrendingUp size={150} /></div>
                  <div className="relative z-10 space-y-8 sm:space-y-10">
                     <div>
-                      <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Total Network Yield</p>
+                      <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Total Network Earnings</p>
                       <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 italic tracking-tighter leading-none">₹{parseFloat(totalEarnings).toLocaleString()}</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-4 sm:gap-8">
@@ -211,7 +211,7 @@ const Referrals = () => {
                     </div>
                     <div className="pt-8 border-t border-slate-200">
                        <div className="flex justify-between items-end mb-3">
-                          <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">Combined Return Cap</p>
+                          <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">Total Earnings Limit</p>
                           <p className="text-[11px] font-black text-amber-600 italic">{(data?.user_investment > 0 ? (totalEarnings / data.user_investment * 100).toFixed(1) : 0)}% / 100%</p>
                        </div>
                        <div className="w-full h-3 bg-white rounded-full overflow-hidden border border-slate-100 shadow-inner p-0.5">
@@ -224,7 +224,7 @@ const Referrals = () => {
                           </motion.div>
                        </div>
                        <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-3 italic leading-relaxed">
-                         Passive Yield (Cashback + Referral) is capped at 100% of primary investment. Once reached, the node completes its lifecycle.
+                         Your total earnings (cashback + referral) are capped at 100% of your purchase amount. Once you reach it, the plan is complete.
                        </p>
                     </div>
                  </div>
@@ -264,9 +264,9 @@ const Referrals = () => {
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-xl"><ShieldCheck size={24} /></div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">Commission Protocol Cap</h3>
+                  <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">Referral Commission Rules</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic mt-1 leading-relaxed max-w-xl">
-                    Passive referral income is credited for the first 10 direct lines. After 10 members, referral commissions stop, but your personal daily cashback continues until the 100% ROI limit.
+                    You earn referral commission from your first 10 direct members. After 10 members, referral commission stops, but your own daily cashback continues until you reach the 100% limit.
                   </p>
                 </div>
               </div>
@@ -274,7 +274,7 @@ const Referrals = () => {
                 {progress >= 10 ? (
                   <><AlertCircle size={14} strokeWidth={3} /> Commission Cap Reached</>
                 ) : (
-                  <><CheckCircle2 size={14} strokeWidth={3} /> Protocol Active</>
+                  <><CheckCircle2 size={14} strokeWidth={3} /> Active</>
                 )}
               </div>
             </div>
@@ -311,7 +311,7 @@ const Referrals = () => {
             <div className="p-8 md:p-12 border-b border-slate-100 flex items-center gap-4 bg-slate-50/50">
               <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><TrendingUp size={20} /></div>
               <div>
-                <h3 className="text-sm font-black text-slate-900 uppercase italic tracking-tight">5-Level Commission Matrix</h3>
+                <h3 className="text-sm font-black text-slate-900 uppercase italic tracking-tight">5-Level Referral Commission</h3>
                 <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">Expand deeper to earn from your network's investments</p>
               </div>
             </div>
@@ -410,8 +410,8 @@ const Referrals = () => {
               <div className="inline-flex items-center gap-4 bg-slate-900 text-white rounded-[2rem] px-8 py-5 shadow-2xl">
                 <div className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_15px_#f59e0b] animate-pulse"></div>
                 <div>
-                  <p className="text-sm font-black italic uppercase tracking-tight">{user.name || 'Master Node'}</p>
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Root Operational Unit</p>
+                  <p className="text-sm font-black italic uppercase tracking-tight">{user.name || 'You'}</p>
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">You (Top of network)</p>
                 </div>
               </div>
             </div>
@@ -459,13 +459,13 @@ const Referrals = () => {
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-slate-900 rounded-[1.8rem] flex items-center justify-center text-amber-500 shadow-2xl border border-white/10"><Network size={24} /></div>
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">Referral Genealogy</h3>
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">Neural hierarchy mapping of your 5-level institutional matrix</p>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">Your Referral Tree</h3>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">A view of your 5-level referral network</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest text-amber-600 italic">
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_8px_#f59e0b]"></div>
-                Live Network Stream
+Live Updates
               </div>
             </div>
 
@@ -474,7 +474,7 @@ const Referrals = () => {
             </div>
             
             <div className="mt-8 flex justify-center relative z-10">
-               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] italic">Institutional Visualization Engine v2.0</p>
+               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] italic">Your referral network</p>
             </div>
           </motion.div>
 

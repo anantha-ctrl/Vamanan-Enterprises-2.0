@@ -25,10 +25,10 @@ const RulesPage = () => {
           <div className="mb-8 md:mb-12">
               <div className="flex items-center gap-3 mb-3 md:mb-4">
                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                 <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Institutional Framework</span>
+                 <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">How It Works</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Rules</h2>
-              <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Governing protocols for the ecosystem</p>
+              <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">How our cashback and referral program works</p>
           </div>
 
           {/* Cashback System Card */}
@@ -38,7 +38,7 @@ const RulesPage = () => {
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 text-amber-500 rounded-xl md:rounded-[1.5rem] flex items-center justify-center shadow-xl">
                    <Gift size={24} md:size={28} strokeWidth={1.5} />
                 </div>
-                <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">Yield Infrastructure</h2>
+                <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">How You Earn</h2>
              </div>
 
              <div className="grid gap-8 md:gap-10 relative z-10">
@@ -47,8 +47,8 @@ const RulesPage = () => {
                       <CheckCircle2 size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">1% Diurnal Yield</h4>
-                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Acquire institutional returns of 1% diurnally on your gold asset position.</p>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">1% Daily Cashback</h4>
+                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Earn 1% cashback every day on the gold you buy.</p>
                    </div>
                 </div>
 
@@ -57,8 +57,8 @@ const RulesPage = () => {
                       <CheckCircle2 size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">100-Cycle Maturity</h4>
-                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Yield protocols persist for 100 operational cycles or until 100% principal realization.</p>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Up to 100 Days</h4>
+                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">You earn daily for up to 100 days, or until you reach 100% of your purchase amount.</p>
                    </div>
                 </div>
 
@@ -67,8 +67,8 @@ const RulesPage = () => {
                       <Info size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">24-Hour Synchronization</h4>
-                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Yield activation requires 24-hours post confirmation of gold acquisition.</p>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Starts in 24 Hours</h4>
+                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Your daily earnings start 24 hours after your purchase is confirmed.</p>
                    </div>
                 </div>
 
@@ -77,8 +77,8 @@ const RulesPage = () => {
                       <AlertTriangle size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Realization Threshold</h4>
-                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">All yield protocols terminate automatically upon achieving 100% principal realization.</p>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Earnings Limit</h4>
+                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Daily earnings stop automatically once you reach 100% of your purchase amount.</p>
                    </div>
                 </div>
              </div>
@@ -91,7 +91,7 @@ const RulesPage = () => {
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 text-amber-500 rounded-xl md:rounded-[1.5rem] flex items-center justify-center shadow-xl">
                    <Users size={24} md:size={28} strokeWidth={1.5} />
                 </div>
-                <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">Network Matrix</h2>
+                <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">Referral Program</h2>
              </div>
 
              <div className="grid gap-8 md:gap-10 relative z-10">
@@ -100,8 +100,8 @@ const RulesPage = () => {
                       <ShieldCheck size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Eligibility Protocol</h4>
-                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">Activation requires 10 verified direct node referrals with equivalent positions.</p>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-1 md:mb-2 uppercase tracking-widest italic">Eligibility</h4>
+                      <p className="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-tight leading-relaxed italic">You need 10 direct referrals who have made a purchase to unlock referral commissions.</p>
                    </div>
                 </div>
 
@@ -110,7 +110,7 @@ const RulesPage = () => {
                       <CheckCircle2 size={18} md:size={20} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-4 uppercase tracking-widest italic">5-Tier Commission Hierarchy</h4>
+                      <h4 className="text-[10px] md:text-[11px] font-black text-slate-900 mb-4 uppercase tracking-widest italic">5-Level Commission</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
                          {[
                            { l: "L1", v: "0.20%" },
@@ -142,11 +142,11 @@ const RulesPage = () => {
              
              <ul className="space-y-4 md:space-y-6 relative z-10">
                 {[
-                  "KYC verification is mandatory for all operations.",
-                  "Asset acquisitions maintain liquidity sell-back options.",
-                  "System engagement in fraudulent nodes results in termination.",
-                  "Authorized sharing of referral nodes only.",
-                  "All yields are credited to the secure Wallet."
+                  "KYC verification is required before you can use all features.",
+                  "You can sell your gold back to us anytime.",
+                  "Any fraudulent activity will result in account termination.",
+                  "Only share your own referral code.",
+                  "All your earnings are credited to your wallet."
                 ].map((note, i) => (
                   <li key={i} className="flex items-center gap-4 md:gap-6 text-[9px] md:text-[11px] text-slate-400 font-black uppercase tracking-widest italic">
                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-amber-500 rounded-full shrink-0"></div>
@@ -160,15 +160,15 @@ const RulesPage = () => {
           <div className="bg-white border border-slate-200/60 p-6 md:p-14 rounded-[2rem] md:rounded-[3.5rem] shadow-sm">
              <div className="flex items-center gap-3 md:gap-4 mb-8 md:mb-10">
                 <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Landmark size={18} md:size={20} /></div>
-                <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tighter uppercase italic">Realization Example</h3>
+                <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tighter uppercase italic">Example</h3>
              </div>
              
              <div className="grid gap-4 md:gap-6">
                 {[
-                  { label: "Principal Position", value: "₹50,000", hl: false },
-                  { label: "Diurnal Yield (1%)", value: "₹500 / CYCLE", hl: true },
-                  { label: "Cycle Maturity", value: "100 OPERATIONAL DAYS", hl: false },
-                  { label: "Aggregate Realization", value: "₹50,000 (100% POSITION)", hl: true }
+                  { label: "Your Purchase", value: "₹50,000", hl: false },
+                  { label: "Daily Cashback (1%)", value: "₹500 / day", hl: true },
+                  { label: "Duration", value: "100 days", hl: false },
+                  { label: "Total Earnings", value: "₹50,000 (100%)", hl: true }
                 ].map((row, i) => (
                   <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 md:py-6 border-b border-slate-50 last:border-0">
                     <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-1 md:mb-0">{row.label}</span>

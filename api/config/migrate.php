@@ -50,11 +50,45 @@ function runMigrations($db) {
 
     // Products Table
     $migrations_products = [
-        "ALTER TABLE products ADD COLUMN weight DECIMAL(8, 3) NOT NULL DEFAULT 0 AFTER slug",
-        "ALTER TABLE products ADD COLUMN purity VARCHAR(50) NOT NULL DEFAULT '24K' AFTER weight",
+        "CREATE TABLE IF NOT EXISTS products (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            category VARCHAR(100) DEFAULT 'Gold',
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            weight DECIMAL(8,3) DEFAULT 0,
+            purity VARCHAR(100) DEFAULT '24K',
+            price DECIMAL(15,2) NOT NULL DEFAULT 0,
+            image VARCHAR(255),
+            description TEXT,
+            is_active TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )",
+        "ALTER TABLE products ADD COLUMN category VARCHAR(100) DEFAULT 'Gold' AFTER name",
+        "ALTER TABLE products ADD COLUMN weight DECIMAL(8,3) DEFAULT 0 AFTER slug",
+        "ALTER TABLE products ADD COLUMN purity VARCHAR(100) DEFAULT '24K' AFTER weight",
         "ALTER TABLE products ADD COLUMN image VARCHAR(255) AFTER price",
-        "ALTER TABLE products ADD COLUMN category VARCHAR(100) DEFAULT 'Gold Asset' AFTER name",
-        "ALTER TABLE products ADD COLUMN is_active TINYINT(1) DEFAULT 1 AFTER description"
+        "ALTER TABLE products ADD COLUMN is_active TINYINT(1) DEFAULT 1 AFTER description",
+        // Categories Table
+        "CREATE TABLE IF NOT EXISTS categories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )",
+        "INSERT IGNORE INTO categories (name, slug) VALUES
+            ('Gold', 'gold'),
+            ('House Construction', 'house-construction'),
+            ('All Construction Material', 'all-construction-material'),
+            ('Electronics', 'electronics'),
+            ('Vehicles (2wheeler/4wheeler)', 'vehicles-2wheeler-4wheeler'),
+            ('Groceries', 'groceries')",
+        // Fix cashback_cycles to support product purchases
+        "ALTER TABLE cashback_cycles ADD COLUMN asset_type ENUM('gold','silver','product') DEFAULT 'gold' AFTER user_id",
+        "ALTER TABLE cashback_cycles MODIFY COLUMN asset_type ENUM('gold','silver','product') DEFAULT 'gold'",
+        "ALTER TABLE cashback_cycles ADD COLUMN product_id INT DEFAULT NULL AFTER weight",
+        "ALTER TABLE cashback_cycles ADD COLUMN product_name VARCHAR(255) DEFAULT NULL AFTER product_id",
+        "ALTER TABLE cashback_cycles ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Bank Transfer' AFTER transaction_id"
     ];
 
     // Platform Settings Table

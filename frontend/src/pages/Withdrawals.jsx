@@ -10,6 +10,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const Withdrawals = () => {
   const [balance, setBalance] = useState(0);
@@ -133,7 +134,7 @@ const Withdrawals = () => {
                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Disbursement Hub</span>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Withdrawals</h1>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3 italic">Liquidate your institutional earnings to external accounts</p>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3 italic">Withdraw your earnings to your bank account</p>
              </div>
              <button onClick={() => navigate('/wallet')} className="bg-white border border-slate-200 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm flex items-center gap-3">
                 <ArrowLeft size={16} /> Back to Wallet
@@ -169,7 +170,7 @@ const Withdrawals = () => {
                          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg"><CheckCircle2 size={20}/></div>
                          <div>
                             <p className="text-xs font-black text-emerald-900 uppercase italic">Disbursement Initialized!</p>
-                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Awaiting administrative node clearance.</p>
+                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Waiting for admin approval.</p>
                          </div>
                       </motion.div>
                     )}
@@ -197,7 +198,7 @@ const Withdrawals = () => {
                         </div>
                         
                         <div className="space-y-4">
-                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Target Account Node</label>
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Bank Account</label>
                            <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-between group hover:border-amber-600 transition-all cursor-pointer">
                               <div className="flex items-center gap-4">
                                  <Landmark size={20} className="text-slate-400 group-hover:text-amber-600" />
@@ -247,8 +248,8 @@ const Withdrawals = () => {
                      <div className="p-8 bg-blue-50/50 border border-blue-100 rounded-[2.5rem] flex items-start gap-6">
                         <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm"><ShieldCheck size={24}/></div>
                         <div className="flex-1">
-                           <p className="text-[11px] font-black text-blue-900 uppercase italic tracking-tight">Security Protocol Active</p>
-                           <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1 leading-relaxed italic">Disbursement requests are processed within 24-48 institutional hours. Capital will be locked upon initialization.</p>
+                           <p className="text-[11px] font-black text-blue-900 uppercase italic tracking-tight">Security Check Active</p>
+                           <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1 leading-relaxed italic">Withdrawal requests are usually processed within 24-48 hours. The requested amount will be locked after submission.</p>
                         </div>
                      </div>
 
@@ -257,7 +258,7 @@ const Withdrawals = () => {
                        disabled={processing || balance < 100} 
                        className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:hover:bg-slate-900"
                      >
-                        {processing ? <Loader2 className="animate-spin" /> : <><Send size={18}/> Execute Disbursement Protocol</>}
+                        {processing ? <Loader2 className="animate-spin" /> : <><Send size={18}/> Submit Withdrawal Request</>}
                      </button>
                   </form>
                </div>
@@ -310,7 +311,7 @@ const Withdrawals = () => {
                                  </div>
                               </div>
                               <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${w.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                                 {w.status}
+                                 {humanStatus(w.status)}
                               </span>
                            </div>
                         ))
@@ -334,3 +335,4 @@ const Withdrawals = () => {
 };
 
 export default Withdrawals;
+

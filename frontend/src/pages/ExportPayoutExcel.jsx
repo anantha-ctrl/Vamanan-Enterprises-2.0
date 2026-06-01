@@ -11,6 +11,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import API_BASE_URL from '../config';
+import { humanRole, humanStatus } from '../utils/humanLabels';
 
 const ExportPayoutExcel = () => {
   const [payouts, setPayouts] = useState([]);
@@ -32,7 +33,7 @@ const ExportPayoutExcel = () => {
       return { 
         name: u.name || 'Super Admin', 
         email: u.email || 'admin@makkalgold.com', 
-        role: u.role ? u.role.charAt(0).toUpperCase() + u.role.slice(1) : 'Administrator' 
+        role: humanRole(u.role || 'admin') 
       };
     } catch { return { name: 'Super Admin', email: 'admin@makkalgold.com', role: 'Administrator' }; }
   });
@@ -97,7 +98,7 @@ const ExportPayoutExcel = () => {
         p.ifsc_code || 'N/A', 
         p.amount, 
         p.current_day, 
-        p.status
+        humanStatus(p.status)
       ]);
       
       let xml = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40"><Worksheet ss:Name="Payouts"><Table>';
@@ -166,7 +167,7 @@ const ExportPayoutExcel = () => {
             <div className="space-y-1">
               <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-3">
                 <FileSpreadsheet className="text-amber-500" size={24} />
-                Export Ledger Node
+                Export Payout File
               </h3>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
@@ -207,7 +208,7 @@ const ExportPayoutExcel = () => {
               { label: "Today's Yield", value: `₹${parseFloat(stats.today || 0).toLocaleString()}`, icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50' },
               { label: 'Active Cycles', value: stats.active_cycles || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
               { label: 'Total Paid', value: `₹${parseFloat(stats.total_paid || 0).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { label: 'Last Protocol', value: stats.last_run || 'Never', icon: Calendar, color: 'text-rose-600', bg: 'bg-rose-50' }
+              { label: 'Last Payout', value: stats.last_run || 'Never', icon: Calendar, color: 'text-rose-600', bg: 'bg-rose-50' }
             ].map((stat, i) => (
               <motion.div 
                 key={i}
@@ -290,10 +291,10 @@ const ExportPayoutExcel = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Investor Entity</th>
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Banking Credentials</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Customer</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Bank Details</th>
                     <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Payout Value</th>
-                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Protocol Status</th>
+                    <th className="px-8 py-6 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Status</th>
                     <th className="px-8 py-6 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Actions</th>
                   </tr>
                 </thead>
@@ -309,7 +310,7 @@ const ExportPayoutExcel = () => {
                     ) : filteredPayouts.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="px-8 py-20 text-center text-slate-400 italic uppercase font-black text-[10px] tracking-widest">
-                          Zero Pending Transfers Found in Current Matrix
+                          No pending transfers found
                         </td>
                       </tr>
                     ) : (
@@ -352,7 +353,7 @@ const ExportPayoutExcel = () => {
                               p.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'
                             }`}>
                               <div className={`w-1.5 h-1.5 rounded-full ${p.status === 'completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
-                              {p.status}
+                              {humanStatus(p.status)}
                             </span>
                           </td>
                           <td className="px-8 py-6 text-right">
@@ -373,7 +374,7 @@ const ExportPayoutExcel = () => {
           <div className="space-y-6">
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] italic flex items-center gap-3">
               <History size={18} className="text-amber-500" />
-              Institutional Export History
+              Export History
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {history.map((h) => (
@@ -420,7 +421,7 @@ const ExportPayoutExcel = () => {
               <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
                   <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">Bulk Transfer Preview</h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Institutional Verification Node</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Verification Details</p>
                 </div>
                 <button onClick={() => setShowPreview(false)} className="p-3 bg-white rounded-full text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
                   <X size={20} />
@@ -432,7 +433,7 @@ const ExportPayoutExcel = () => {
                   <thead className="sticky top-0 bg-white shadow-sm z-10">
                     <tr className="border-b border-slate-100">
                       <th className="px-4 py-4 text-left text-[8px] font-black text-slate-400 uppercase italic">Beneficiary</th>
-                      <th className="px-4 py-4 text-left text-[8px] font-black text-slate-400 uppercase italic">Bank Node</th>
+                      <th className="px-4 py-4 text-left text-[8px] font-black text-slate-400 uppercase italic">Bank</th>
                       <th className="px-4 py-4 text-left text-[8px] font-black text-slate-400 uppercase italic">A/C Number</th>
                       <th className="px-4 py-4 text-left text-[8px] font-black text-slate-400 uppercase italic">IFSC</th>
                       <th className="px-4 py-4 text-right text-[8px] font-black text-slate-400 uppercase italic">Amount</th>
@@ -474,3 +475,4 @@ const ExportPayoutExcel = () => {
 };
 
 export default ExportPayoutExcel;
+

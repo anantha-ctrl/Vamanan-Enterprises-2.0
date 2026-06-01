@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import API_BASE_URL from '../config';
+import { humanStatus } from '../utils/humanLabels';
 
 const CashbackPayouts = () => {
   const [payouts, setPayouts] = useState([]);
@@ -125,13 +126,13 @@ const CashbackPayouts = () => {
                 <button onClick={() => setShowMobileMenu(true)} className="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200"><Zap size={20}/></button>
                 <div>
                     <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">Cashback Portal</h1>
-                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1 italic leading-none">Institutional Yield Dispatch</p>
+                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1 italic leading-none">Cashback Payouts</p>
                 </div>
             </div>
             <div className="flex items-center gap-3">
                 <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full">
                     <Clock size={10} className="text-amber-600" />
-                    <span className="text-[7px] font-black uppercase tracking-widest text-amber-600 italic">Last Protocol Run: {stats?.last_run || 'Checking...'}</span>
+                    <span className="text-[7px] font-black uppercase tracking-widest text-amber-600 italic">Last Payout Run: {stats?.last_run || 'Checking...'}</span>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -157,7 +158,7 @@ const CashbackPayouts = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div>
               <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Yield Disbursements</h2>
-              <p className="text-[10px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.3em] mt-4 italic">Tracking and executing the 100-day 1% cashback protocol</p>
+              <p className="text-[10px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.3em] mt-4 italic">Track and process the 100-day 1% cashback plan</p>
             </div>
             
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
@@ -213,7 +214,7 @@ const CashbackPayouts = () => {
               <table className="w-full text-left border-collapse min-w-[1100px]">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="py-8 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Investor Entity</th>
+                    <th className="py-8 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
                     <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Yield Details</th>
                     <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Settlement Target (Bank)</th>
                     <th className="py-8 px-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-center italic">Dispatch Status</th>
@@ -279,7 +280,7 @@ const CashbackPayouts = () => {
                                 p.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse' : 
                                 'bg-slate-50 text-slate-400 border-slate-100'
                             }`}>
-                                {p.status === 'completed' ? 'Wallet Credited' : p.status.toUpperCase()}
+                                {p.status === 'completed' ? 'Wallet Credited' : humanStatus(p.status)}
                             </span>
                             {p.status === 'completed' && <CheckCircle2 size={14} className="text-emerald-500" />}
                          </div>
@@ -304,7 +305,7 @@ const CashbackPayouts = () => {
                             <button 
                                 onClick={() => window.open(`${API_BASE_URL}/admin/get_user_daily_payout.php?user_id=${p.user_id}`)}
                                 className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-amber-600 transition-all shadow-sm"
-                                title="Protocol Verification"
+                                title="Verify Payout"
                             >
                                 <ExternalLink size={18} />
                             </button>
@@ -334,3 +335,4 @@ const CashbackPayouts = () => {
 };
 
 export default CashbackPayouts;
+

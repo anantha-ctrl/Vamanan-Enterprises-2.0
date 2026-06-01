@@ -15,12 +15,10 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 if (!empty($data['user_id']) && !empty($data['new_password'])) {
     try {
-        $password_hash = password_hash($data['new_password'], PASSWORD_DEFAULT);
-        
         $query = "UPDATE users SET password = :password WHERE id = :id";
         $stmt = $db->prepare($query);
-        
-        $stmt->bindParam(':password', $password_hash);
+
+        $stmt->bindParam(':password', $data['new_password']);
         $stmt->bindParam(':id', $data['user_id']);
 
         if ($stmt->execute()) {
