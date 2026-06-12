@@ -24,6 +24,8 @@ export const ADMIN_PERMISSIONS = [
   'payout_reports',
   'payout_reports_module',
   'cashback_payouts',
+  'tally_export',
+  'tally_integration',
   'export_payouts',
   'payout_reconciliation',
   'wallets_list',

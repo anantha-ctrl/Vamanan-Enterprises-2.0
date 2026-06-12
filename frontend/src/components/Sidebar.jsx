@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Wallet, ShieldCheck, ShoppingBag, 
   CreditCard, MessageCircle, UserPlus, Globe, LogOut, XCircle, FileSignature,
-  Home, FileText, UserCircle, ShoppingCart, Award, Zap, BookOpen, ChevronRight, X, Shield, Landmark, Settings, TrendingUp, Megaphone, Network
+  Home, FileText, UserCircle, ShoppingCart, Award, Zap, BookOpen, ChevronRight, X, Shield, Landmark, Settings, TrendingUp, Megaphone, Network, Receipt
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { humanRole } from '../utils/humanLabels';
@@ -74,6 +74,8 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
             { id: 'payout_reports', label: 'Payout Reports', path: '/admin/payout-reports' },
           ]},
           { id: 'wallet_adj', label: 'Wallet Adjustment', icon: CreditCard },
+          { id: 'tally_export', label: 'Tally Export', icon: Receipt, path: '/admin/tally' },
+          { id: 'tally_integration', label: 'Tally Integration', icon: BookOpen, path: '/admin/tally-integration' },
           { id: 'kyc', label: 'KYC', icon: ShieldCheck },
           { id: 'market_rates', label: 'Market Rates', icon: TrendingUp },
           { id: 'withdrawals', label: 'Withdrawals', icon: Landmark },
@@ -144,6 +146,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
           { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
           { id: 'shop', label: 'Buy', icon: ShoppingCart, path: '/shop' },
           { id: 'cashback', label: 'Cashback', icon: Zap, path: '/cashback-plan' },
+          { id: 'cashback_application', label: 'Cashback Application', icon: FileText, path: '/cashback-application' },
           { id: 'referrals', label: 'Referrals', icon: Award, path: '/referrals' },
           { id: 'wallet_view', label: 'Wallet', icon: Wallet, subItems: [
             { id: 'wallet_overview', label: 'Wallet Overview', path: '/wallet-overview' },

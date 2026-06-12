@@ -49,6 +49,55 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 - **Segmented & Interactive OTP Interface**: Implemented a responsive custom code-entry page in React with automated focus shifting, smart backspacing, and clipboard auto-paste capabilities.
 - **Real-Time Security Controllers**: Integrated a 10-minute session expiry countdown timer and a rate-limited 60-second cooldown lock on resending OTP codes.
 
+## 📒 Phase 7: Tally ERP Prime Accounting Integration
+**Objective**: Bridge the sovereign fiscal core with industry-standard accounting software for seamless bookkeeping.
+- **Real-Time Ledger Engine**: Built a dedicated backend suite (`api/admin/tally/`) that constructs six live ledgers — Sales, Customer, Cashback, Referral, Withdrawal, and Inventory — directly from existing MySQL tables, with no duplicate data entry.
+- **Automated Financial Statements**: Implemented self-calculating Profit & Loss and Balance Sheet reports, with the Balance Sheet reconciling assets against liabilities and equity automatically.
+- **Voucher Management & Sync**: Delivered a full voucher lifecycle (manual create, auto-generate from any ledger, post, delete) alongside Tally-ready XML / Excel / CSV export and **direct real-time push** to Tally ERP Prime via its HTTP gateway.
+- **Reconciliation & Audit**: Added a reconciliation matrix (source records vs. posted vouchers) and an immutable audit trail logging every accounting action with actor and timestamp.
+- **Plain-Language Interface**: Deployed a responsive, tabbed `TallyIntegration.jsx` admin module using human-readable labels and inline hints for non-accountant operators.
+
+## 🔄 Project Workflow
+
+End-to-end flow across the customer journey, the backend core, the admin suite,
+and the Tally ERP accounting bridge.
+
+   +-------------------------------------------------------------------------+
+   |                          CUSTOMER JOURNEY                               |
+   |   Register -> OTP Login -> KYC -> Buy Gold -> Wallet Credited           |
+   |        -> 1% Diurnal Yield + 5-Tier Referral -> Withdraw to Bank        |
+   +-----------------------------------+-------------------------------------+
+                                       |
+                                       v
+   +-------------------------------------------------------------------------+
+   |                BACKEND CORE  (PHP REST API + PDO)                       |
+   |   Auth/OTP | Yield & Referral Engine | Wallet & Txn Ledger | Withdrawals|
+   |                              |   ^                                       |
+   |                              v   |                                       |
+   |                 [ Self-Healing MySQL : makkal_gold ]                     |
+   +-----------------+-----------------------------------+-------------------+
+                     |                                   |
+                     v                                   v
+   +----------------------------+      +-------------------------------------+
+   |     ADMIN AUDIT SUITE      |      |        TALLY ERP INTEGRATION        |
+   |  Approve Purchases / KYC   |      |  6 Live Ledgers (Sales, Customer,   |
+   |  Run Daily Payout          |      |  Cashback, Referral, Withdrawal,    |
+   |  Reports & Analytics       |      |  Inventory)                         |
+   |  Staff Permission Matrix   |      |        |                            |
+   +----------------------------+      |        v                            |
+                                       |  P&L + Balance Sheet (auto)         |
+                                       |  Voucher Management                 |
+                                       |        |                            |
+                                       |        v                            |
+                                       |  Export (XML/Excel/CSV)  --or--     |
+                                       |  Live Push -> Tally ERP Prime       |
+                                       |        |                            |
+                                       |        v                            |
+                                       |  Reconciliation + Audit Log         |
+                                       +-------------------------------------+
+
+---
+
 ## 🛠️ Technical Specifications
 | Category | Technology |
 | :--- | :--- |
@@ -56,6 +105,7 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 | **Backend** | PHP 8.0+ (RESTful API), PDO |
 | **Database** | MySQL (InnoDB) with ACID Compliance |
 | **Market Data** | Gold-API (XAU/INR Real-time Feed) |
+| **Accounting** | Tally ERP Prime (XML Gateway Sync) |
 | **Icons** | Lucide React (High-Fidelity Vectors) |
 | **Animations** | Framer Motion (De-blur, Spring transitions) |
 
@@ -68,6 +118,7 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 - [x] Granular Staff Permission Matrix
 - [x] Institutional Branding Synchronization (Vamanan Enterprises V)
 - [x] Secure Real-Time Email OTP Authentication Suite (Fintech Hardening)
+- [x] Tally ERP Prime Accounting Integration Module (Ledgers, P&L, Balance Sheet, Vouchers, Sync)
 
 ---
 **Institutional Note**: This project is architected for extreme scalability and fiscal transparency, ensuring that every milligram of gold and every rupee of yield is accounted for in the sovereign ledger.

@@ -19,6 +19,71 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 - **Staff Permission Matrix**: Granular role-based access control (RBAC) allowing administrators to toggle module access for specific support personnel.
 - **Self-Healing Database Matrix**: Zero-config database initialization that automatically constructs schemas and relationships on first request, including automated migrations for new fiscal parameters.
 - **Secure Email OTP Authentication Matrix**: High-security, two-phase verification required for all logins. Upon password verification, generates a 6-digit OTP, stores its secure hash in a database session table, and dispatches a branded fintech HTML email via Gmail SMTP, integrated with segmented inputs, backspace navigation, auto-pasting, and live countdown timers in the frontend.
+- **Tally ERP Prime Integration Module**: A complete real-time accounting bridge between the platform's MySQL core and Tally ERP Prime. Surfaces six live ledgers (Sales, Customer, Cashback, Referral, Withdrawal, Inventory) sourced directly from existing tables, auto-computes **Profit & Loss** and **Balance Sheet** statements, and provides full **Voucher Management** (manual create, auto-generate from any ledger, post). Supports **XML / Excel / CSV export**, **direct real-time synchronization** to Tally's HTTP gateway, **transaction reconciliation** (source records vs. posted vouchers), and an immutable **audit trail** of every accounting action — all wrapped in a plain-language, responsive admin interface.
+
+---
+
+## 🔄 Project Workflow
+
+End-to-end flow across the customer journey, the administrative core, and the Tally ERP accounting bridge.
+
+```mermaid
+flowchart TD
+    subgraph CUST["👤 Customer Journey"]
+        A1[Register] --> A2[Email OTP Login]
+        A2 --> A3[KYC Verification]
+        A3 --> A4[Buy Gold / Asset]
+        A4 --> A5[Wallet Credited]
+        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral"]
+        A6 --> A7[Withdraw to Bank]
+    end
+
+    subgraph CORE["⚙️ Backend Core (PHP REST + MySQL)"]
+        B1[(Self-Healing<br/>MySQL · makkal_gold)]
+        B2[Auth / OTP Nodes]
+        B3[Yield & Referral Engine]
+        B4[Wallet & Transaction Ledger]
+        B5[Withdrawal Processor]
+    end
+
+    subgraph ADMIN["🏛️ Admin Audit Suite"]
+        C1[Approve Purchases / KYC]
+        C2[Run Daily Payout]
+        C3[Reports & Analytics]
+        C4[Staff Permission Matrix]
+    end
+
+    subgraph TALLY["📒 Tally ERP Integration"]
+        D1["6 Live Ledgers<br/>Sales · Customer · Cashback<br/>Referral · Withdrawal · Inventory"]
+        D2["P&L + Balance Sheet<br/>(auto-computed)"]
+        D3[Voucher Management]
+        D4{Export or Sync?}
+        D5[XML / Excel / CSV]
+        D6[Live Push to Tally Gateway]
+        D7[(Tally ERP Prime)]
+        D8[Reconciliation + Audit Log]
+    end
+
+    A2 -.-> B2
+    A4 -.-> B3
+    A6 -.-> B4
+    A7 -.-> B5
+    B2 & B3 & B4 & B5 <--> B1
+
+    C1 & C2 --> B1
+    B1 --> C3
+    C4 -.gates.-> ADMIN
+
+    B1 --> D1
+    D1 --> D2
+    D1 --> D3
+    D3 --> D4
+    D4 -->|Export| D5
+    D4 -->|Sync| D6
+    D6 --> D7
+    D3 --> D8
+    D6 --> D8
+```
 
 ---
 
@@ -74,6 +139,7 @@ Makkal_Gold/
 │
 ├── api/                    # Sovereign Core Backend
 │   ├── admin/              # Administrative Audit & Sync Endpoints
+│   │   └── tally/          # Tally ERP Integration (ledgers, reports, vouchers, export, sync)
 │   ├── auth/               # Secure Authentication Nodes (Login, Register, OTP Verification & Resend)
 │   ├── cron/               # Automated Yield Engines (Daily Protocol)
 │   ├── customer/           # Investor-Facing Data & Ratification Nodes
@@ -99,6 +165,7 @@ Makkal_Gold/
 - **Daily Protocol**: Manually trigger the yield engine via the Admin Dashboard or call `/api/cron/process_cashback.php`.
 - **High-Frequency Polling**: Dashboards are synchronized every 30 seconds to ensure zero-latency data viewing.
 - **Export Protocols**: All fiscal registries support high-fidelity CSV and Ledger exports for external auditing.
+- **Tally Synchronization**: Ledgers and vouchers can be exported as Tally-ready XML/Excel/CSV, or pushed live to Tally ERP Prime via its HTTP gateway (default `http://localhost:9000`). Configure company name, ledger mapping, and gateway address in the **Tally Integration → Settings** panel. Live push requires TallyPrime to be open with the gateway enabled.
 
 ---
 

@@ -45,6 +45,79 @@ This document outlines the complete architectural development and deployment of 
 - **Dynamic Session Handlers**: Incorporated a database-backed time-sensitive verification node that expires OTPs after 10 minutes and blocks sessions after 5 failed attempts.
 - **Segmented Input & Transition UI**: Deployed an auto-focusing 6-box input container in the React client, featuring real-time animation transitions, custom clipboard paste event interception, and resend rate limits.
 
+### Phase 7: Tally ERP Prime Accounting Integration
+- **Real-Time Accounting Bridge**: Engineered a dedicated integration suite (`api/admin/tally/`) that connects the live MySQL fiscal core directly to Tally ERP Prime, with zero duplicate data entry — every ledger is built on demand from existing platform tables.
+- **Six Institutional Ledgers**: Deployed Sales, Customer, Cashback, Referral, Withdrawal, and Inventory ledgers, each with date-range filtering, debit/credit classification, and running totals.
+- **Automated Financial Statements**: Implemented self-calculating **Profit & Loss** and **Balance Sheet** reports that draw figures straight from transactions, cycles, wallets, withdrawals, and stock — the Balance Sheet reconciles automatically.
+- **Voucher Management Engine**: Built a full voucher lifecycle — manual creation, one-click auto-generation from any ledger, posting, and deletion — with sync-status tracking (draft → posted → synced).
+- **Multi-Format Export & Live Sync**: Integrated Tally-ready **XML**, **Excel (SpreadsheetML)**, and **CSV** exports, plus **direct real-time push** to Tally's HTTP gateway with created/error telemetry parsed from Tally's response.
+- **Reconciliation & Audit Trail**: Added a reconciliation panel comparing source records against posted vouchers, and an immutable audit log capturing every export, sync, and voucher action with actor and timestamp.
+- **Plain-Language Admin UI**: Delivered a responsive, tabbed `TallyIntegration.jsx` interface using human-readable labels and inline hints so non-accountants can operate it confidently.
+
+---
+
+## 🔄 Project Workflow
+
+End-to-end flow across the customer journey, the administrative core, and the Tally ERP accounting bridge.
+
+```mermaid
+flowchart TD
+    subgraph CUST["👤 Customer Journey"]
+        A1[Register] --> A2[Email OTP Login]
+        A2 --> A3[KYC Verification]
+        A3 --> A4[Buy Gold / Asset]
+        A4 --> A5[Wallet Credited]
+        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral"]
+        A6 --> A7[Withdraw to Bank]
+    end
+
+    subgraph CORE["⚙️ Backend Core (PHP REST + MySQL)"]
+        B1[(Self-Healing<br/>MySQL · makkal_gold)]
+        B2[Auth / OTP Nodes]
+        B3[Yield & Referral Engine]
+        B4[Wallet & Transaction Ledger]
+        B5[Withdrawal Processor]
+    end
+
+    subgraph ADMIN["🏛️ Admin Audit Suite"]
+        C1[Approve Purchases / KYC]
+        C2[Run Daily Payout]
+        C3[Reports & Analytics]
+        C4[Staff Permission Matrix]
+    end
+
+    subgraph TALLY["📒 Tally ERP Integration"]
+        D1["6 Live Ledgers<br/>Sales · Customer · Cashback<br/>Referral · Withdrawal · Inventory"]
+        D2["P&L + Balance Sheet<br/>(auto-computed)"]
+        D3[Voucher Management]
+        D4{Export or Sync?}
+        D5[XML / Excel / CSV]
+        D6[Live Push to Tally Gateway]
+        D7[(Tally ERP Prime)]
+        D8[Reconciliation + Audit Log]
+    end
+
+    A2 -.-> B2
+    A4 -.-> B3
+    A6 -.-> B4
+    A7 -.-> B5
+    B2 & B3 & B4 & B5 <--> B1
+
+    C1 & C2 --> B1
+    B1 --> C3
+    C4 -.gates.-> ADMIN
+
+    B1 --> D1
+    D1 --> D2
+    D1 --> D3
+    D3 --> D4
+    D4 -->|Export| D5
+    D4 -->|Sync| D6
+    D6 --> D7
+    D3 --> D8
+    D6 --> D8
+```
+
 ---
 
 ## 📡 Technical Specifications & Data Integrity
@@ -52,12 +125,13 @@ This document outlines the complete architectural development and deployment of 
 - **High-Frequency Synchronization**: Dashboards utilize 15-second polling intervals to ensure real-time data accuracy across all nodes.
 - **Database-Stored Metrics**: Updated all public-facing statistics to be 100% dynamic, fetching from real user counts and transaction volumes with manageable offsets.
 - **Export Protocols**: Integrated high-fidelity XLSX and CSV export capabilities for institutional bookkeeping and external auditing.
+- **Tally ERP Synchronization**: Native Tally XML envelope generation and live HTTP-gateway push, enabling one-step posting of the platform's ledgers and vouchers into Tally ERP Prime.
 - **Security Matrix**: Implemented AES-256 equivalent protection layers, BIS Certification nodes, and Multi-Factor ready authentication bridges.
 
 ---
 
 ## ✅ Current Project Status
-The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, and the newly implemented secure real-time email OTP authentication suite—are fully operational and database-backed.
+The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, the secure real-time email OTP authentication suite, and the newly implemented **Tally ERP Prime Accounting Integration Module**—are fully operational and database-backed.
 
 **Project Delivered by CloudHawk.**
-*Date: May 22, 2026*
+*Date: May 22, 2026 · Tally Integration Module added June 12, 2026*
