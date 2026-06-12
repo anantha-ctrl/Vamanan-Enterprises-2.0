@@ -1,5 +1,18 @@
 <?php
 // api/customer/get_genealogy.php
+//
+// RECENCY-RANKED GENEALOGY
+// ------------------------
+// Unlike a classic downline tree (direct child = L1), this view ranks every
+// member of the network by how recently they joined. The most recently referred
+// member is ALWAYS Level 1, and everyone who came before shifts down one level.
+// The viewing user (the root) is included too, and — being the oldest — always
+// sits at the deepest level.
+//
+// Example chain  Jessica -> Kavin -> Muthu
+//   After Kavin joins :  Kavin L1, Jessica L2
+//   After Muthu joins :  Muthu L1, Kavin L2, Jessica L3
+//
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -18,36 +31,62 @@ try {
         throw new Exception("User ID is required");
     }
 
-    function getDownline($db, $parentId, $level = 1) {
-        if ($level > 5) return [];
+    // 1. Collect the whole subtree (all descendants) of this user.
+    //    A visited-set guards against circular referrer links.
+    $visited = [];
+    $members = [];
 
+    $collect = function ($parentId) use (&$collect, $db, &$members, &$visited) {
         $stmt = $db->prepare("
             SELECT id, name, email, referral_code, created_at, kyc_status
-            FROM users 
+            FROM users
             WHERE referrer_id = ?
         ");
         $stmt->execute([$parentId]);
-        $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($children as &$child) {
-            // Get total investment for this child
-            $invStmt = $db->prepare("SELECT SUM(total_value) as total_inv FROM cashback_cycles WHERE user_id = ? AND status = 'active'");
-            $invStmt->execute([$child['id']]);
-            $child['total_investment'] = (float)($invStmt->fetch(PDO::FETCH_ASSOC)['total_inv'] ?? 0);
-            
-            // Get their children
-            $child['level'] = $level;
-            $child['downline'] = getDownline($db, $child['id'], $level + 1);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $child) {
+            if (isset($visited[$child['id']])) continue; // cycle guard
+            $visited[$child['id']] = true;
+            $members[] = $child;
+            $collect($child['id']);
         }
+    };
+    $collect($userId);
 
-        return $children;
+    // 2. Include the viewing user themselves (the root of this network).
+    $rootStmt = $db->prepare("
+        SELECT id, name, email, referral_code, created_at, kyc_status
+        FROM users
+        WHERE id = ?
+    ");
+    $rootStmt->execute([$userId]);
+    $root = $rootStmt->fetch(PDO::FETCH_ASSOC);
+    if ($root) {
+        $root['is_you'] = true;
+        $members[] = $root;
     }
 
-    $tree = getDownline($db, $userId);
+    // 3. Rank by recency — newest first (ties broken by id so order is stable).
+    usort($members, function ($a, $b) {
+        $cmp = strcmp((string)$b['created_at'], (string)$a['created_at']);
+        if ($cmp !== 0) return $cmp;
+        return (int)$b['id'] - (int)$a['id'];
+    });
+
+    // 4. Assign levels (newest = L1) and attach live investment totals.
+    $invStmt = $db->prepare("SELECT COALESCE(SUM(total_value),0) FROM cashback_cycles WHERE user_id = ? AND status = 'active'");
+    foreach ($members as $i => &$m) {
+        $m['level'] = $i + 1;                       // L1 = newest
+        $m['is_newest'] = ($i === 0);               // top of the tree
+        $m['is_you'] = !empty($m['is_you']);
+        $invStmt->execute([$m['id']]);
+        $m['total_investment'] = (float)$invStmt->fetchColumn();
+    }
+    unset($m);
 
     echo json_encode([
         "status" => "success",
-        "data" => $tree
+        "total_members" => count($members),
+        "data" => $members,
     ]);
 
 } catch (Exception $e) {

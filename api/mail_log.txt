@@ -14,3 +14,13 @@
 [2026-05-04 13:41:15] RECOVERY REQUEST FOR: krishnanibm05@gmail.com
 [2026-05-05 12:26:10] RECOVERY REQUEST FOR: coding.anantha@gmail.com
 [2026-06-12 07:55:53] [LOGIN OTP] TO: abarnavenkadeshwara@gmail.com | OTP: 246782
+[2026-06-12 09:31:22] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 694502
+[2026-06-12 09:31:45] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 102260
+[2026-06-12 09:31:56] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 149588
+[2026-06-12 09:38:04] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 145049
+[2026-06-12 09:38:36] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 642607
+[2026-06-12 09:39:12] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 596610
+[2026-06-12 09:39:22] [LOGIN OTP] TO: abarnavenkadeshwara@gmail.com | OTP: 769359
+[2026-06-12 09:39:48] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 969434
+[2026-06-12 09:41:08] [LOGIN OTP] TO: abarnavenkadeshwara@gmail.com | OTP: 999633
+[2026-06-12 09:43:32] [LOGIN OTP] TO: admin@makkalgold.com | OTP: 743167

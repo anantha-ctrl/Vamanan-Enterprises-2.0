@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {
   Copy, Users, User, Share2, Network, TrendingUp, ShieldCheck,
   CheckCircle2, Loader2, Globe, Zap, XCircle, RefreshCw,
-  ArrowRight, Gift, Clock, Star, ChevronDown, ChevronUp
+  ArrowRight, Gift, Clock, Star, ChevronDown, ChevronUp, AlertCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
-import GenealogyTree from '../components/GenealogyTree';
+import RecencyGenealogyTree from '../components/RecencyGenealogyTree';
 import { motion, AnimatePresence } from 'framer-motion';
 import API_BASE_URL from '../config';
 
@@ -18,6 +18,15 @@ const LEVEL_STYLES = [
   { bg: 'bg-slate-700',  text: 'text-white',       ring: 'border-slate-600', label: 'bg-emerald-500 text-white' },
   { bg: 'bg-slate-600',  text: 'text-white',       ring: 'border-slate-500', label: 'bg-indigo-500 text-white' },
   { bg: 'bg-slate-500',  text: 'text-white',       ring: 'border-slate-400', label: 'bg-rose-500 text-white' },
+];
+
+// Colours + descriptions for the "Referral Earnings Structure" diagram (matches reference image)
+const STRUCTURE_LEVELS = [
+  { color: '#5c0f10', desc: 'Direct referrals you bring in' },
+  { color: '#7a4a14', desc: 'Referrals made by your Level 1 network' },
+  { color: '#c4101f', desc: 'Referrals made by your Level 2 network' },
+  { color: '#7a1f47', desc: 'Referrals made by your Level 3 network' },
+  { color: '#2563c4', desc: 'Referrals made by your Level 4 network' },
 ];
 
 const Referrals = () => {
@@ -39,7 +48,7 @@ const Referrals = () => {
     const iv = setInterval(() => {
       fetchReferrals(true);
       fetchGenealogy(true);
-    }, 30000);
+    }, 10000); // poll every 10s for near real-time level updates
     return () => clearInterval(iv);
   }, []);
 
@@ -129,6 +138,7 @@ const Referrals = () => {
   const totalEarnings      = data?.total_network_earnings || 0;
   const todayEarnings      = data?.today_earnings || 0;
   const history            = data?.history || [];
+  const dailyCashbackRate  = data?.daily_cashback_rate || '1%';
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
@@ -253,6 +263,66 @@ const Referrals = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* ── REFERRAL EARNINGS STRUCTURE (5 LEVELS DEEP) ─────── */}
+          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+            className="bg-white border border-slate-200/60 rounded-[2.5rem] shadow-sm overflow-hidden"
+          >
+            <div className="p-8 md:p-12 pb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tighter italic uppercase leading-none">Referral Earnings Structure</h2>
+              <p className="text-[10px] md:text-xs text-slate-400 font-black uppercase tracking-[0.15em] mt-3 italic">Earn additional income by growing your network — 5 levels deep</p>
+            </div>
+
+            <div className="px-4 sm:px-8 md:px-12 pb-10 flex flex-col items-stretch">
+              {/* YOU node */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-md bg-slate-900 rounded-2xl px-8 py-5 text-center shadow-xl">
+                  <p className="text-amber-400 font-black uppercase tracking-widest text-sm italic">You</p>
+                  <p className="text-amber-400 font-black uppercase tracking-wide text-base sm:text-lg italic mt-1">{dailyCashbackRate} Daily Cashback</p>
+                </div>
+              </div>
+
+              {/* connector */}
+              <div className="flex justify-center">
+                <div className="w-1.5 h-6 bg-amber-500" />
+              </div>
+
+              {/* Cascading level bars */}
+              <div className="space-y-2.5">
+                {STRUCTURE_LEVELS.map((s, idx) => {
+                  const lvl  = levels[idx] || {};
+                  const rate = lvl.commission || '—';
+                  const indent = idx * 3; // staggered cascade like the reference image
+                  return (
+                    <motion.div key={idx}
+                      initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }} transition={{ delay: idx*0.08 }}
+                      className="rounded-xl shadow-lg flex items-center gap-3 sm:gap-6 px-5 sm:px-8 py-4 sm:py-5"
+                      style={{ backgroundColor: s.color, marginLeft: `${indent}%`, marginRight: `${(4 - idx) * 1.5}%` }}
+                    >
+                      <span className="text-white font-black uppercase italic tracking-wider text-xs sm:text-sm shrink-0 w-16 sm:w-20">Level {idx + 1}</span>
+                      <span className="text-white font-black italic text-xl sm:text-3xl leading-none shrink-0 w-24 sm:w-32">
+                        {rate}<span className="text-sm sm:text-lg font-bold"> / day</span>
+                      </span>
+                      <span className="text-white/90 font-semibold text-[10px] sm:text-sm italic leading-tight flex-1">{s.desc}</span>
+                      <span className="hidden md:flex flex-col items-end shrink-0">
+                        <span className="text-white/60 font-black uppercase tracking-widest text-[8px] italic">Members</span>
+                        <span className="text-white font-black italic text-lg leading-none">{lvl.count ?? 0}</span>
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* TOTAL POTENTIAL banner */}
+              <div className="mt-6 bg-slate-900 rounded-xl px-5 sm:px-8 py-5 text-center">
+                <p className="text-amber-400 font-black uppercase tracking-wide text-[11px] sm:text-base italic leading-relaxed">
+                  Total Potential: {dailyCashbackRate} (own)
+                  {levels.map((l, i) => <span key={i}> + {l.commission}</span>)}
+                  {' '}daily earnings at full 5-level network
+                </p>
+              </div>
+            </div>
+          </motion.div>
 
           {/* ── ELIGIBILITY PROGRESS ────────────────────────────── */}
           <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
@@ -470,7 +540,7 @@ Live Updates
             </div>
 
             <div className="relative z-10 bg-slate-50/50 rounded-[2rem] border border-slate-100 p-2 min-h-[500px]">
-              <GenealogyTree data={genealogy} loading={loadingGenealogy} />
+              <RecencyGenealogyTree data={genealogy} loading={loadingGenealogy} />
             </div>
             
             <div className="mt-8 flex justify-center relative z-10">

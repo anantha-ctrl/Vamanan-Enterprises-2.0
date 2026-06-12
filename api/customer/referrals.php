@@ -31,6 +31,11 @@ try {
         5 => ($rates['referral_commission_l5'] ?? '0.05') . '%',
     ];
 
+    // ── 2b. Own daily cashback rate (for "YOU" node in the structure) ──
+    $dcStmt = $db->prepare("SELECT config_value FROM platform_settings WHERE config_key = 'daily_cashback_rate'");
+    $dcStmt->execute();
+    $dailyCashbackRate = ($dcStmt->fetchColumn() ?: '1') . '%';
+
     // ── 3. Level-wise counts & actual earnings from transactions ──
     // We walk the tree BFS-style up to 5 levels
     $levels = [];
@@ -126,6 +131,7 @@ try {
         "status" => "success",
         "data" => [
             "referral_code" => $referralCode,
+            "daily_cashback_rate" => $dailyCashbackRate,
             "levels" => $levels,
             "total_network_earnings" => $totalEarnings,
             "today_earnings" => $todayEarnings,

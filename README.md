@@ -11,6 +11,7 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 - **Live Market Synchronization**: Real-time integration with global gold exchanges (XAU/INR) featuring automated 10-minute synchronization and direct TradingView chart validation.
 - **Cinematic Landing Portal**: High-end landing page with real-time market tickers, military-grade security matrices, and dynamic institutional performance metrics.
 - **Automated Yield Protocol**: Proprietary "1% Diurnal Yield" engine that processes daily cashback and 5-tier referral commissions with real-time transaction telemetry.
+- **Recency-Ranked Genealogy Tree**: A live referral hierarchy that re-ranks the network by join recency — the most recently referred member is always elevated to **Level 1**, every earlier member cascades down a level automatically, and the account holder anchors the deepest level (`YOU`). The tree recalculates whenever a new referral joins, with cycle-safe traversal and near-real-time synchronization across the frontend, PHP-REST layer, and MySQL core. (Distinct from the **5-tier commission ladder**, which continues to flow up the true referral ancestry so payouts remain correct.)
 - **Digital Ratification Workflow**: Secure, multi-party agreement protocol requiring Advocate Ratification and Partner Verification for all institutional gold contracts.
 - **Advanced Audit Command Center**:
   - **Cashback Reports**: Premium gold-black dashboard with monthly/daily yield tracking and automated liability forecasting.
@@ -94,7 +95,7 @@ flowchart TD
 - **TailwindCSS**: Utility-first styling for a premium, custom-branded gold-black design system.
 - **Framer Motion**: Cinematic micro-animations, de-blur transitions, and smooth state transitions.
 - **Lucide React**: Vector-based institutional icon set.
-- **Axios**: High-frequency real-time data polling (30s intervals) with automated retry logic.
+- **Axios**: High-frequency real-time data polling (30s on dashboards, 10s on the Referral Network for near-instant genealogy updates) with automated retry logic.
 
 ### Backend (Sovereign Core)
 - **PHP 8.0+ (REST API)**: High-performance backend nodes for transactional logic and market synchronization.
@@ -129,6 +130,7 @@ flowchart TD
     npm run dev
     ```
     - The portal will be live at `http://localhost:5173`.
+    - **Environment Auto-Detection**: `frontend/src/config.js` resolves the API endpoint from `window.location.hostname` — `localhost`/`127.0.0.1` automatically targets the local XAMPP backend (`http://localhost/Vamanan1/api`), while any deployed host targets the production API (`https://vamananenterprisesv.com/api`). No manual switching or rebuild reconfiguration required.
 
 ---
 
@@ -163,7 +165,7 @@ Makkal_Gold/
 
 - **Market Sync**: The system background-syncs with global gold rates every 10 minutes. Manual sync can be triggered via the **SYNC MARKET** protocol in the Admin dashboard.
 - **Daily Protocol**: Manually trigger the yield engine via the Admin Dashboard or call `/api/cron/process_cashback.php`.
-- **High-Frequency Polling**: Dashboards are synchronized every 30 seconds to ensure zero-latency data viewing.
+- **High-Frequency Polling**: Dashboards are synchronized every 30 seconds to ensure zero-latency data viewing; the **Referral Network** genealogy polls every 10 seconds so newly-joined members surface at Level 1 almost instantly.
 - **Export Protocols**: All fiscal registries support high-fidelity CSV and Ledger exports for external auditing.
 - **Tally Synchronization**: Ledgers and vouchers can be exported as Tally-ready XML/Excel/CSV, or pushed live to Tally ERP Prime via its HTTP gateway (default `http://localhost:9000`). Configure company name, ledger mapping, and gateway address in the **Tally Integration → Settings** panel. Live push requires TallyPrime to be open with the gateway enabled.
 
