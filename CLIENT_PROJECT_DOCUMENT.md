@@ -54,6 +54,20 @@ This document outlines the complete architectural development and deployment of 
 - **Reconciliation & Audit Trail**: Added a reconciliation panel comparing source records against posted vouchers, and an immutable audit log capturing every export, sync, and voucher action with actor and timestamp.
 - **Plain-Language Admin UI**: Delivered a responsive, tabbed `TallyIntegration.jsx` interface using human-readable labels and inline hints so non-accountants can operate it confidently.
 
+### Phase 8: GST-Exclusive Cashback, Tax Invoicing & Compliance
+- **Category-Based GST Engine**: Implemented admin-configurable GST rates (precious metals i.e. Gold/Silver vs. general products), applied automatically at checkout based on each product's category, with the GST split equally into **CGST + SGST** (intra-state).
+- **GST-Exclusive Incentive Rule**: Re-architected the entire rewards core so customers pay the full GST-inclusive invoice, but **all incentives — daily cashback, 5-tier referral, and commissions — are computed strictly on the ex-GST product value**. Every cashback/payout engine (`process_cashback.php`, `run_daily_payout.php`, `approve_investment.php`, lazy plan processing) was updated to use a stored `cashback_eligible_amount`, and the order record persists `product_amount`, `gst_amount`, `total_amount`, and `cashback_eligible_amount` separately.
+- **Automated Tax Invoice**: Placing an order now auto-generates a printable **Tax Invoice** with a rate-wise CGST/SGST breakdown, billed to the customer and viewable on demand from the customer dashboard (Orders & Invoices). A matching **cashback application** is auto-created server-side from live customer + bank data.
+- **GST Filing Console**: Added an admin **GST Filing** module producing a real-time, period-filterable summary — overall totals, **rate-wise (GSTR-1 style)** grouping, and **invoice-wise** breakdown — with CSV export for return filing.
+- **GST-Aware Tally Bridge**: Upgraded the Tally integration so sales vouchers book revenue ex-GST with dedicated **Output CGST / Output SGST** ledgers, the P&L reports net (ex-GST) revenue with GST shown separately, and the Balance Sheet carries a **GST Payable** liability. Live sync now **falls back to an XML download** when TallyPrime is unreachable.
+- **Bulk User Provisioning**: Delivered a bulk customer/staff onboarding tool (inline multi-row form or CSV upload with downloadable template), each account auto-assigned a sequential VEV ID, referral code, and wallet.
+- **Manual Access Control**: Moved staff permission assignment into **Settings → Access Control** (manual, per-staff); staff now operate a permission-filtered admin dashboard exposing only their granted modules.
+- **Record Integrity & Real-Time Sync**: Linked every purchase to its ledger transaction (`ledger_txn_id`) so approve/reject/delete target the exact entry; deleting a purchase record now removes its transaction and refreshes dashboard revenue in real time.
+
+### Phase 9: Multi-Role Staff Onboarding & Live Accounting Refresh
+- **Multi-Role Recruitment Node**: Upgraded the Add-Staff (Recruitment) interface from a single hard-coded `staff` role to a live **Staff / Manager / Advocate** role selector. Each onboarding writes directly to the MySQL `users` table (with an auto-initialized wallet), validated server-side against an allow-list — the `admin` role is deliberately rejected so no administrator can be provisioned through this form. New hires appear instantly in the user list and in **Settings → Access Control** for permission assignment.
+- **Real-Time Tally Auto-Refresh**: Made the Tally Integration module genuinely live — every data tab (Dashboard, Ledgers, Reports, Vouchers, Reconciliation, Audit) silently re-pulls from MySQL every 15 seconds without spinner flicker, pauses while the browser tab is hidden, and skips the Settings tab so an in-progress configuration edit is never clobbered. Verified the full settings round-trip persists to and reads back from the `tally_settings` table.
+
 ---
 
 ## 🔄 Project Workflow
@@ -83,7 +97,8 @@ flowchart TD
         C1[Approve Purchases / KYC]
         C2[Run Daily Payout]
         C3[Reports & Analytics]
-        C4[Staff Permission Matrix]
+        C4["Onboard Staff / Manager / Advocate"]
+        C5[Permission Matrix · Access Control]
     end
 
     subgraph TALLY["📒 Tally ERP Integration"]
@@ -104,10 +119,12 @@ flowchart TD
     B2 & B3 & B4 & B5 <--> B1
 
     C1 & C2 --> B1
+    C4 -->|"create user + wallet"| B1
     B1 --> C3
-    C4 -.gates.-> ADMIN
+    C4 --> C5
+    C5 -.gates.-> ADMIN
 
-    B1 --> D1
+    B1 -->|"live pull · 15s auto-refresh"| D1
     D1 --> D2
     D1 --> D3
     D3 --> D4
@@ -131,7 +148,7 @@ flowchart TD
 ---
 
 ## ✅ Current Project Status
-The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, the secure real-time email OTP authentication suite, and the newly implemented **Tally ERP Prime Accounting Integration Module**—are fully operational and database-backed.
+The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, the secure real-time email OTP authentication suite, the **Tally ERP Prime Accounting Integration Module**, the **GST-Exclusive Cashback, Tax Invoicing & Compliance** suite (category GST, CGST/SGST invoices, GST Filing, GST-aware Tally, bulk user provisioning, and manual access control), and the latest **multi-role staff onboarding (Staff/Manager/Advocate)** with **live 15-second Tally auto-refresh**—are fully operational and database-backed.
 
 **Project Delivered by CloudHawk.**
-*Date: May 22, 2026 · Tally Integration Module added June 12, 2026*
+*Date: May 22, 2026 · Tally Integration Module added June 12, 2026 · GST-Exclusive Cashback & Tax Compliance suite added June 17, 2026 · Multi-Role Staff Onboarding & Live Tally Auto-Refresh added June 18, 2026*

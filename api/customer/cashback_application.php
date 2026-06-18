@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     try {
         // Real-time customer data straight from the users table
-        $stmt = $db->prepare("SELECT id, name, email, phone, address, aadhar_no, pan_no,
+        $stmt = $db->prepare("SELECT id, customer_id, name, email, phone, address, aadhar_no, pan_no,
                                      referral_code, bank_name, account_no, ifsc_code, branch_name
                               FROM users WHERE id = ?");
         $stmt->execute([$userId]);

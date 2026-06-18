@@ -18,9 +18,9 @@ runMigrations($db);
 
 try {
 
-    $query = "SELECT u.id, u.name, u.email, u.role, u.status, u.kyc_status, u.kyc_document, u.created_at, 
-                     COALESCE(w.balance, 0) as balance 
-              FROM users u 
+    $query = "SELECT u.id, u.customer_id, u.referral_code, u.name, u.email, u.role, u.status, u.kyc_status, u.kyc_document, u.created_at,
+                     COALESCE(w.balance, 0) as balance
+              FROM users u
               LEFT JOIN wallets w ON u.id = w.user_id 
               ORDER BY u.created_at DESC";
     $stmt = $db->query($query);

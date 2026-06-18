@@ -17,7 +17,7 @@ if(!$userId) {
 
 try {
     // 1. Fetch User Info
-    $uStmt = $db->prepare("SELECT name, email, kyc_status, referral_code FROM users WHERE id = ?");
+    $uStmt = $db->prepare("SELECT name, email, kyc_status, customer_id, referral_code FROM users WHERE id = ?");
     $uStmt->execute([$userId]);
     $user = $uStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -30,7 +30,9 @@ try {
     $cStmt->execute([$userId]);
     $cycles = $cStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $totalInvestment    = 0;
+    $totalInvestment    = 0;   // total paid (incl. GST)
+    $totalEligible      = 0;   // GST-excluded product value — the cashback base
+    $totalGst           = 0;
     $totalEarned        = 0;
     $totalDailyPayout   = 0;
     $activeCyclesCount  = 0;
@@ -39,23 +41,26 @@ try {
     $activeCycle        = null;
 
     foreach ($cycles as $cycle) {
-        if ($cycle['status'] === 'active' || $cycle['status'] === 'pending') {
-            $totalInvestment   += (float)$cycle['total_value'];
-            $totalEarned       += (float)($cycle['paid_amount'] ?? 0);
-            
+        if (in_array($cycle['status'], ['active', 'pending', 'completed'], true)) {
+            // GST-exclusive: cashback progress is measured against the product subtotal, not the GST-inclusive total.
+            $eligible = (float)($cycle['cashback_eligible_amount'] ?? 0);
+            if ($eligible <= 0) $eligible = (float)$cycle['total_value']; // legacy rows (GST was 0)
+
+            $totalInvestment += (float)$cycle['total_value'];
+            $totalEligible   += $eligible;
+            $totalGst        += (float)($cycle['gst_amount'] ?? 0);
+            $totalEarned     += (float)($cycle['paid_amount'] ?? 0);
+
             if ($cycle['status'] === 'active') {
-                $totalDailyPayout  += (float)($cycle['daily_payout'] ?? 0);
+                $totalDailyPayout += (float)($cycle['daily_payout'] ?? 0);
                 $activeCyclesCount++;
             }
 
-            if (!$activeCycle) {
+            if (!$activeCycle && $cycle['status'] !== 'completed') {
                 $activeCycle   = $cycle;
                 $daysCompleted = (int)($cycle['days_paid'] ?? 0);
                 $daysRemaining = 100 - $daysCompleted;
             }
-        } elseif ($cycle['status'] === 'completed') {
-            $totalInvestment += (float)$cycle['total_value'];
-            $totalEarned     += (float)($cycle['paid_amount'] ?? 0);
         }
     }
 
@@ -114,9 +119,12 @@ try {
             "cycles"            => $cycles,
             "active_cycle"      => [
                 "total_value"        => $totalInvestment,
+                "product_amount"     => $totalEligible,
+                "gst_amount"         => $totalGst,
+                "cashback_eligible"  => $totalEligible,
                 "total_earned"       => $totalEarned,
-                "remaining_value"    => max(0, $totalInvestment - $totalEarned),
-                "cashback_percentage"=> $totalInvestment > 0 ? round(($totalEarned / $totalInvestment) * 100, 2) : 0,
+                "remaining_value"    => max(0, $totalEligible - $totalEarned),
+                "cashback_percentage"=> $totalEligible > 0 ? round(($totalEarned / $totalEligible) * 100, 2) : 0,
                 "is_closing_soon"    => $daysRemaining <= 10 && $daysRemaining > 0,
                 "days_completed"     => $daysCompleted,
                 "days_remaining"     => $daysRemaining,
@@ -136,6 +144,7 @@ try {
             ],
             "transactions"      => $transactions,
             "referrals_count"   => $referralCount,
+            "customer_id"       => $user['customer_id'] ?? null,
             "referral_code"     => $user['referral_code'] ?? null,
             "agreement_id"      => $agreement['id'] ?? null,
             "notifications"     => $notifications

@@ -26,6 +26,10 @@ try {
     $stmt = $pdo->prepare("
         SELECT cc.id,
                cc.total_value,
+               cc.product_amount,
+               cc.gst_amount,
+               cc.total_amount,
+               cc.cashback_eligible_amount,
                cc.daily_payout,
                cc.asset_type,
                cc.weight,
@@ -34,6 +38,7 @@ try {
                cc.payment_method,
                cc.payment_screenshot,
                cc.created_at,
+               cc.product_name AS cycle_product_name,
                p.name  AS product_name,
                p.image AS product_image,
                p.purity,

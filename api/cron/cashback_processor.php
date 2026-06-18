@@ -11,32 +11,34 @@ $wallet = new Wallet($db);
 $today = date('Y-m-d');
 
 try {
-    $query = "SELECT * FROM cashback_cycles 
-              WHERE status = 'active' 
+    // GST-exclusive: cap cashback at the product subtotal (cashback_eligible_amount), never the GST-inclusive total.
+    $query = "SELECT *, COALESCE(NULLIF(cashback_eligible_amount,0), total_value) AS eligible_base FROM cashback_cycles
+              WHERE status = 'active'
               AND (last_paid_at IS NULL OR last_paid_at < :today)
-              AND paid_amount < total_value";
-    
+              AND paid_amount < COALESCE(NULLIF(cashback_eligible_amount,0), total_value)";
+
     $stmt = $db->prepare($query);
     $stmt->execute(['today' => $today]);
     $cycles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $processed = 0;
     foreach ($cycles as $cycle) {
+        $eligible = (float)$cycle['eligible_base'];
         $payout = $cycle['daily_payout'];
 
-        if (($cycle['paid_amount'] + $payout) > $cycle['total_value']) {
-            $payout = $cycle['total_value'] - $cycle['paid_amount'];
+        if (($cycle['paid_amount'] + $payout) > $eligible) {
+            $payout = $eligible - $cycle['paid_amount'];
         }
 
-        $description = "Daily 1% Cashback for Cycle #" . $cycle['id'];
+        $description = "Daily 1% Cashback (excl. GST) for Cycle #" . $cycle['id'];
         $success = $wallet->addTransaction($cycle['user_id'], 'credit', 'cashback', $payout, $description);
 
         if ($success) {
-            $updateQuery = "UPDATE cashback_cycles SET 
+            $updateQuery = "UPDATE cashback_cycles SET
                             paid_amount = paid_amount + :payout,
                             days_paid = days_paid + 1,
                             last_paid_at = :today,
-                            status = IF((paid_amount + :payout2) >= total_value, 'completed', 'active')
+                            status = IF((paid_amount + :payout2) >= COALESCE(NULLIF(cashback_eligible_amount,0), total_value), 'completed', 'active')
                             WHERE id = :id";
             
             $updateStmt = $db->prepare($updateQuery);

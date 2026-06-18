@@ -35,7 +35,7 @@ try {
     $database->beginTransaction();
 
     // 1. Get cycle info
-    $cInfo = $database->prepare("SELECT user_id, total_value FROM cashback_cycles WHERE id = :id AND status = 'pending'");
+    $cInfo = $database->prepare("SELECT user_id, total_value, ledger_txn_id, COALESCE(NULLIF(cashback_eligible_amount,0), total_value) AS cashback_eligible_amount FROM cashback_cycles WHERE id = :id AND status = 'pending'");
     $cInfo->execute(['id' => $cycleId]);
     $cycle = $cInfo->fetch(PDO::FETCH_ASSOC);
 
@@ -54,17 +54,24 @@ try {
         $database->prepare("UPDATE agreements SET status = 'active', agreement_date = NOW() WHERE user_id = :uid AND status = 'pending' ORDER BY id DESC LIMIT 1")
            ->execute(['uid' => $userId]);
 
-        // Update the purchase_request transaction to completed
-        $database->prepare("UPDATE transactions t 
-                      JOIN wallets w ON t.wallet_id = w.id
-                      SET t.status = 'completed', t.description = REPLACE(t.description, 'Awaiting Admin Approval', 'Approved')
-                      WHERE w.user_id = :uid AND t.category = 'purchase_request' AND t.status = 'pending' 
-                      ORDER BY t.id DESC LIMIT 1")
-           ->execute(['uid' => $userId]);
+        // Mark the cycle's exact ledger transaction completed (fallback: latest pending for the user).
+        $txId = $cycle['ledger_txn_id'] ?? null;
+        if (!$txId) {
+            $txStmt = $database->prepare("SELECT t.id FROM transactions t JOIN wallets w ON t.wallet_id = w.id
+                                          WHERE w.user_id = :uid AND t.category = 'purchase_request' AND t.status = 'pending'
+                                          ORDER BY t.id DESC LIMIT 1");
+            $txStmt->execute(['uid' => $userId]);
+            $txId = $txStmt->fetchColumn();
+        }
+        if ($txId) {
+            $database->prepare("UPDATE transactions SET status = 'completed', description = REPLACE(description, 'Awaiting Admin Approval', 'Approved') WHERE id = :tid")
+               ->execute(['tid' => $txId]);
+        }
 
         // --- 5-LEVEL REFERRAL COMMISSION LOGIC ---
-        $investAmount = floatval($cycle['total_value']);
-        
+        // GST-exclusive: commission base is the product subtotal (cashback_eligible_amount), never the GST-inclusive total.
+        $investAmount = floatval($cycle['cashback_eligible_amount']);
+
         // Fetch commission percentages from settings
         $stmtSet = $database->query("SELECT config_key, config_value FROM platform_settings WHERE config_key LIKE 'referral_commission_l%'");
         $rates = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -111,12 +118,19 @@ try {
         $database->prepare("UPDATE agreements SET status = 'rejected' WHERE user_id = :uid AND status = 'pending' ORDER BY id DESC LIMIT 1")
            ->execute(['uid' => $userId]);
 
-        $database->prepare("UPDATE transactions t 
-                      JOIN wallets w ON t.wallet_id = w.id
-                      SET t.status = 'failed', t.description = REPLACE(t.description, 'Awaiting Admin Approval', 'Rejected by Admin')
-                      WHERE w.user_id = :uid AND t.category = 'purchase_request' AND t.status = 'pending' 
-                      ORDER BY t.id DESC LIMIT 1")
-           ->execute(['uid' => $userId]);
+        // Mark the cycle's exact ledger transaction failed (fallback: latest pending for the user).
+        $txId = $cycle['ledger_txn_id'] ?? null;
+        if (!$txId) {
+            $txStmt = $database->prepare("SELECT t.id FROM transactions t JOIN wallets w ON t.wallet_id = w.id
+                                          WHERE w.user_id = :uid AND t.category = 'purchase_request' AND t.status = 'pending'
+                                          ORDER BY t.id DESC LIMIT 1");
+            $txStmt->execute(['uid' => $userId]);
+            $txId = $txStmt->fetchColumn();
+        }
+        if ($txId) {
+            $database->prepare("UPDATE transactions SET status = 'failed', description = REPLACE(description, 'Awaiting Admin Approval', 'Rejected by Admin') WHERE id = :tid")
+               ->execute(['tid' => $txId]);
+        }
     }
 
     $database->commit();

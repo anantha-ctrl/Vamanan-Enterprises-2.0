@@ -84,6 +84,8 @@ function tally_settings(PDO $db): array {
         'company'          => '',
         'gateway'          => 'http://localhost:9000',
         'sales_ledger'     => 'Sales Account',
+        'cgst_ledger'      => 'Output CGST',
+        'sgst_ledger'      => 'Output SGST',
         'cashback_ledger'  => 'Cashback Expense',
         'referral_ledger'  => 'Referral Commission',
         'bank_ledger'      => 'Bank Account',
@@ -157,16 +159,31 @@ function build_ledger(PDO $db, string $ledger): array {
 // cycle is a customer purchase of gold/silver/product) + standalone purchase txns.
 function ledger_sales(PDO $db, string $start, string $end): array {
     $rows = [];
-    $total = 0;
-    $stmt = $db->prepare("SELECT c.id, c.total_value, c.asset_type, c.product_name, c.weight, c.status,
+    $total = 0;          // taxable (ex-GST) sales revenue
+    $gstTotal = 0;       // output GST collected (CGST + SGST)
+    $grossTotal = 0;     // invoice value (incl. GST)
+    // GST-exclusive accounting: Sales revenue is booked on the taxable product value;
+    // GST is an output-tax liability, not revenue.
+    $stmt = $db->prepare("SELECT c.id, c.total_value,
+                                 COALESCE(NULLIF(c.product_amount,0), c.cashback_eligible_amount, c.total_value) AS taxable,
+                                 COALESCE(c.gst_amount, 0) AS gst_amount,
+                                 COALESCE(NULLIF(c.total_amount,0), c.total_value) AS total_amount,
+                                 c.asset_type, c.product_name, c.weight, c.status,
                                  c.created_at, c.transaction_id, u.name AS customer, u.email
                           FROM cashback_cycles c JOIN users u ON c.user_id = u.id
                           WHERE DATE(c.created_at) BETWEEN ? AND ?
                           ORDER BY c.created_at DESC");
     $stmt->execute([$start, $end]);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $c) {
-        $amt = (float)$c['total_value'];
-        $total += $amt;
+        $taxable = (float)$c['taxable'];
+        $gst     = (float)$c['gst_amount'];
+        $gross   = (float)$c['total_amount'];
+        $cgst    = $gst / 2;
+        $sgst    = $gst / 2;
+        $rate    = $taxable > 0 ? round($gst / $taxable * 100, 2) : 0;
+        $total      += $taxable;
+        $gstTotal   += $gst;
+        $grossTotal += $gross;
         $item = $c['product_name'] ?: ucfirst($c['asset_type'] ?? 'Asset');
         $rows[] = [
             'date'        => substr($c['created_at'], 0, 10),
@@ -174,15 +191,20 @@ function ledger_sales(PDO $db, string $start, string $end): array {
             'particulars' => $c['customer'] . ' — ' . $item . ($c['weight'] > 0 ? " ({$c['weight']}g)" : ''),
             'type'        => 'Cr',
             'debit'       => 0,
-            'credit'      => $amt,
-            'amount'      => $amt,
+            'credit'      => $taxable,   // revenue booked ex-GST
+            'amount'      => $taxable,
             'status'      => $c['status'],
-            'meta'        => ['email' => $c['email'], 'txn' => $c['transaction_id']],
+            'meta'        => ['email' => $c['email'], 'txn' => $c['transaction_id'],
+                              'taxable' => $taxable, 'gst_rate' => $rate,
+                              'cgst' => $cgst, 'sgst' => $sgst, 'gst' => $gst, 'total' => $gross],
         ];
     }
     return ['rows' => $rows, 'summary' => [
         'count' => count($rows), 'total' => $total,
-        'label' => 'Total Sales Revenue',
+        'label' => 'Net Sales Revenue (excl. GST)',
+        'gst_collected' => $gstTotal,
+        'cgst' => $gstTotal / 2, 'sgst' => $gstTotal / 2,
+        'gross_invoice' => $grossTotal,
     ]];
 }
 
@@ -190,7 +212,7 @@ function ledger_sales(PDO $db, string $start, string $end): array {
 function ledger_customer(PDO $db, string $start, string $end): array {
     $rows = [];
     $total = 0;
-    $stmt = $db->query("SELECT u.id, u.name, u.email, u.phone,
+    $stmt = $db->query("SELECT u.id, u.customer_id, u.name, u.email, u.phone,
                                COALESCE(w.balance,0) AS balance,
                                COALESCE(w.total_earned,0) AS earned,
                                COALESCE(w.total_withdrawn,0) AS withdrawn
@@ -203,7 +225,7 @@ function ledger_customer(PDO $db, string $start, string $end): array {
         $total += $bal;
         $rows[] = [
             'date'        => date('Y-m-d'),
-            'ref'         => 'CUST-' . $u['id'],
+            'ref'         => $u['customer_id'] ?: ('CUST-' . $u['id']),
             'particulars' => $u['name'] ?: ('Customer #' . $u['id']),
             'type'        => 'Cr',                  // wallet balance is payable to customer
             'debit'       => 0,
@@ -323,14 +345,14 @@ function ledger_withdrawal(PDO $db, string $start, string $end): array {
 function ledger_inventory(PDO $db, string $start, string $end): array {
     $rows = [];
     $total = 0;
-    $stmt = $db->query("SELECT id, name, category, purity, weight, price, is_active, created_at
+    $stmt = $db->query("SELECT id, product_code, name, category, purity, weight, price, is_active, created_at
                         FROM products ORDER BY category, name");
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $p) {
         $val = (float)$p['price'];
         $total += $val;
         $rows[] = [
             'date'        => substr($p['created_at'], 0, 10),
-            'ref'         => 'ITM-' . $p['id'],
+            'ref'         => $p['product_code'] ?: ('ITM-' . $p['id']),
             'particulars' => $p['name'] . ' — ' . $p['category'] . ($p['purity'] ? " ({$p['purity']})" : ''),
             'type'        => 'Dr',
             'debit'       => $val,
@@ -357,15 +379,16 @@ function report_pnl(PDO $db): array {
         return (float)($s->fetchColumn() ?: 0);
     };
 
-    // Revenue
-    $sales = $sum("SELECT COALESCE(SUM(total_value),0) FROM cashback_cycles WHERE DATE(created_at) BETWEEN ? AND ?", [$start, $end]);
+    // Revenue — GST-exclusive: revenue is the taxable value only; GST is an output-tax liability.
+    $sales = $sum("SELECT COALESCE(SUM(COALESCE(NULLIF(product_amount,0), cashback_eligible_amount, total_value)),0) FROM cashback_cycles WHERE DATE(created_at) BETWEEN ? AND ?", [$start, $end]);
+    $gstCollected = $sum("SELECT COALESCE(SUM(COALESCE(gst_amount,0)),0) FROM cashback_cycles WHERE DATE(created_at) BETWEEN ? AND ?", [$start, $end]);
 
     // Direct expenses
     $cashback = $sum("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE category='cashback' AND DATE(created_at) BETWEEN ? AND ?", [$start, $end]);
     $referral = $sum("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE category='referral' AND DATE(created_at) BETWEEN ? AND ?", [$start, $end]);
 
     $income = [
-        ['particulars' => 'Sales Revenue (Gold / Asset Purchases)', 'amount' => $sales],
+        ['particulars' => 'Sales Revenue (excl. GST)', 'amount' => $sales],
     ];
     $expenses = [
         ['particulars' => 'Cashback Payouts',     'amount' => $cashback],
@@ -384,6 +407,10 @@ function report_pnl(PDO $db): array {
         'total_expense' => $totalExpense,
         'net_profit'    => $grossProfit,
         'margin'        => $totalIncome > 0 ? round($grossProfit / $totalIncome * 100, 2) : 0,
+        // Output GST collected is a liability (payable to govt), shown separately — not part of P&L income.
+        'gst_collected' => $gstCollected,
+        'gst_cgst'      => $gstCollected / 2,
+        'gst_sgst'      => $gstCollected / 2,
     ];
 }
 
@@ -401,6 +428,7 @@ function report_balance_sheet(PDO $db): array {
     // Liabilities
     $walletPayable = $val("SELECT COALESCE(SUM(balance),0) FROM wallets");
     $pendingWd     = $val("SELECT COALESCE(SUM(amount),0) FROM withdrawals WHERE status = 'pending'");
+    $gstPayable    = $val("SELECT COALESCE(SUM(COALESCE(gst_amount,0)),0) FROM cashback_cycles WHERE status <> 'rejected'");
 
     $assets = [
         ['particulars' => 'Bank / Cash',                 'amount' => $bank],
@@ -410,6 +438,7 @@ function report_balance_sheet(PDO $db): array {
     $liabilities = [
         ['particulars' => 'Customer Wallet Balances',    'amount' => $walletPayable],
         ['particulars' => 'Pending Withdrawals',         'amount' => $pendingWd],
+        ['particulars' => 'GST Payable (CGST + SGST)',   'amount' => $gstPayable],
     ];
 
     $totalAssets      = array_sum(array_column($assets, 'amount'));
@@ -495,13 +524,104 @@ function build_tally_xml(array $rows, string $company, string $voucherType, stri
 </ENVELOPE>';
 }
 
-// CSV from generic ledger rows.
-function build_csv(array $rows): string {
-    $out = fopen('php://temp', 'r+');
-    fputcsv($out, ['Date', 'Reference', 'Particulars', 'Type', 'Debit', 'Credit', 'Status']);
+// GST-aware Sales XML: each voucher books the party (Dr full invoice), Sales (Cr taxable),
+// and Output CGST + SGST (Cr) — so Tally records revenue ex-GST with the tax liability split.
+function build_sales_tally_xml(array $rows, string $company, string $salesLedger, string $cgstLedger, string $sgstLedger, string $partyGroup = 'Sundry Debtors'): string {
+    $ledgerMsgs = '';
+    $voucherMsgs = '';
+    $seen = [];
+
     foreach ($rows as $r) {
-        fputcsv($out, [$r['date'], $r['ref'], $r['particulars'], $r['type'] ?? '',
-                       money($r['debit'] ?? 0), money($r['credit'] ?? 0), $r['status'] ?? '']);
+        $party   = $r['particulars'];
+        $m       = $r['meta'] ?? [];
+        $taxable = (float)($m['taxable'] ?? $r['amount']);
+        $cgst    = (float)($m['cgst'] ?? 0);
+        $sgst    = (float)($m['sgst'] ?? 0);
+        $total   = (float)($m['total'] ?? ($taxable + $cgst + $sgst));
+        $date    = tally_date($r['date']);
+
+        if (!isset($seen[$party])) {
+            $seen[$party] = true;
+            $ledgerMsgs .= '
+      <TALLYMESSAGE xmlns:UDF="TallyUDF">
+        <LEDGER NAME="' . xesc($party) . '" ACTION="Create"><PARENT>' . xesc($partyGroup) . '</PARENT></LEDGER>
+      </TALLYMESSAGE>';
+        }
+
+        // Party debited the full invoice; Sales + taxes credited.
+        $entries = '
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . xesc($party) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>' . money($total) . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . xesc($salesLedger) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-' . money($taxable) . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>';
+        if ($cgst > 0) {
+            $entries .= '
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . xesc($cgstLedger) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-' . money($cgst) . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . xesc($sgstLedger) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-' . money($sgst) . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>';
+        }
+
+        $voucherMsgs .= '
+      <TALLYMESSAGE xmlns:UDF="TallyUDF">
+        <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Accounting Voucher View">
+          <DATE>' . $date . '</DATE>
+          <EFFECTIVEDATE>' . $date . '</EFFECTIVEDATE>
+          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+          <VOUCHERNUMBER>' . xesc($r['ref']) . '</VOUCHERNUMBER>
+          <PARTYLEDGERNAME>' . xesc($party) . '</PARTYLEDGERNAME>
+          <NARRATION>' . xesc($r['ref'] . ' ' . $party . ' (Taxable ' . money($taxable) . ' + GST ' . money($cgst + $sgst) . ')') . '</NARRATION>' . $entries . '
+        </VOUCHER>
+      </TALLYMESSAGE>';
+    }
+
+    return '<ENVELOPE>
+  <HEADER><TALLYREQUEST>Import Data</TALLYREQUEST></HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES><SVCURRENTCOMPANY>' . xesc($company) . '</SVCURRENTCOMPANY></STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>' . $ledgerMsgs . $voucherMsgs . '
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>';
+}
+
+// CSV from generic ledger rows. Adds CGST/SGST/Total columns when the rows carry GST meta.
+function build_csv(array $rows): string {
+    $hasGst = false;
+    foreach ($rows as $r) { if (isset($r['meta']['gst'])) { $hasGst = true; break; } }
+    $out = fopen('php://temp', 'r+');
+    $head = ['Date', 'Reference', 'Particulars', 'Type', 'Debit', 'Credit', 'Status'];
+    if ($hasGst) array_splice($head, 6, 0, ['CGST', 'SGST', 'GST Rate %', 'Invoice Total']);
+    fputcsv($out, $head);
+    foreach ($rows as $r) {
+        $row = [$r['date'], $r['ref'], $r['particulars'], $r['type'] ?? '',
+                money($r['debit'] ?? 0), money($r['credit'] ?? 0)];
+        if ($hasGst) {
+            $m = $r['meta'] ?? [];
+            $row[] = money($m['cgst'] ?? 0);
+            $row[] = money($m['sgst'] ?? 0);
+            $row[] = ($m['gst_rate'] ?? 0);
+            $row[] = money($m['total'] ?? 0);
+        }
+        $row[] = $r['status'] ?? '';
+        fputcsv($out, $row);
     }
     rewind($out);
     return stream_get_contents($out);

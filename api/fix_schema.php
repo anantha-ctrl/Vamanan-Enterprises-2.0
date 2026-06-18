@@ -31,7 +31,7 @@ addColumn($pdo, 'users', 'phone', 'VARCHAR(20) NULL');
 
 // Fix transactions
 try {
-    $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('payout', 'referral', 'manual', 'deposit', 'purchase_request', 'other') DEFAULT 'other'");
+    $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('purchase', 'purchase_request', 'referral', 'cashback', 'payout', 'withdrawal', 'liquidation', 'manual', 'deposit', 'other') DEFAULT 'other'");
     $results[] = "Updated transactions category enum";
 } catch (Exception $e) {
     $results[] = "Error updating transactions enum: " . $e->getMessage();

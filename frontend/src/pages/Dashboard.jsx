@@ -13,6 +13,7 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
+import { invoiceFromOrder } from '../utils/invoice';
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -20,6 +21,7 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [error, setError] = useState(null);
+  const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('user') || '{}') || {};
@@ -37,13 +39,33 @@ const Dashboard = () => {
     if (user.role === 'advocate') { navigate('/advocate'); return; }
 
     fetchDashboardData();
+    fetchOrders();
 
     const pollInterval = setInterval(() => {
       fetchDashboardData(true);
+      fetchOrders();
     }, 30000);
 
     return () => clearInterval(pollInterval);
   }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/customer/orders.php?user_id=${user?.id}`);
+      if (res.data.status === 'success') setOrders(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch orders', err);
+    }
+  };
+
+  const viewInvoice = (order) => {
+    invoiceFromOrder(order, {
+      name: user.name,
+      customerId: data?.customer_id || user.customer_id || '',
+      phone: user.phone || '',
+      companyName: 'Vamanan Enterprises',
+    });
+  };
 
   const fetchDashboardData = async (isSilent = false) => {
     if (isSilent) setRefreshing(true);
@@ -96,7 +118,7 @@ const Dashboard = () => {
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Active Session</span>
                  </div>
                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Dashboard</h1>
-                 <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-4 italic">Welcome back, {user.name} • User ID {user.id}</p>
+                 <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-4 italic">Welcome back, {user.name} • Customer ID {data?.customer_id || user.customer_id || `VEV${String(user.id).padStart(3, '0')}`}</p>
               </div>
                <div className="flex items-center gap-3 w-full lg:w-auto">
                   <button type="button" onClick={() => fetchDashboardData(true)}
@@ -119,12 +141,12 @@ const Dashboard = () => {
                 <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-amber-500/20 transition-all">
                   <TrendingUp className="text-amber-500" size={22} />
                 </div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Investment</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Paid (incl. GST)</p>
                 <h3 className="text-2xl md:text-3xl font-black text-white tracking-tighter italic">
                   ₹{parseFloat(data?.active_cycle?.total_value || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-amber-500/60 uppercase tracking-widest mt-3 italic">
-                  {data?.active_cycle?.product_name || 'Your Purchase'} · {parseFloat(data?.active_cycle?.weight || 0).toFixed(3)}g
+                  Cashback base ₹{parseFloat(data?.active_cycle?.product_amount ?? data?.active_cycle?.total_value ?? 0).toLocaleString()} · excl. GST ₹{parseFloat(data?.active_cycle?.gst_amount || 0).toLocaleString()}
                 </p>
               </motion.div>
 
@@ -431,6 +453,62 @@ const Dashboard = () => {
            </div>
 
 
+           {/* Orders & Invoices */}
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="bg-white border border-slate-200/60 p-6 sm:p-10 lg:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm"
+           >
+              <div className="flex items-center justify-between mb-8 md:mb-10">
+                 <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><FileText size={20} /></div>
+                    <div>
+                       <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase italic">Orders & Invoices</h3>
+                       <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5 italic">Tax invoices with CGST / SGST breakdown</p>
+                    </div>
+                 </div>
+                 <button onClick={() => navigate('/shop')} className="hidden sm:flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-amber-600 transition-colors italic">
+                    New Order <ArrowRight size={14} />
+                 </button>
+              </div>
+
+              {orders.length === 0 ? (
+                <div className="text-center py-10">
+                   <Package size={40} className="text-slate-200 mx-auto mb-4" strokeWidth={1.5} />
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">No orders yet. Place an order to get your tax invoice.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {orders.map((order) => (
+                    <div key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-2xl md:rounded-[1.5rem] hover:border-amber-200 transition-all">
+                       <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 shrink-0"><ShoppingBag size={16} /></div>
+                          <div className="min-w-0">
+                             <p className="text-xs md:text-sm font-black text-slate-900 italic truncate">{order.cycle_product_name || order.product_name || `Order #${order.id}`}</p>
+                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic mt-0.5">
+                                INV-{order.id} · {new Date(order.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })} · ₹{parseFloat(order.total_amount || order.total_value || 0).toLocaleString()} incl. GST
+                             </p>
+                          </div>
+                       </div>
+                       <div className="flex items-center gap-3 shrink-0">
+                          <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                            order.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                            order.status === 'completed' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                            order.status === 'rejected' ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                            'bg-slate-100 text-slate-400 border-slate-200'
+                          }`}>{order.status}</span>
+                          <button onClick={() => viewInvoice(order)}
+                            className="bg-slate-900 text-white px-4 md:px-5 py-2.5 rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all active:scale-95 italic flex items-center gap-2">
+                             <FileText size={13} /> View Invoice
+                          </button>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+           </motion.div>
+
            {/* Security Warning Section */}
            <motion.div 
              initial={{ opacity: 0, y: 20 }}
@@ -440,7 +518,7 @@ const Dashboard = () => {
               <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-500 rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-lg shrink-0"><AlertCircle size={24} md:size={32} /></div>
               <div className="text-center md:text-left">
                  <h4 className="text-base md:text-lg font-black text-amber-900 uppercase italic tracking-tight mb-1 md:mb-2">Important Notice</h4>
-                 <p className="text-[9px] md:text-[10px] text-amber-800/70 font-bold leading-relaxed uppercase tracking-tight">You earn 1% daily rewards, paid every day. Total rewards are capped at 100% of your purchase amount.</p>
+                 <p className="text-[9px] md:text-[10px] text-amber-800/70 font-bold leading-relaxed uppercase tracking-tight">You earn 1% daily rewards, paid every day. Rewards are calculated on your product value only (GST excluded) and capped at 100% of that amount.</p>
               </div>
            </motion.div>
 

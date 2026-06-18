@@ -43,8 +43,12 @@ const Toast = ({ result, onClose }) => (
       <motion.div initial={{ opacity: 0, y: 40, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: 40, x: '-50%' }}
         className="fixed bottom-6 left-1/2 z-[300] max-w-md w-[92%]">
         <div className={`flex items-start gap-3 p-5 rounded-2xl border backdrop-blur-xl shadow-2xl ${
-          result.status === 'success' ? 'bg-emerald-50/95 border-emerald-100 text-emerald-700' : 'bg-rose-50/95 border-rose-100 text-rose-700'}`}>
-          {result.status === 'success' ? <CheckCircle2 size={20} className="shrink-0 mt-0.5" /> : <AlertCircle size={20} className="shrink-0 mt-0.5" />}
+          result.status === 'success' ? 'bg-emerald-50/95 border-emerald-100 text-emerald-700'
+          : result.status === 'info' ? 'bg-blue-50/95 border-blue-100 text-blue-700'
+          : 'bg-rose-50/95 border-rose-100 text-rose-700'}`}>
+          {result.status === 'success' ? <CheckCircle2 size={20} className="shrink-0 mt-0.5" />
+           : result.status === 'info' ? <Download size={20} className="shrink-0 mt-0.5" />
+           : <AlertCircle size={20} className="shrink-0 mt-0.5" />}
           <p className="text-[10px] font-black uppercase tracking-wider italic leading-relaxed flex-1">{result.message}</p>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-900"><X size={16} /></button>
         </div>
@@ -106,58 +110,60 @@ const TallyIntegration = () => {
   };
 
   // ---------- loaders ----------
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
+  // Each loader takes `silent`: a background (auto-refresh) poll skips the loading
+  // spinner and error toast so the UI updates smoothly in place.
+  const loadDashboard = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=dashboard`);
       if (r.data.status === 'success') { setDashboard(r.data.data); setSettings(r.data.data.settings); }
-    } catch (e) { flash({ status: 'error', message: 'Failed to load dashboard. Check API/DB connection.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load dashboard. Check API/DB connection.' }); }
+    finally { if (!silent) setLoading(false); }
   }, []);
 
-  const loadLedger = useCallback(async (ledger) => {
-    setLoading(true);
+  const loadLedger = useCallback(async (ledger, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=ledger&ledger=${ledger}&${rangeQS()}`);
       if (r.data.status === 'success') setLedgerData({ rows: r.data.data, summary: r.data.summary });
-    } catch (e) { flash({ status: 'error', message: 'Failed to load ledger.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load ledger.' }); }
+    finally { if (!silent) setLoading(false); }
   }, [range]);
 
-  const loadReport = useCallback(async (rep) => {
-    setLoading(true);
+  const loadReport = useCallback(async (rep, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=report&report=${rep}&${rangeQS()}`);
       if (r.data.status === 'success') setReportData(r.data.data);
-    } catch (e) { flash({ status: 'error', message: 'Failed to load report.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load report.' }); }
+    finally { if (!silent) setLoading(false); }
   }, [range]);
 
-  const loadVouchers = useCallback(async () => {
-    setLoading(true);
+  const loadVouchers = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=vouchers`);
       if (r.data.status === 'success') setVouchers({ data: r.data.data, summary: r.data.summary });
-    } catch (e) { flash({ status: 'error', message: 'Failed to load vouchers.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load vouchers.' }); }
+    finally { if (!silent) setLoading(false); }
   }, []);
 
-  const loadReconciliation = useCallback(async () => {
-    setLoading(true);
+  const loadReconciliation = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=reconciliation`);
       if (r.data.status === 'success') setReconciliation(r.data.data);
-    } catch (e) { flash({ status: 'error', message: 'Failed to load reconciliation.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load reconciliation.' }); }
+    finally { if (!silent) setLoading(false); }
   }, []);
 
-  const loadAudit = useCallback(async () => {
-    setLoading(true);
+  const loadAudit = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const r = await axios.get(`${TALLY}/data.php?resource=audit&limit=300`);
       if (r.data.status === 'success') setAudit(r.data.data);
-    } catch (e) { flash({ status: 'error', message: 'Failed to load audit logs.' }); }
-    finally { setLoading(false); }
+    } catch (e) { if (!silent) flash({ status: 'error', message: 'Failed to load audit logs.' }); }
+    finally { if (!silent) setLoading(false); }
   }, []);
 
   // tab-driven loading
@@ -171,6 +177,23 @@ const TallyIntegration = () => {
     if (tab === 'settings' && !settings) loadDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, activeLedger, report]);
+
+  // Real-time auto-refresh: silently re-pull the active tab from MySQL every 15s.
+  // Skips the Settings tab so live polling never overwrites the form being edited,
+  // and pauses while the browser tab is hidden to avoid needless requests.
+  useEffect(() => {
+    if (tab === 'settings') return;
+    const id = setInterval(() => {
+      if (document.hidden) return;
+      if (tab === 'dashboard') loadDashboard(true);
+      else if (tab === 'ledgers') loadLedger(activeLedger, true);
+      else if (tab === 'reports') loadReport(report, true);
+      else if (tab === 'vouchers') loadVouchers(true);
+      else if (tab === 'reconciliation') loadReconciliation(true);
+      else if (tab === 'audit') loadAudit(true);
+    }, 15000);
+    return () => clearInterval(id);
+  }, [tab, activeLedger, report, loadDashboard, loadLedger, loadReport, loadVouchers, loadReconciliation, loadAudit]);
 
   // ---------- actions ----------
   const exportFile = (resource, format, extra = {}) => {
@@ -190,7 +213,14 @@ const TallyIntegration = () => {
     setLoading(true);
     try {
       const r = await axios.post(`${TALLY}/sync.php`, { resource, ledger });
-      flash(r.data);
+      // Tally gateway offline → fall back to downloading the XML for manual import.
+      if (r.data?.status === 'offline') {
+        flash({ status: 'info', message: r.data.message });
+        const fb = r.data.fallback || { resource, ledger };
+        exportFile(fb.resource, 'xml', fb.ledger ? { ledger: fb.ledger } : {});
+      } else {
+        flash(r.data);
+      }
       if (tab === 'dashboard') loadDashboard();
     } catch (e) { flash({ status: 'error', message: e.response?.data?.message || 'Sync failed. Is Tally running?' }); }
     finally { setLoading(false); }
@@ -563,7 +593,9 @@ const TallyIntegration = () => {
     const fields = [
       { k: 'company', label: 'Company Name in Tally', hint: 'Leave blank to use whichever company is currently open in Tally' },
       { k: 'gateway', label: 'Tally Connection Address', hint: 'The URL where Tally listens (default http://localhost:9000)' },
-      { k: 'sales_ledger', label: 'Sales Account Name', hint: 'Where sales income is recorded in Tally' },
+      { k: 'sales_ledger', label: 'Sales Account Name', hint: 'Where sales income (excl. GST) is recorded in Tally' },
+      { k: 'cgst_ledger', label: 'Output CGST Account', hint: 'Ledger for CGST collected on sales (duties & taxes)' },
+      { k: 'sgst_ledger', label: 'Output SGST Account', hint: 'Ledger for SGST collected on sales (duties & taxes)' },
       { k: 'cashback_ledger', label: 'Cashback Expense Account', hint: 'Where cashback payouts are recorded' },
       { k: 'referral_ledger', label: 'Referral Commission Account', hint: 'Where referral payouts are recorded' },
       { k: 'bank_ledger', label: 'Bank / Cash Account', hint: 'Your main money account in Tally' },
@@ -671,7 +703,7 @@ const TallyIntegration = () => {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full">
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[7px] font-black uppercase tracking-widest text-emerald-600 italic">MySQL · Live</span>
+              <span className="text-[7px] font-black uppercase tracking-widest text-emerald-600 italic">MySQL · Live · Auto 15s</span>
             </div>
             <button onClick={refreshCurrent} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-slate-400 hover:text-amber-600 transition-colors"><RefreshCw size={18} className={loading ? 'animate-spin' : ''} /></button>
           </div>

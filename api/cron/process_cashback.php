@@ -68,34 +68,36 @@ try {
 
     foreach ($cycles as $cycle) {
         $userId = $cycle['user_id'];
-        $totalValue = (float)$cycle['total_value'];
-        $dailyCashback = $totalValue * $cashbackRate; 
-        
+        // GST-exclusive: cashback is computed on the product subtotal only, never the GST-inclusive total.
+        $eligible = (float)($cycle['cashback_eligible_amount'] ?? 0);
+        if ($eligible <= 0) $eligible = (float)$cycle['total_value']; // legacy rows (GST was 0)
+        $dailyCashback = $eligible * $cashbackRate;
+
         $newDaysCompleted = $cycle['days_paid'] + 1;
         $newTotalEarned = $cycle['paid_amount'] + $dailyCashback;
-        
-        $newStatus = ($newTotalEarned >= $totalValue || $newDaysCompleted >= 100) ? 'completed' : 'active';
 
-        // Limit the cashback if it exceeds 100%
-        if ($newTotalEarned > $totalValue) {
-            $dailyCashback -= ($newTotalEarned - $totalValue);
-            $newTotalEarned = $totalValue;
+        $newStatus = ($newTotalEarned >= $eligible || $newDaysCompleted >= 100) ? 'completed' : 'active';
+
+        // Limit the cashback if it exceeds 100% of the GST-excluded base
+        if ($newTotalEarned > $eligible) {
+            $dailyCashback -= ($newTotalEarned - $eligible);
+            $newTotalEarned = $eligible;
             $newStatus = 'completed';
         }
 
         if ($dailyCashback > 0) {
             // Update Cycle
-            $updateStmt = $db->prepare("UPDATE cashback_cycles SET 
-                days_paid = ?, 
-                paid_amount = ?, 
+            $updateStmt = $db->prepare("UPDATE cashback_cycles SET
+                days_paid = ?,
+                paid_amount = ?,
                 status = ?,
                 last_paid_at = CURDATE()
                 WHERE id = ?");
             $updateStmt->execute([$newDaysCompleted, $newTotalEarned, $newStatus, $cycle['id']]);
 
             // Credit User Wallet
-            $walletModel->credit($userId, $dailyCashback, 'cashback', "Daily " . ($cashbackRate * 100) . "% cashback for Cycle #{$cycle['id']}");
-            $logs[] = "Node #{$userId}: Cycle #{$cycle['id']} yielded ₹{$dailyCashback} (" . ($cashbackRate * 100) . "%)";
+            $walletModel->credit($userId, $dailyCashback, 'cashback', "Daily " . ($cashbackRate * 100) . "% cashback on ₹" . number_format($eligible, 2) . " product value (excl. GST) — Cycle #{$cycle['id']}");
+            $logs[] = "Node #{$userId}: Cycle #{$cycle['id']} yielded ₹{$dailyCashback} (" . ($cashbackRate * 100) . "% of ₹{$eligible} ex-GST)";
         }
 
         // Process Referral Commissions up the tree (5 Levels)
@@ -122,9 +124,10 @@ try {
             $rank = (int)$eligibilityStmt->fetchColumn();
 
             if ($rank <= 10) {
-                // Referrer is eligible for this specific line
-                $commAmount = $totalValue * $commRates[$level];
-                
+                // Referrer is eligible for this specific line.
+                // GST-exclusive: commission base is the investor's product subtotal, never the GST-inclusive total.
+                $commAmount = $eligible * $commRates[$level];
+
                 // Referrer must have an active investment to receive commission
                 $referrerInvestment = $getUserInvestment($referrerId);
 
@@ -135,9 +138,11 @@ try {
                     $refCycle = $refCycleStmt->fetch(PDO::FETCH_ASSOC);
 
                     if ($refCycle) {
-                        $refTotalValue = (float)$refCycle['total_value'];
+                        // Cap referrer earnings at 100% of THEIR GST-excluded product value.
+                        $refTotalValue = (float)($refCycle['cashback_eligible_amount'] ?? 0);
+                        if ($refTotalValue <= 0) $refTotalValue = (float)$refCycle['total_value'];
                         $refTotalEarned = (float)$refCycle['paid_amount'];
-                        
+
                         if ($refTotalEarned < $refTotalValue) {
                             $actualComm = $commAmount;
                             if (($refTotalEarned + $commAmount) > $refTotalValue) {

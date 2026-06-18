@@ -42,26 +42,27 @@ try {
         
         foreach ($cycles as &$cycle) {
             if ($cycle['status'] === 'active' && ($cycle['last_paid_at'] !== $today)) {
-                // Process today's yield for this cycle
-                $totalValue = (float)$cycle['total_value'];
-                $dailyAmt   = (float)$cycle['daily_payout'];
-                if ($dailyAmt <= 0) $dailyAmt = $totalValue * 0.01;
+                // Process today's yield for this cycle.
+                // GST-exclusive: cashback base & cap use the product subtotal only, never the GST-inclusive total.
+                $eligible   = (float)($cycle['cashback_eligible_amount'] ?? 0);
+                if ($eligible <= 0) $eligible = (float)$cycle['total_value']; // legacy rows (GST was 0)
+                $dailyAmt   = $eligible * 0.01;
 
                 $newDaysPaid = (int)$cycle['days_paid'] + 1;
                 $newPaidAmt  = (float)$cycle['paid_amount'] + $dailyAmt;
 
-                if ($newPaidAmt >= $totalValue) {
-                    $dailyAmt   = $totalValue - (float)$cycle['paid_amount'];
-                    $newPaidAmt = $totalValue;
+                if ($newPaidAmt >= $eligible) {
+                    $dailyAmt   = $eligible - (float)$cycle['paid_amount'];
+                    $newPaidAmt = $eligible;
                 }
 
-                $newStatus = ($newPaidAmt >= $totalValue || $newDaysPaid >= 100) ? 'completed' : 'active';
+                $newStatus = ($newPaidAmt >= $eligible || $newDaysPaid >= 100) ? 'completed' : 'active';
 
                 if ($dailyAmt > 0) {
                     $db->prepare("UPDATE cashback_cycles SET days_paid = ?, paid_amount = ?, status = ?, last_paid_at = ? WHERE id = ?")
                        ->execute([$newDaysPaid, $newPaidAmt, $newStatus, $today, $cycle['id']]);
-                    
-                    $walletModel->credit($userId, $dailyAmt, 'cashback', "Daily 1% cashback — Day {$newDaysPaid} of 100 (Cycle #{$cycle['id']})");
+
+                    $walletModel->credit($userId, $dailyAmt, 'cashback', "Daily 1% cashback on ₹" . number_format($eligible, 2) . " product value (excl. GST) — Day {$newDaysPaid} of 100 (Cycle #{$cycle['id']})");
                     
                     // Update the local array so the UI reflects it immediately
                     $cycle['days_paid']   = $newDaysPaid;
@@ -77,14 +78,20 @@ try {
 
 
     // 2. Aggregate stats
-    $totalInvested    = 0;
+    $totalInvested    = 0;   // total actually paid (incl. GST)
+    $totalEligible    = 0;   // GST-excluded base that cashback is earned on
+    $totalGst         = 0;
     $totalEarned      = 0;
     $totalDailyPayout = 0;
     $activeCyclesCount = 0;
     $activeCycle      = null;
 
     foreach ($cycles as $cycle) {
+        $cycleEligible = (float)($cycle['cashback_eligible_amount'] ?? 0);
+        if ($cycleEligible <= 0) $cycleEligible = (float)$cycle['total_value'];
         $totalInvested += (float)$cycle['total_value'];
+        $totalEligible += $cycleEligible;
+        $totalGst      += (float)($cycle['gst_amount'] ?? 0);
         $totalEarned   += (float)($cycle['paid_amount'] ?? 0);
 
         if ($cycle['status'] === 'active' || $cycle['status'] === 'pending') {
@@ -101,8 +108,10 @@ try {
     // Current metrics
     $daysCompleted = $activeCycle ? (int)$activeCycle['days_paid'] : 0;
     $daysRemaining = 100 - $daysCompleted;
-    $remainingValue = $activeCycle ? (float)$activeCycle['total_value'] - (float)$activeCycle['paid_amount'] : 0;
-    $cashbackPct = $totalInvested > 0 ? round(($totalEarned / $totalInvested) * 100, 2) : 0;
+    // Progress is measured against the GST-excluded base (the 100% cashback cap).
+    $activeEligible = $activeCycle ? ((float)($activeCycle['cashback_eligible_amount'] ?? 0) ?: (float)$activeCycle['total_value']) : 0;
+    $remainingValue = $activeCycle ? $activeEligible - (float)$activeCycle['paid_amount'] : 0;
+    $cashbackPct = $totalEligible > 0 ? round(($totalEarned / $totalEligible) * 100, 2) : 0;
 
     // 3. Transactions
     $tStmt = $db->prepare("
@@ -157,6 +166,10 @@ try {
             "active_cycle"       => $activeCycle ? [
                 "id"             => $activeCycle['id'],
                 "total_value"    => (float)$activeCycle['total_value'],
+                "product_amount" => (float)($activeCycle['product_amount'] ?? $activeEligible),
+                "gst_amount"     => (float)($activeCycle['gst_amount'] ?? 0),
+                "total_amount"   => (float)($activeCycle['total_amount'] ?? $activeCycle['total_value']),
+                "cashback_eligible_amount" => (float)$activeEligible,
                 "daily_payout"   => (float)$activeCycle['daily_payout'],
                 "total_earned"   => (float)$activeCycle['paid_amount'],
                 "remaining_value"=> (float)$remainingValue,
@@ -170,6 +183,8 @@ try {
             ] : null,
             "stats" => [
                 "total_invested"     => (float)$totalInvested,
+                "total_eligible"     => (float)$totalEligible,
+                "total_gst"          => (float)$totalGst,
                 "total_earned"       => (float)$totalEarned,
                 "total_daily_payout" => (float)$totalDailyPayout,
                 "active_cycles"      => $activeCyclesCount,

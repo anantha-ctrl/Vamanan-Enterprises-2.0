@@ -33,6 +33,8 @@ try {
         'gold_base_price' => '7850',
         'silver_base_price' => '100',
         'gst_percentage' => '3',
+        'gold_gst' => '3',
+        'general_gst' => '18',
         'maintenance_mode' => '0',
         'payout_processing_fee' => '10',
         'daily_cashback_rate' => '1',

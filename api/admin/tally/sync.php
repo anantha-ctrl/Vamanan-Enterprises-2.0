@@ -49,7 +49,13 @@ try {
         json_out(['status' => 'error', 'message' => 'Nothing to sync for ' . $ledger]);
     }
 
-    $xml = build_tally_xml($rows, $settings['company'], $voucherType, $counter, $settings['debtors_group']);
+    // Sales uses the GST-aware voucher (Sales ex-GST + CGST/SGST output tax); everything else generic.
+    if ($resource !== 'vouchers' && $ledger === 'sales') {
+        $xml = build_sales_tally_xml($rows, $settings['company'], $settings['sales_ledger'],
+            $settings['cgst_ledger'], $settings['sgst_ledger'], $settings['debtors_group']);
+    } else {
+        $xml = build_tally_xml($rows, $settings['company'], $voucherType, $counter, $settings['debtors_group']);
+    }
 
     // ---- POST to the Tally gateway ----
     $ch = curl_init($gateway);
@@ -73,10 +79,17 @@ try {
     };
 
     if ($curlErr) {
-        $msg = "Could not reach Tally gateway at $gateway. Is TallyPrime open with the gateway enabled on this port? ($curlErr)";
+        // Tally not reachable — don't dead-end. Offer the generated XML for manual import.
+        $msg = "TallyPrime not reachable at $gateway (gateway off / Tally closed). " . count($rows) . " voucher(s) are ready — download the Tally XML and import it manually via Gateway of Tally → Import Data.";
         $logSync('error', $msg);
-        audit($db, 'sync.fail', $ledger, null, $msg, $amount, $actor);
-        json_out(['status' => 'error', 'message' => $msg]);
+        audit($db, 'sync.offline', $ledger, null, $msg, $amount, $actor);
+        json_out([
+            'status'   => 'offline',
+            'message'  => $msg,
+            'records'  => count($rows),
+            'amount'   => $amount,
+            'fallback' => ['resource' => $resource, 'ledger' => $ledger],
+        ]);
     }
 
     $created = preg_match('/<CREATED>(\d+)<\/CREATED>/', $response, $m1) ? (int)$m1[1] : null;

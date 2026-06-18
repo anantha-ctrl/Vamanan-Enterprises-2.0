@@ -32,7 +32,8 @@ try {
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN asset_type VARCHAR(20) DEFAULT 'gold'"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN weight DECIMAL(10,3) DEFAULT 0"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"); } catch (Exception $e) {}
-    try { $db->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('payout', 'referral', 'manual', 'deposit', 'purchase_request', 'other') DEFAULT 'other'"); } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE cashback_cycles ADD COLUMN ledger_txn_id INT NULL"); } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('purchase', 'purchase_request', 'referral', 'cashback', 'payout', 'withdrawal', 'liquidation', 'manual', 'deposit', 'other') DEFAULT 'other'"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE agreements ADD COLUMN agreement_id VARCHAR(50) UNIQUE AFTER user_id"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE agreements ADD COLUMN product_id INT AFTER user_id"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE agreements ADD COLUMN agreement_date DATETIME DEFAULT CURRENT_TIMESTAMP AFTER product_id"); } catch (Exception $e) {}
@@ -41,6 +42,29 @@ try {
     try { $db->exec("ALTER TABLE agreements ADD COLUMN content LONGTEXT"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE agreements ADD COLUMN signed_at TIMESTAMP NULL"); } catch (Exception $e) {}
     try { $db->exec("ALTER TABLE agreements ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"); } catch (Exception $e) {}
+
+    // Cashback applications table — created here (DDL) BEFORE the transaction, because DDL
+    // implicitly commits in MySQL and would otherwise break the purchase transaction.
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS cashback_applications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            customer_name VARCHAR(255), address TEXT, phone VARCHAR(20),
+            aadhar_no VARCHAR(20), pan_no VARCHAR(20), customer_code VARCHAR(50),
+            customer_email VARCHAR(255), referral_id VARCHAR(50),
+            purchase_amount DECIMAL(15,2) DEFAULT 0, purchased_product VARCHAR(255),
+            product_details TEXT, purchase_date DATE NULL,
+            bank_account_name VARCHAR(255), account_no VARCHAR(50), ifsc_code VARCHAR(20),
+            bank_name VARCHAR(255), bank_branch VARCHAR(255),
+            agent_name VARCHAR(255), agent_id VARCHAR(50),
+            place VARCHAR(255) DEFAULT 'Krishnagiri', application_date DATE NULL,
+            status ENUM('pending','approved','rejected') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+    } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE cashback_applications ADD COLUMN cycle_id INT NULL"); } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE cashback_applications ADD COLUMN gst_amount DECIMAL(15,2) DEFAULT 0"); } catch (Exception $e) {}
+    try { $db->exec("ALTER TABLE cashback_applications ADD COLUMN total_amount DECIMAL(15,2) DEFAULT 0"); } catch (Exception $e) {}
 
     $db->beginTransaction();
 
@@ -65,6 +89,13 @@ try {
     $gold_base_price = isset($settings['gold_base_price']) ? (float)$settings['gold_base_price'] : 7250;
     $silver_base_price = isset($settings['silver_base_price']) ? (float)$settings['silver_base_price'] : 100;
     $gst_percentage = isset($settings['gst_percentage']) ? (float)$settings['gst_percentage'] : 3;
+    // Category-based GST: precious metals (gold/silver) one rate, all other products another.
+    $gold_gst    = isset($settings['gold_gst'])    ? (float)$settings['gold_gst']    : 3;
+    $general_gst = isset($settings['general_gst']) ? (float)$settings['general_gst'] : 18;
+    $gstRateFor = function ($category) use ($gold_gst, $general_gst) {
+        $c = strtolower((string)$category);
+        return (strpos($c, 'gold') !== false || strpos($c, 'silver') !== false) ? $gold_gst : $general_gst;
+    };
 
     $asset_type = isset($data->asset_type) ? strtolower($data->asset_type) : 'gold';
     $payment_method = (isset($data->payment_mode) && strtolower($data->payment_mode) === 'upi') ? 'UPI Scan' : 'Bank Transfer';
@@ -77,27 +108,29 @@ try {
     if ($items && count($items) > 0) {
         // Multi-product cart: compute total from DB prices
         $base_amount = 0;
+        $gst_amount = 0;
         $product_names = [];
         $valid_product_id = null;
         foreach ($items as $item) {
-            $pStmt = $db->prepare("SELECT id, name, price FROM products WHERE id = ? AND is_active = 1");
+            $pStmt = $db->prepare("SELECT id, name, price, category FROM products WHERE id = ? AND is_active = 1");
             $pStmt->execute([(int)$item['product_id']]);
             $prod = $pStmt->fetch(PDO::FETCH_ASSOC);
             if ($prod) {
                 $qty = max(1, (int)($item['quantity'] ?? 1));
-                $base_amount += (float)$prod['price'] * $qty;
+                $line_base = (float)$prod['price'] * $qty;
+                $base_amount += $line_base;
+                $gst_amount  += $line_base * ($gstRateFor($prod['category']) / 100);
                 $product_names[] = $qty . 'x ' . $prod['name'];
                 if (!$valid_product_id) $valid_product_id = $prod['id'];
             }
         }
-        $gst_amount = $base_amount * ($gst_percentage / 100);
         $total_price = $base_amount + $gst_amount;
         $product_name = implode(', ', $product_names);
         $weight = 1;
         $asset_type = 'product';
     } elseif ($asset_type === 'product' && !empty($data->product_id)) {
         // Single product purchase
-        $pStmt = $db->prepare("SELECT id, name, price FROM products WHERE id = ? AND is_active = 1");
+        $pStmt = $db->prepare("SELECT id, name, price, category FROM products WHERE id = ? AND is_active = 1");
         $pStmt->execute([(int)$data->product_id]);
         $productRow = $pStmt->fetch(PDO::FETCH_ASSOC);
         if (!$productRow) {
@@ -106,14 +139,15 @@ try {
         $base_price = (float)$productRow['price'];
         $weight = 1;
         $base_amount = $base_price;
-        $gst_amount = $base_amount * ($gst_percentage / 100);
+        $gst_amount = $base_amount * ($gstRateFor($productRow['category']) / 100);
         $total_price = $base_amount + $gst_amount;
         $product_name = $productRow['name'];
         $valid_product_id = $productRow['id'];
     } else {
         $base_price = ($asset_type === 'silver') ? $silver_base_price : $gold_base_price;
         $base_amount = $base_price * $weight;
-        $gst_amount = $base_amount * ($gst_percentage / 100);
+        // Raw gold/silver are precious metals → gold GST rate.
+        $gst_amount = $base_amount * ($gstRateFor($asset_type) / 100);
         $total_price = $base_amount + $gst_amount;
         $asset_label = ($asset_type === 'silver') ? 'Silver' : '24K Gold';
         $product_name = $weight . " Gram(s) " . $asset_label;
@@ -141,11 +175,15 @@ try {
     $balanceData = $walletModel->getBalance($data->user_id);
     $walletId = $balanceData['id'];
 
-    // 3. Check for existing PENDING request (prevent duplicate submissions)
-    $existCheck = $db->prepare("SELECT id FROM cashback_cycles WHERE user_id = :uid AND status = 'pending'");
-    $existCheck->execute(['uid' => $data->user_id]);
-    if ($existCheck->fetch()) {
-        throw new Exception("You already have a pending investment request. Please wait for admin approval.");
+    // 3. Guard only against accidental double-submission of the SAME order (rapid double-click).
+    //    Customers may have multiple distinct pending orders in the shop.
+    $dupCheck = $db->prepare("SELECT id FROM cashback_cycles
+                              WHERE user_id = :uid AND status = 'pending'
+                              AND total_value = :total
+                              AND created_at >= (NOW() - INTERVAL 60 SECOND)");
+    $dupCheck->execute(['uid' => $data->user_id, 'total' => $total_price]);
+    if ($dupCheck->fetch()) {
+        throw new Exception("This order was just submitted. Please wait a moment before retrying.");
     }
 
     // 4. Log Transaction (Pending - no balance deduction)
@@ -158,17 +196,30 @@ try {
         'amount'    => $total_price,
         'desc'      => "Investment Request: " . $product_name . " (Awaiting Admin Approval)"
     ]);
+    $ledgerTxnId = $db->lastInsertId(); // link this ledger entry to the cycle for exact approve/reject/delete
 
     // 5. Create Cashback Cycle (Pending)
     $daily_rate_setting = isset($settings['daily_cashback_rate']) ? (float)$settings['daily_cashback_rate'] : 1;
-    $daily = round($base_amount * ($daily_rate_setting / 100), 2);
+    $daily = 0; // Cashback/daily payout removed — purchases no longer accrue daily cashback
+
+    // GST-exclusive cashback breakdown:
+    //  customer pays $total_price (incl. GST) but ALL incentives use $base_amount (ex-GST) only.
+    $product_amount           = $base_amount;            // subtotal before GST
+    $total_amount             = $total_price;            // product + GST (what is actually paid)
+    $cashback_eligible_amount = $base_amount;            // GST excluded — the only cashback base
+
     $cStmt = $db->prepare(
-        "INSERT INTO cashback_cycles (user_id, total_value, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, product_id, product_name, status)
-         VALUES (:user_id, :total, :daily, :tid, :payment_method, :shot, :asset, :weight, :product_id, :product_name, 'pending')"
+        "INSERT INTO cashback_cycles (user_id, total_value, product_amount, gst_amount, total_amount, cashback_eligible_amount, ledger_txn_id, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, product_id, product_name, status)
+         VALUES (:user_id, :total, :product_amount, :gst_amount, :total_amount, :cashback_eligible, :ledger_txn_id, :daily, :tid, :payment_method, :shot, :asset, :weight, :product_id, :product_name, 'pending')"
     );
     $cStmt->execute([
         'user_id'      => $data->user_id,
         'total'        => $total_price,
+        'product_amount'   => $product_amount,
+        'gst_amount'       => $gst_amount,
+        'total_amount'     => $total_amount,
+        'cashback_eligible'=> $cashback_eligible_amount,
+        'ledger_txn_id'    => $ledgerTxnId,
         'daily'        => $daily,
         'tid'          => isset($data->transaction_id) ? $data->transaction_id : null,
         'payment_method' => $payment_method,
@@ -179,6 +230,48 @@ try {
         'product_name' => $product_name ?? null,
     ]);
     $cycleId = $db->lastInsertId();
+
+    // 5b. Auto-create a Cashback Application from the order (real customer + bank data from DB).
+    // GST-exclusive: purchase_amount stored is the ex-GST product value (the cashback base).
+    // NOTE: the table/columns are created above (before the transaction) — no DDL here, as DDL
+    // would implicitly commit the transaction.
+    try {
+        $uStmt = $db->prepare("SELECT customer_id, name, email, phone, address, aadhar_no, pan_no, referral_code, bank_name, account_no, ifsc_code, branch_name FROM users WHERE id = ?");
+        $uStmt->execute([$data->user_id]);
+        $cust = $uStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $appStmt = $db->prepare("INSERT INTO cashback_applications
+            (user_id, cycle_id, customer_name, address, phone, aadhar_no, pan_no, customer_code,
+             customer_email, referral_id, purchase_amount, gst_amount, total_amount, purchased_product, product_details,
+             purchase_date, bank_account_name, account_no, ifsc_code, bank_name, bank_branch,
+             place, application_date, status)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'pending')");
+        $appStmt->execute([
+            $data->user_id,
+            $cycleId,
+            $cust['name'] ?? '',
+            $cust['address'] ?? '',
+            $cust['phone'] ?? ($data->phone ?? ''),
+            $cust['aadhar_no'] ?? '',
+            $cust['pan_no'] ?? '',
+            $cust['customer_id'] ?? '',
+            $cust['email'] ?? '',
+            $cust['referral_code'] ?? '',
+            $cashback_eligible_amount,                          // ex-GST product value = cashback base
+            $gst_amount,
+            $total_amount,
+            $product_name,
+            'Auto-generated from order #' . $cycleId . '. Total paid ₹' . number_format($total_amount, 2) . ' incl. GST ₹' . number_format($gst_amount, 2) . '. Cashback eligible ₹' . number_format($cashback_eligible_amount, 2) . ' (GST excluded).',
+            date('Y-m-d'),
+            $cust['name'] ?? '',
+            $cust['account_no'] ?? '',
+            $cust['ifsc_code'] ?? '',
+            $cust['bank_name'] ?? '',
+            $cust['branch_name'] ?? '',
+            'Krishnagiri',
+            date('Y-m-d'),
+        ]);
+    } catch (Exception $appErr) { /* Non-critical: order still succeeds */ }
 
     // 6. Create Agreement (Pending)
     if (!$valid_product_id) {
@@ -214,7 +307,7 @@ try {
             ->execute([
                 $data->user_id,
                 'Order Submitted',
-                "Your order for '{$product_name}' (₹" . number_format($total_price, 2) . ") has been submitted and is pending admin approval. Estimated delivery within 48-72 hours of approval."
+                "Your order for '{$product_name}' (₹" . number_format($total_price, 2) . ") has been submitted and is pending admin approval. Product delivered within 7 working days; payout starts within 48 hours of approval."
             ]);
     } catch (Exception $notifErr) { /* Non-critical */ }
 

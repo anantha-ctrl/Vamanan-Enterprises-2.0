@@ -45,7 +45,7 @@ try {
         // Fetch User Data for Login Session Creation
         $userColumns = $pdo->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN);
         $selectColumns = ["id", "name", "email", "role"];
-        foreach (["phone", "status", "permissions"] as $optionalColumn) {
+        foreach (["phone", "status", "permissions", "customer_id", "referral_code"] as $optionalColumn) {
             if (in_array($optionalColumn, $userColumns, true)) {
                 $selectColumns[] = $optionalColumn;
             }

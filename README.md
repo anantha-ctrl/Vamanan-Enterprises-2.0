@@ -17,10 +17,12 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
   - **Cashback Reports**: Premium gold-black dashboard with monthly/daily yield tracking and automated liability forecasting.
   - **Withdrawal Registry**: Secure liquidity bridge with status monitoring (Pending/Approved/Failed) and real-time alert nodes.
   - **Payout Analytics**: Institutional disbursement ledger with bank-grade artifact tracking (IFSC, A/C No) and daily velocity charts.
-- **Staff Permission Matrix**: Granular role-based access control (RBAC) allowing administrators to toggle module access for specific support personnel.
+- **GST-Exclusive Cashback & Tax Engine**: Category-based GST (admin-configurable Gold/Silver vs. general-product rates) applied at checkout with automatic **CGST + SGST** split. Customers pay the full GST-inclusive invoice, but **every incentive — daily cashback, 5-tier referral, and commission — is calculated strictly on the ex-GST product value**; GST never contributes to any reward. Each order auto-generates a printable **Tax Invoice** (with CGST/SGST breakdown, viewable from the customer dashboard) plus a linked cashback application, and a dedicated **GST Filing** console surfaces a real-time, rate-wise (GSTR-1 style) and invoice-wise summary with CSV export.
+- **Bulk User Provisioning**: One-shot creation of multiple customers/staff via an inline multi-row form or **CSV upload** (with downloadable template) — each new account is auto-assigned a sequential VEV ID, referral code, and initialized wallet.
+- **Multi-Role Staff Onboarding & Permission Matrix**: Granular role-based access control (RBAC). The Add-Staff (Recruitment) node provisions **Staff, Manager, or Advocate** accounts from a single role selector — each created live in the MySQL `users` table with an auto-initialized wallet, then surfaced instantly in the access list. The `admin` role is intentionally blocked from this form. Module access is assigned **manually in Settings → Access Control**; staff then operate a permission-filtered admin dashboard showing only their granted tabs.
 - **Self-Healing Database Matrix**: Zero-config database initialization that automatically constructs schemas and relationships on first request, including automated migrations for new fiscal parameters.
 - **Secure Email OTP Authentication Matrix**: High-security, two-phase verification required for all logins. Upon password verification, generates a 6-digit OTP, stores its secure hash in a database session table, and dispatches a branded fintech HTML email via Gmail SMTP, integrated with segmented inputs, backspace navigation, auto-pasting, and live countdown timers in the frontend.
-- **Tally ERP Prime Integration Module**: A complete real-time accounting bridge between the platform's MySQL core and Tally ERP Prime. Surfaces six live ledgers (Sales, Customer, Cashback, Referral, Withdrawal, Inventory) sourced directly from existing tables, auto-computes **Profit & Loss** and **Balance Sheet** statements, and provides full **Voucher Management** (manual create, auto-generate from any ledger, post). Supports **XML / Excel / CSV export**, **direct real-time synchronization** to Tally's HTTP gateway, **transaction reconciliation** (source records vs. posted vouchers), and an immutable **audit trail** of every accounting action — all wrapped in a plain-language, responsive admin interface.
+- **Tally ERP Prime Integration Module**: A complete real-time accounting bridge between the platform's MySQL core and Tally ERP Prime. Surfaces six live ledgers (Sales, Customer, Cashback, Referral, Withdrawal, Inventory) sourced directly from existing tables, auto-computes **Profit & Loss** and **Balance Sheet** statements, and provides full **Voucher Management** (manual create, auto-generate from any ledger, post). **GST-aware**: sales vouchers book revenue ex-GST with separate **Output CGST / Output SGST** ledgers, and the Balance Sheet carries a **GST Payable** liability. Supports **XML / Excel / CSV export**, **direct real-time synchronization** to Tally's HTTP gateway (with automatic **fallback to XML download** when Tally is offline), **transaction reconciliation** (source records vs. posted vouchers), and an immutable **audit trail** of every accounting action — all wrapped in a plain-language, responsive admin interface. Every data tab **silently auto-refreshes from MySQL every 15 seconds** (pausing when the browser tab is hidden, and skipping the Settings tab so an in-progress edit is never overwritten), keeping ledgers, reports, vouchers, and metrics genuinely live.
 
 ---
 
@@ -51,7 +53,8 @@ flowchart TD
         C1[Approve Purchases / KYC]
         C2[Run Daily Payout]
         C3[Reports & Analytics]
-        C4[Staff Permission Matrix]
+        C4["Onboard Staff / Manager / Advocate"]
+        C5[Permission Matrix · Access Control]
     end
 
     subgraph TALLY["📒 Tally ERP Integration"]
@@ -72,10 +75,12 @@ flowchart TD
     B2 & B3 & B4 & B5 <--> B1
 
     C1 & C2 --> B1
+    C4 -->|"create user + wallet"| B1
     B1 --> C3
-    C4 -.gates.-> ADMIN
+    C4 --> C5
+    C5 -.gates.-> ADMIN
 
-    B1 --> D1
+    B1 -->|"live pull · 15s auto-refresh"| D1
     D1 --> D2
     D1 --> D3
     D3 --> D4
@@ -167,7 +172,7 @@ Makkal_Gold/
 - **Daily Protocol**: Manually trigger the yield engine via the Admin Dashboard or call `/api/cron/process_cashback.php`.
 - **High-Frequency Polling**: Dashboards are synchronized every 30 seconds to ensure zero-latency data viewing; the **Referral Network** genealogy polls every 10 seconds so newly-joined members surface at Level 1 almost instantly.
 - **Export Protocols**: All fiscal registries support high-fidelity CSV and Ledger exports for external auditing.
-- **Tally Synchronization**: Ledgers and vouchers can be exported as Tally-ready XML/Excel/CSV, or pushed live to Tally ERP Prime via its HTTP gateway (default `http://localhost:9000`). Configure company name, ledger mapping, and gateway address in the **Tally Integration → Settings** panel. Live push requires TallyPrime to be open with the gateway enabled.
+- **Tally Synchronization**: Ledgers and vouchers can be exported as Tally-ready XML/Excel/CSV, or pushed live to Tally ERP Prime via its HTTP gateway (default `http://localhost:9000`). Configure company name, ledger mapping, and gateway address in the **Tally Integration → Settings** panel (all values persisted in the MySQL `tally_settings` table). The module's data tabs auto-refresh from MySQL every 15 seconds; live push requires TallyPrime to be open with the gateway enabled.
 
 ---
 

@@ -68,11 +68,16 @@ if ($method === 'GET') {
         try {
             $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
 
-            $query = "INSERT INTO products (name, category, slug, weight, purity, price, image, description, is_active, created_at, updated_at) 
-                      VALUES (:name, :category, :slug, :weight, :purity, :price, :image, :description, :is_active, NOW(), NOW())";
+            // Sequential VEVP### product code (e.g. VEVP001)
+            $maxProd = (int)$db->query("SELECT COALESCE(MAX(CAST(SUBSTRING(product_code, 5) AS UNSIGNED)), 0) FROM products WHERE product_code LIKE 'VEVP%'")->fetchColumn();
+            $productCode = 'VEVP' . str_pad($maxProd + 1, 3, '0', STR_PAD_LEFT);
+
+            $query = "INSERT INTO products (product_code, name, category, slug, weight, purity, price, image, description, is_active, created_at, updated_at)
+                      VALUES (:product_code, :name, :category, :slug, :weight, :purity, :price, :image, :description, :is_active, NOW(), NOW())";
 
             $stmt = $db->prepare($query);
             $stmt->execute([
+                'product_code' => $productCode,
                 'name' => $name,
                 'category' => $category,
                 'slug' => $slug . '-' . time(),

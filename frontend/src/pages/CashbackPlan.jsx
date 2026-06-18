@@ -132,9 +132,11 @@ const CashbackPlan = () => {
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform duration-700"><TrendingUp size={80} /></div>
               <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4"><TrendingUp size={18} className="text-amber-500" /></div>
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Invested</p>
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Paid (incl. GST)</p>
               <h3 className="text-xl md:text-2xl font-black text-white italic tracking-tighter">₹{parseFloat(stats.total_invested || 0).toLocaleString()}</h3>
-              <p className="text-[8px] text-amber-500/60 font-black uppercase mt-2 italic">{activeCycle?.product_name || 'Gold Investment'}</p>
+              <p className="text-[8px] text-amber-500/60 font-black uppercase mt-2 italic">
+                Cashback base ₹{parseFloat(stats.total_eligible ?? stats.total_invested ?? 0).toLocaleString()} · excl. GST ₹{parseFloat(stats.total_gst || 0).toLocaleString()}
+              </p>
             </motion.div>
 
             {/* Daily Payout */}
@@ -154,7 +156,7 @@ const CashbackPlan = () => {
               <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-slate-900 transition-all duration-500"><Gift size={18} className="text-amber-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Earned</p>
               <h3 className="text-xl md:text-2xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(stats.total_earned || 0).toLocaleString()}</h3>
-              <p className="text-[8px] text-slate-300 font-black uppercase mt-2 italic">{stats.cashback_percentage || 0}% of investment</p>
+              <p className="text-[8px] text-slate-300 font-black uppercase mt-2 italic">{stats.cashback_percentage || 0}% of product value (excl. GST)</p>
             </motion.div>
 
             {/* Today Earned */}

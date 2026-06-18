@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../config';
+import { generateInvoice } from '../utils/invoice';
 import { humanPaymentMethod } from '../utils/humanLabels';
 
 const SITE_URL = API_BASE_URL.replace('/api', '');
@@ -49,6 +50,8 @@ const Shop = () => {
   const [goldPrice, setGoldPrice]           = useState(7250);
   const [silverPrice, setSilverPrice]       = useState(100);
   const [gstPercent, setGstPercent]         = useState(3);
+  const [goldGst, setGoldGst]               = useState(3);
+  const [generalGst, setGeneralGst]         = useState(18);
   const [supportPhone, setSupportPhone]     = useState('919876543210');
   const [paymentGateway, setPaymentGateway] = useState({ upiId:'', companyName:'', bankName:'', bankAccountName:'', bankAccountNo:'', bankIfsc:'', bankBranch:'' });
   const [paymentMode, setPaymentMode]       = useState('bank');
@@ -84,13 +87,20 @@ const Shop = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}') || {};
 
   /* ──────────── computed ──────────── */
+  // Category-based GST rate: precious metals (gold/silver) vs all other products.
+  const gstRateFor = (category) => {
+    const c = (category || '').toLowerCase();
+    return (c.includes('gold') || c.includes('silver')) ? goldGst : generalGst;
+  };
+
   const currentPrice = assetType === 'gold' ? goldPrice : assetType === 'silver' ? silverPrice : (selectedProduct ? parseFloat(selectedProduct.price) : 0);
   const baseAmount   = weight * currentPrice;
-  const gstAmount    = baseAmount * (gstPercent / 100);
+  const currentGstRate = assetType === 'product' ? gstRateFor(selectedProduct?.category) : gstRateFor(assetType);
+  const gstAmount    = baseAmount * (currentGstRate / 100);
   const totalAmount  = baseAmount + gstAmount;
 
   const cartPreGST  = cart.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0);
-  const cartGST     = cartPreGST * (gstPercent / 100);
+  const cartGST     = cart.reduce((s, i) => s + parseFloat(i.price) * i.quantity * (gstRateFor(i.category) / 100), 0);
   const cartTotal   = cartPreGST + cartGST;
   const cartCount   = cart.reduce((s, i) => s + i.quantity, 0);
   const cartDailyPayout = cartPreGST * (dailyRate / 100);
@@ -104,15 +114,17 @@ const Shop = () => {
   const upiPaymentData = `upi://pay?pa=${encodeURIComponent(paymentGateway.upiId)}&pn=${encodeURIComponent(paymentCompanyName)}&am=${effectiveAmount.toFixed(2)}&cu=INR`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiPaymentData)}`;
 
-  /* ── delivery estimate: 48–72 hrs from order time ── */
-  const DELIVERY_MIN_HRS = 48;
-  const DELIVERY_MAX_HRS = 72;
+  /* ── delivery estimate: 7 working days (Mon–Fri) from order time ── */
+  const DELIVERY_WORKING_DAYS = 7;
   const deliveryWindow = (createdAt) => {
-    const base = createdAt ? new Date(createdAt) : new Date();
-    const start = new Date(base.getTime() + DELIVERY_MIN_HRS * 3600 * 1000);
-    const end   = new Date(base.getTime() + DELIVERY_MAX_HRS * 3600 * 1000);
-    const fmt = (d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-    return `${fmt(start)} – ${fmt(end)}`;
+    const d = createdAt ? new Date(createdAt) : new Date();
+    let added = 0;
+    while (added < DELIVERY_WORKING_DAYS) {
+      d.setDate(d.getDate() + 1);
+      const day = d.getDay();           // 0 = Sun, 6 = Sat
+      if (day !== 0 && day !== 6) added++;
+    }
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
   };
 
   /* ──────────── lifecycle ──────────── */
@@ -146,11 +158,14 @@ const Shop = () => {
         if (d.gold_base_price)       setGoldPrice(parseFloat(d.gold_base_price));
         if (d.silver_base_price)     setSilverPrice(parseFloat(d.silver_base_price));
         if (d.gst_percentage)        setGstPercent(parseFloat(d.gst_percentage));
+        if (d.gold_gst)              setGoldGst(parseFloat(d.gold_gst));
+        if (d.general_gst)           setGeneralGst(parseFloat(d.general_gst));
         if (d.support_phone)         setSupportPhone(d.support_phone.replace(/\+|\s/g, ''));
         if (d.min_investment)        setMinInvestment(parseFloat(d.min_investment));
         if (d.daily_cashback_rate)   setDailyRate(parseFloat(d.daily_cashback_rate));
         setPaymentGateway({
           upiId: d.upi_id || '', companyName: d.company_name || '',
+          companyAddress: d.company_address || '',
           bankName: d.bank_name || '', bankAccountName: d.bank_account_name || '',
           bankAccountNo: d.bank_account_no || '', bankIfsc: d.bank_ifsc || '',
           bankBranch: d.bank_branch || '',
@@ -315,11 +330,28 @@ const Shop = () => {
           ? `Cart (${cartCount} items)`
           : assetType === 'product' ? selectedProduct?.name : `${weight}g ${assetType.toUpperCase()}`;
 
+        // Build line items for the tax invoice (CGST + SGST split happens inside generateInvoice).
+        const invoiceItems = checkoutMode === 'cart'
+          ? cart.map(i => ({ name: i.name, qty: i.quantity, rate: parseFloat(i.price), base: parseFloat(i.price) * i.quantity, gstRate: gstRateFor(i.category) }))
+          : (assetType === 'product' && selectedProduct)
+            ? [{ name: selectedProduct.name, qty: 1, rate: parseFloat(selectedProduct.price), base: parseFloat(selectedProduct.price), gstRate: gstRateFor(selectedProduct.category) }]
+            : [{ name: `${weight}g ${assetType === 'silver' ? 'Silver' : 'Gold'}`, qty: 1, rate: baseAmount, base: baseAmount, gstRate: currentGstRate }];
+
+        generateInvoice(res.data.cycle_id || Date.now(), invoiceItems, {
+          name: user.name,
+          customerId: user.customer_id || '',
+          phone: paymentForm.phone || user.phone || '',
+          utr: paymentForm.transaction_id,
+          paymentMethod: paymentMode === 'upi' ? 'UPI Scan' : 'Bank Transfer',
+          companyName: paymentGateway.companyName,
+          companyAddress: paymentGateway.companyAddress,
+        });
+
         const msg = encodeURIComponent(
-          `🛒 *New Purchase Request!*\n\n👤 *Customer:* ${user.name}\n📞 *Phone:* ${user.phone || 'N/A'}\n💰 *Asset:* ${itemLabel}\n💵 *Amount:* ₹${effectiveAmount.toLocaleString()}\n🆔 *UTR:* ${paymentForm.transaction_id}\n🚚 *Delivery:* Within 48–72 hours of approval\n\n_Please verify screenshot in admin panel._`
+          `🛒 *New Purchase Request!*\n\n👤 *Customer:* ${user.name}\n📞 *Phone:* ${user.phone || 'N/A'}\n💰 *Asset:* ${itemLabel}\n💵 *Amount:* ₹${effectiveAmount.toLocaleString()}\n🆔 *UTR:* ${paymentForm.transaction_id}\n🚚 *Delivery:* Within 7 working days\n💸 *Payout starts:* Within 48 hours of approval\n\n_Please verify screenshot in admin panel._`
         );
         const waLink = `https://wa.me/${supportPhone}?text=${msg}`;
-        setStatus({ type: 'success', message: `${res.data.message} 🚚 Estimated delivery within 48–72 hours. Redirecting to WhatsApp...` });
+        setStatus({ type: 'success', message: `${res.data.message} 🚚 Product delivered within 7 working days · Payout starts within 48 hours. Redirecting to WhatsApp...` });
         setShowPaymentModal(false);
         if (checkoutMode === 'cart') setCart([]);
         setPaymentForm({ transaction_id: '', screenshot: null, phone: '' });
@@ -436,14 +468,8 @@ const Shop = () => {
                       <span className="text-lg md:text-xl font-black text-slate-900 italic">₹{baseAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">GST ({gstPercent}%)</span>
-                      <span className="text-lg md:text-xl font-black text-slate-900 italic">₹{gstAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-2xl border border-emerald-100/50">
-                      <div>
-                        <span className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.3em] italic">Daily Payout ({dailyRate}%)</span>
-                      </div>
-                      <span className="text-lg font-black text-emerald-700 italic">₹{(baseAmount*(dailyRate/100)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                      <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">GST ({currentGstRate}%)</span>
+                      <span className="text-lg md:text-xl font-black text-slate-600 italic">+₹{gstAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-6 border-t border-slate-100 gap-4">
                       <span className="text-base md:text-lg font-black text-slate-900 uppercase tracking-[0.3em] italic">Total Amount</span>
@@ -509,7 +535,7 @@ const Shop = () => {
                     const inCart      = cart.find(i => i.id === product.id);
                     const qty         = productQtys[product.id] || 1;
                     const productTotal = parseFloat(product.price) * qty;
-                    const productGST   = productTotal * (gstPercent / 100);
+                    const productGST   = productTotal * (gstRateFor(product.category) / 100);
                     const productFinal = productTotal + productGST;
                     const dailyPayout  = productTotal * (dailyRate / 100);
 
@@ -531,15 +557,21 @@ const Shop = () => {
                           : 'border-slate-100 hover:border-slate-200 hover:shadow-md'}`}>
 
                         {/* ── Image ── */}
-                        <div className="relative h-52 bg-slate-50 overflow-hidden shrink-0">
-                          {product.image ? (
-                            <img src={imgUrl(product.image)} alt={product.name}
-                              className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isOutOfStock ? 'grayscale' : ''}`} />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package size={56} className="text-slate-200" strokeWidth={1} />
-                            </div>
+                        <div className="relative h-52 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center relative">
+                          {product.image && (
+                            <img 
+                              src={imgUrl(product.image)} 
+                              alt={product.name}
+                              className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isOutOfStock ? 'grayscale' : ''}`}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
                           )}
+                          <div className="w-full h-full flex items-center justify-center" style={{ display: product.image ? 'none' : 'flex' }}>
+                            <Package size={56} className="text-slate-200" strokeWidth={1} />
+                          </div>
 
                           {/* Purity badge — top left */}
                           {product.purity && (
@@ -607,16 +639,16 @@ const Shop = () => {
                                 ₹{parseFloat(product.price).toLocaleString()}
                               </span>
                             </div>
-                            {qty > 1 && !isOutOfStock && (
+                            {!isOutOfStock && (
                               <div className="flex justify-between items-center">
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Total ({qty} pcs)</span>
-                                <span className="text-sm font-black text-slate-700 italic">₹{productFinal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">GST ({gstRateFor(product.category)}%)</span>
+                                <span className="text-[10px] font-black text-slate-500 italic">+₹{productGST.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                               </div>
                             )}
                             {!isOutOfStock && (
                               <div className="flex justify-between items-center pt-1 border-t border-slate-200">
-                                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic">Daily Payout</span>
-                                <span className="text-[11px] font-black text-emerald-600 italic">+₹{dailyPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}/day</span>
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Total ({qty} pcs · incl. GST)</span>
+                                <span className="text-sm font-black text-slate-700 italic">₹{productFinal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                               </div>
                             )}
                             {isOutOfStock && (
@@ -683,7 +715,6 @@ const Shop = () => {
                     <div>
                       <p className="text-[8px] font-black uppercase tracking-[0.3em] italic text-slate-400">{cartCount} item{cartCount > 1 ? 's' : ''} in cart</p>
                       <p className="text-xl font-black italic tracking-tighter">₹{cartTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
-                      <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest italic">+₹{cartDailyPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}/day rewards</p>
                     </div>
                   </div>
                   <div className="flex gap-3 w-full sm:w-auto">
@@ -758,14 +789,14 @@ const Shop = () => {
                                 <p className="text-[8px] text-slate-300 font-bold uppercase tracking-widest italic">{humanPaymentMethod(order.payment_method)}</p>
                               )}
                             </div>
-                            {/* ── Delivery estimate (48–72 hrs) ── */}
+                            {/* ── Delivery estimate (7 working days) ── */}
                             {order.status === 'completed' ? (
                               <p className="text-[8px] text-emerald-500 font-bold uppercase tracking-widest italic mt-1.5 flex items-center gap-1">
                                 <CheckCircle2 size={9} strokeWidth={3} /> Delivered
                               </p>
                             ) : order.status === 'rejected' ? null : (
                               <p className="text-[8px] text-blue-500 font-bold uppercase tracking-widest italic mt-1.5 flex items-center gap-1">
-                                <Clock size={9} strokeWidth={2.5} /> Est. delivery: {deliveryWindow(order.created_at)} (48–72 hrs)
+                                <Clock size={9} strokeWidth={2.5} /> Est. delivery: {deliveryWindow(order.created_at)} (7 working days)
                               </p>
                             )}
                           </div>
@@ -824,9 +855,21 @@ const Shop = () => {
                   const itemTotal = parseFloat(item.price) * item.quantity;
                   return (
                     <div key={item.id} className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3 border border-slate-100">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-100 shrink-0">
-                        {item.image ? <img src={imgUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
-                          : <div className="w-full h-full flex items-center justify-center"><Package size={18} className="text-slate-200" /></div>}
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-100 shrink-0 flex items-center justify-center relative">
+                        {item.image && (
+                          <img 
+                            src={imgUrl(item.image)} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        )}
+                        <div className="w-full h-full flex items-center justify-center" style={{ display: item.image ? 'none' : 'flex' }}>
+                          <Package size={18} className="text-slate-200" />
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-black text-slate-900 uppercase italic truncate">{item.name}</p>
@@ -855,13 +898,10 @@ const Shop = () => {
                       <span>Subtotal</span><span>₹{cartPreGST.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest italic">
-                      <span>GST ({gstPercent}%)</span><span>₹{cartGST.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                      <span>GST</span><span>+₹{cartGST.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
                     </div>
                     <div className="flex justify-between text-sm font-black text-slate-900 uppercase italic tracking-tighter border-t border-slate-100 pt-2">
                       <span>Total</span><span className="text-amber-600">₹{cartTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-                    </div>
-                    <div className="flex justify-between text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">
-                      <span>Daily Rewards</span><span>+₹{cartDailyPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}/day</span>
                     </div>
                   </div>
                   <button onClick={() => { setShowCart(false); handleCartCheckout(); }}
@@ -916,7 +956,8 @@ const Shop = () => {
                       </div>
                       <h3 className="text-amber-500 text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Scan & Pay</h3>
                       <p className="text-white text-[10px] font-black uppercase tracking-widest italic mb-2 break-all">{paymentGateway.upiId || 'Admin UPI Pending'}</p>
-                      <p className="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] italic">Amount: ₹{effectiveAmount.toLocaleString()}</p>
+                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.3em] italic mb-1">Amount Payable (incl. GST)</p>
+                      <p className="text-white text-3xl md:text-4xl font-black italic tracking-tighter">₹{effectiveAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center">
@@ -960,8 +1001,9 @@ const Shop = () => {
                           </div></>
                         )}
                       </div>
-                      <h3 className="text-amber-500 text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-1">Bank Transfer</h3>
-                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.3em] italic">Amount: ₹{effectiveAmount.toLocaleString()}</p>
+                      <h3 className="text-amber-500 text-base md:text-lg font-black italic tracking-tighter uppercase mb-2">Bank Transfer</h3>
+                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.3em] italic mb-1">Amount Payable (incl. GST)</p>
+                      <p className="text-white text-3xl md:text-4xl font-black italic tracking-tighter">₹{effectiveAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
                     </div>
                   )}
 
@@ -984,14 +1026,16 @@ const Shop = () => {
                   </p>
                 </div>
 
-                {/* ── Delivery estimate banner ── */}
+                {/* ── Delivery & payout banner ── */}
                 <div className="mb-6 flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
                   <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center shrink-0">
                     <Clock size={16} className="text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic">Estimated Delivery</p>
-                    <p className="text-[10px] font-black text-blue-700 uppercase italic tracking-tight">Delivered within 48–72 hours</p>
+                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic">Product Delivered</p>
+                    <p className="text-[10px] font-black text-blue-700 uppercase italic tracking-tight">Within 7 working days</p>
+                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest italic mt-1.5">Payout Start</p>
+                    <p className="text-[10px] font-black text-blue-700 uppercase italic tracking-tight">Within 48 hours</p>
                   </div>
                 </div>
 

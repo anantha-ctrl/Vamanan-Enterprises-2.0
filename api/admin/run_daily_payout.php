@@ -30,22 +30,21 @@ try {
 
     foreach ($cycles as $cycle) {
         $userId     = $cycle['user_id'];
-        $totalValue = (float)$cycle['total_value'];
-        $dailyAmt   = (float)$cycle['daily_payout'];  // already stored as 1% of total_value
-
-        // Fallback if daily_payout is 0
-        if ($dailyAmt <= 0) $dailyAmt = $totalValue * 0.01;
+        // GST-exclusive: cashback base is the product subtotal (cashback_eligible_amount), never the GST-inclusive total.
+        $eligible   = (float)($cycle['cashback_eligible_amount'] ?? 0);
+        if ($eligible <= 0) $eligible = (float)$cycle['total_value']; // legacy rows (GST was 0)
+        $dailyAmt   = $eligible * 0.01;  // 1% of the GST-excluded product value
 
         $newDaysCompleted = (int)$cycle['days_paid'] + 1;
         $newTotalEarned   = (float)$cycle['paid_amount'] + $dailyAmt;
 
-        // Cap at 100% (total_value)
-        if ($newTotalEarned >= $totalValue) {
-            $dailyAmt       = $totalValue - (float)$cycle['paid_amount'];
-            $newTotalEarned = $totalValue;
+        // Cap at 100% of the GST-excluded base
+        if ($newTotalEarned >= $eligible) {
+            $dailyAmt       = $eligible - (float)$cycle['paid_amount'];
+            $newTotalEarned = $eligible;
         }
 
-        $newStatus = ($newTotalEarned >= $totalValue || $newDaysCompleted >= 100) ? 'completed' : 'active';
+        $newStatus = ($newTotalEarned >= $eligible || $newDaysCompleted >= 100) ? 'completed' : 'active';
 
         if ($dailyAmt > 0) {
             // Update cycle
@@ -53,7 +52,7 @@ try {
                ->execute([$newDaysCompleted, $newTotalEarned, $newStatus, $cycle['id']]);
 
             // Credit wallet
-            $wallet->credit($userId, $dailyAmt, 'cashback', "Daily 1% cashback — Day {$newDaysCompleted} of 100 (Cycle #{$cycle['id']})");
+            $wallet->credit($userId, $dailyAmt, 'cashback', "Daily 1% cashback on ₹" . number_format($eligible, 2) . " product value (excl. GST) — Day {$newDaysCompleted} of 100 (Cycle #{$cycle['id']})");
 
             $totalPaid += $dailyAmt;
             $processed[] = [
@@ -85,12 +84,16 @@ try {
             $refCycle = $rcStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($refCycle) {
-                $refCapRemaining = (float)$refCycle['total_value'] - (float)$refCycle['paid_amount'];
+                // Cap referrer earnings at 100% of THEIR GST-excluded product value.
+                $refEligible = (float)($refCycle['cashback_eligible_amount'] ?? 0);
+                if ($refEligible <= 0) $refEligible = (float)$refCycle['total_value'];
+                $refCapRemaining = $refEligible - (float)$refCycle['paid_amount'];
                 if ($refCapRemaining > 0) {
-                    $commAmt = min($totalValue * $commRates[$lvl], $refCapRemaining);
+                    // Commission base is the investor's GST-excluded product subtotal.
+                    $commAmt = min($eligible * $commRates[$lvl], $refCapRemaining);
 
                     $newRefEarned = (float)$refCycle['paid_amount'] + $commAmt;
-                    $refNewStatus = ($newRefEarned >= (float)$refCycle['total_value']) ? 'completed' : 'active';
+                    $refNewStatus = ($newRefEarned >= $refEligible) ? 'completed' : 'active';
 
                     $db->prepare("UPDATE cashback_cycles SET paid_amount = ?, status = ? WHERE id = ?")
                        ->execute([$newRefEarned, $refNewStatus, $refCycle['id']]);

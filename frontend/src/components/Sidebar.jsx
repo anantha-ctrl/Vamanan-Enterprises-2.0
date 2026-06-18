@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Wallet, ShieldCheck, ShoppingBag, 
   CreditCard, MessageCircle, UserPlus, Globe, LogOut, XCircle, FileSignature,
-  Home, FileText, UserCircle, ShoppingCart, Award, Zap, BookOpen, ChevronRight, X, Shield, Landmark, Settings, TrendingUp, Megaphone, Network, Receipt
+  Home, FileText, UserCircle, ShoppingCart, Award, Zap, BookOpen, ChevronRight, X, Shield, Landmark, Settings, TrendingUp, Megaphone, Network, Receipt, PackagePlus
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { humanRole } from '../utils/humanLabels';
@@ -54,13 +54,18 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
       })).filter(group => group.items.length > 0);
     };
 
-    if (role === 'admin') {
+    // Staff share the admin navigation, but filterByPermission() trims it to only the
+    // tabs an admin granted them (Settings → Access Control).
+    if (role === 'admin' || role === 'staff') {
       items = [
         { group: 'Management', items: [
           { id: 'overview', label: 'Dashboard', icon: BarChart3 },
           { id: 'investments', label: 'Purchases', icon: ShoppingCart },
           { id: 'investment_history', label: 'Purchase History', icon: FileText },
           { id: 'inventory', label: 'Asset Inventory', icon: ShoppingBag, path: '/admin/inventory' },
+          { id: 'product_requests', label: 'Product Requests', icon: PackagePlus },
+          { id: 'cashback_applications', label: 'Cashback Applications', icon: FileText },
+          { id: 'gst_filing', label: 'GST Filing', icon: Receipt },
           { id: 'users', label: 'Users', icon: Users },
           { id: 'genealogy', label: 'Genealogy', icon: Network },
           // { id: 'agreements', label: 'Institutional Agreements', icon: FileSignature, path: '/advocate?tab=agreements' },
@@ -131,20 +136,12 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
           { id: 'profile', label: 'Profile', icon: Shield, path: '/advocate-profile' },
         ]}
       ];
-    } else if (role === 'staff') {
-      items = [
-        { group: 'Tasks', items: [
-          { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-          { id: 'kyc', label: 'KYC', icon: ShieldCheck },
-          { id: 'tickets', label: 'Notifications', icon: Megaphone },
-        ]}
-      ];
-      return filterByPermission(items);
     } else {
       return [
         { group: 'Main Menu', items: [
           { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
           { id: 'shop', label: 'Buy', icon: ShoppingCart, path: '/shop' },
+          { id: 'product_request', label: 'Request a Product', icon: PackagePlus, path: '/product-request' },
           { id: 'cashback', label: 'Cashback', icon: Zap, path: '/cashback-plan' },
           { id: 'cashback_application', label: 'Cashback Application', icon: FileText, path: '/cashback-application' },
           { id: 'referrals', label: 'Referrals', icon: Award, path: '/referrals' },
@@ -162,7 +159,9 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
         ]}
       ];
     }
-    return items;
+    // Admin sees everything; staff get the same nav trimmed to their granted permissions.
+    // Customers fall through here too and must NOT be permission-filtered.
+    return role === 'staff' ? filterByPermission(items) : items;
   };
 
   const menuGroups = getNavItems();

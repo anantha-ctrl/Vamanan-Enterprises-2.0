@@ -139,6 +139,9 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE
     )");
+    // Ensure the category enum covers every category the app writes (esp. 'cashback' —
+    // a stale migration elsewhere had dropped it, breaking the cashback ledger).
+    try { $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('purchase', 'purchase_request', 'referral', 'cashback', 'payout', 'withdrawal', 'liquidation', 'manual', 'deposit', 'other') NOT NULL DEFAULT 'other'"); } catch (PDOException $e) {}
 
     // 5. Withdrawals Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS withdrawals (
@@ -184,9 +187,25 @@ try {
     try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Bank Transfer' AFTER transaction_id"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN payment_screenshot VARCHAR(255) AFTER payment_method"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN last_paid_at DATE DEFAULT NULL AFTER status"); } catch (PDOException $e) {}
-    try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN status ENUM('active','completed','paused','pending') DEFAULT 'pending'"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN status ENUM('active','completed','paused','pending','rejected','cancelled') DEFAULT 'pending'"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles CHANGE days_completed days_paid INT DEFAULT 0"); } catch (PDOException $e) {}
     try { $pdo->exec("ALTER TABLE cashback_cycles CHANGE total_earned paid_amount DECIMAL(15,2) DEFAULT 0.00"); } catch (PDOException $e) {}
+
+    // GST-exclusive cashback columns.
+    //  - product_amount            : subtotal of products BEFORE GST
+    //  - gst_amount                : GST charged on top
+    //  - total_amount              : what the customer actually pays (product_amount + gst_amount = total_value)
+    //  - cashback_eligible_amount  : the ONLY base used for cashback/referral/commission (== product_amount, GST excluded)
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN product_amount DECIMAL(15,2) DEFAULT 0.00 AFTER product_name"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN gst_amount DECIMAL(15,2) DEFAULT 0.00 AFTER product_amount"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN total_amount DECIMAL(15,2) DEFAULT 0.00 AFTER gst_amount"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN cashback_eligible_amount DECIMAL(15,2) DEFAULT 0.00 AFTER total_amount"); } catch (PDOException $e) {}
+    // Backfill legacy rows (created before GST split — GST was 0, so product == total).
+    try { $pdo->exec("UPDATE cashback_cycles SET product_amount = total_value WHERE (product_amount IS NULL OR product_amount = 0) AND total_value > 0"); } catch (PDOException $e) {}
+    try { $pdo->exec("UPDATE cashback_cycles SET total_amount = total_value WHERE (total_amount IS NULL OR total_amount = 0) AND total_value > 0"); } catch (PDOException $e) {}
+    try { $pdo->exec("UPDATE cashback_cycles SET cashback_eligible_amount = product_amount WHERE (cashback_eligible_amount IS NULL OR cashback_eligible_amount = 0) AND product_amount > 0"); } catch (PDOException $e) {}
+    // Link each cycle to its originating ledger transaction (for exact approve/reject/delete).
+    try { $pdo->exec("ALTER TABLE cashback_cycles ADD COLUMN ledger_txn_id INT NULL"); } catch (PDOException $e) {}
 
     // 11. Categories Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS categories (
@@ -216,6 +235,13 @@ try {
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     )");
     try { $pdo->exec("ALTER TABLE agreements ADD COLUMN agreement_date DATETIME DEFAULT CURRENT_TIMESTAMP AFTER product_id"); } catch (PDOException $e) {}
+    // Columns queried by customer/agreement.php — add if missing (safe migrations)
+    try { $pdo->exec("ALTER TABLE agreements ADD COLUMN agreement_id VARCHAR(50) AFTER id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE agreements ADD COLUMN type VARCHAR(50) DEFAULT 'purchase' AFTER product_id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE agreements ADD COLUMN signed_at DATETIME NULL AFTER status"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE agreements ADD COLUMN customer_signed_at DATETIME NULL AFTER signed_at"); } catch (PDOException $e) {}
+    // Approval flow sets status to 'active' / 'rejected' — widen the enum so STRICT mode doesn't reject them.
+    try { $pdo->exec("ALTER TABLE agreements MODIFY COLUMN status ENUM('pending','active','rejected','verified','legal_review','signed','expired') DEFAULT 'pending'"); } catch (PDOException $e) {}
 
     // 8. Support Tickets Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS support_tickets (
@@ -290,6 +316,67 @@ try {
 
     // Ensure existing admins/managers are active
     $pdo->exec("UPDATE users SET status = 'active' WHERE role IN ('admin', 'manager')");
+
+    // --- VEV ID SYSTEM (customer_id + product_code + VEV referral codes) ---
+    // New columns (idempotent; multiple NULLs allowed under a UNIQUE index in MySQL)
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN customer_id VARCHAR(20) UNIQUE AFTER id"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE products ADD COLUMN product_code VARCHAR(20) UNIQUE AFTER id"); } catch (PDOException $e) {}
+
+    // Unique VEV referral code generator: VEV + 5 alphanumeric chars (e.g. VEV342AB)
+    if (!function_exists('vevGenerateReferralCode')) {
+        function vevGenerateReferralCode($pdo) {
+            $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            $check = $pdo->prepare("SELECT id FROM users WHERE referral_code = ?");
+            do {
+                $suffix = '';
+                for ($i = 0; $i < 5; $i++) { $suffix .= $chars[random_int(0, strlen($chars) - 1)]; }
+                $code = 'VEV' . $suffix;
+                $check->execute([$code]);
+            } while ($check->fetch());
+            return $code;
+        }
+    }
+
+    // The admin dashboard fires ~11 API requests in parallel, so multiple processes may run
+    // this backfill at once and collide on the UNIQUE indexes. Each assignment is therefore
+    // guarded individually: a transient collision is swallowed and simply retried (with a
+    // freshly recomputed next-id) on the next request — the loops are idempotent.
+    try {
+        // Backfill: convert any legacy (non-VEV) referral codes to VEV format. Idempotent —
+        // once a row starts with VEV it is skipped on subsequent requests.
+        $legacyRefs = $pdo->query("SELECT id FROM users WHERE referral_code IS NULL OR referral_code = '' OR referral_code NOT LIKE 'VEV%'")
+                          ->fetchAll(PDO::FETCH_COLUMN);
+        if ($legacyRefs) {
+            $updRef = $pdo->prepare("UPDATE users SET referral_code = ? WHERE id = ?");
+            foreach ($legacyRefs as $uid) {
+                try { $updRef->execute([vevGenerateReferralCode($pdo), $uid]); } catch (PDOException $e) {}
+            }
+        }
+
+        // Backfill: assign sequential VEV### customer IDs to users that lack one (ordered by id)
+        $missingCust = $pdo->query("SELECT id FROM users WHERE customer_id IS NULL OR customer_id = '' ORDER BY id ASC")
+                           ->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($missingCust as $uid) {
+            try {
+                $maxCust = (int)$pdo->query("SELECT COALESCE(MAX(CAST(SUBSTRING(customer_id, 4) AS UNSIGNED)), 0) FROM users WHERE customer_id LIKE 'VEV%'")->fetchColumn();
+                $pdo->prepare("UPDATE users SET customer_id = ? WHERE id = ? AND (customer_id IS NULL OR customer_id = '')")
+                    ->execute(['VEV' . str_pad($maxCust + 1, 3, '0', STR_PAD_LEFT), $uid]);
+            } catch (PDOException $e) {}
+        }
+
+        // Backfill: assign sequential VEVP### product codes to products that lack one (ordered by id)
+        $missingProd = $pdo->query("SELECT id FROM products WHERE product_code IS NULL OR product_code = '' ORDER BY id ASC")
+                           ->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($missingProd as $pid) {
+            try {
+                $maxProd = (int)$pdo->query("SELECT COALESCE(MAX(CAST(SUBSTRING(product_code, 5) AS UNSIGNED)), 0) FROM products WHERE product_code LIKE 'VEVP%'")->fetchColumn();
+                $pdo->prepare("UPDATE products SET product_code = ? WHERE id = ? AND (product_code IS NULL OR product_code = '')")
+                    ->execute(['VEVP' . str_pad($maxProd + 1, 3, '0', STR_PAD_LEFT), $pid]);
+            } catch (PDOException $e) {}
+        }
+    } catch (PDOException $e) {
+        // Never let ID backfill break normal request handling.
+    }
 
 } catch (PDOException $e) {
     die(json_encode(["status" => "error", "message" => "Database Connection/Init failed: " . $e->getMessage()]));

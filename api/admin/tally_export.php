@@ -50,6 +50,8 @@ $db->exec("CREATE TABLE IF NOT EXISTS cashback_applications (
 $mode         = $_GET['mode'] ?? 'download';
 $company      = $_GET['company'] ?? '';
 $salesLedger  = $_GET['sales_ledger'] ?? 'Sales Account';
+$cgstLedger   = $_GET['cgst_ledger'] ?? 'Output CGST';
+$sgstLedger   = $_GET['sgst_ledger'] ?? 'Output SGST';
 $voucherType  = $_GET['voucher_type'] ?? 'Sales';
 $gateway      = $_GET['gateway'] ?? 'http://localhost:9000';
 
@@ -81,8 +83,14 @@ $total = 0;
 
 foreach ($apps as $a) {
     $custName = trim($a['customer_name']) !== '' ? $a['customer_name'] : ('Customer #' . $a['user_id']);
-    $amount   = (float)$a['purchase_amount'];
-    $total   += $amount;
+    // GST-exclusive: purchase_amount is the taxable (ex-GST) value; gst split into CGST + SGST.
+    $taxable  = (float)$a['purchase_amount'];
+    $gst      = (float)($a['gst_amount'] ?? 0);
+    $cgst     = $gst / 2;
+    $sgst     = $gst / 2;
+    $invoice  = (float)($a['total_amount'] ?? 0); if ($invoice <= 0) $invoice = $taxable + $gst;
+    $amount   = $invoice;            // debtor is billed the full invoice (incl. GST)
+    $total   += $invoice;
     $date     = tallyDate($a['application_date'] ?: ($a['purchase_date'] ?: $a['created_at']));
     $narration = "Cashback application #{$a['id']} - " .
                  ($a['purchased_product'] ?: 'Purchase') .
@@ -119,13 +127,23 @@ foreach ($apps as $a) {
           <ALLLEDGERENTRIES.LIST>
             <LEDGERNAME>' . x($custName) . '</LEDGERNAME>
             <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
-            <AMOUNT>-' . number_format($amount, 2, '.', '') . '</AMOUNT>
+            <AMOUNT>-' . number_format($invoice, 2, '.', '') . '</AMOUNT>
           </ALLLEDGERENTRIES.LIST>
           <ALLLEDGERENTRIES.LIST>
             <LEDGERNAME>' . x($salesLedger) . '</LEDGERNAME>
             <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
-            <AMOUNT>' . number_format($amount, 2, '.', '') . '</AMOUNT>
+            <AMOUNT>' . number_format($taxable, 2, '.', '') . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>' . ($gst > 0 ? '
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . x($cgstLedger) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>' . number_format($cgst, 2, '.', '') . '</AMOUNT>
           </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>' . x($sgstLedger) . '</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>' . number_format($sgst, 2, '.', '') . '</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>' : '') . '
         </VOUCHER>
       </TALLYMESSAGE>';
 }
@@ -169,9 +187,12 @@ if ($mode === 'push') {
     curl_close($ch);
 
     if ($err) {
+        // Tally not reachable — don't dead-end. Tell the UI to fall back to downloading the XML.
         echo json_encode([
-            "status"  => "error",
-            "message" => "Could not reach Tally gateway at $gateway. Is Tally open with the gateway enabled? ($err)"
+            "status"  => "offline",
+            "message" => "TallyPrime not reachable at $gateway (gateway off / Tally closed). " . count($apps) . " voucher(s) are ready — downloading the Tally XML so you can import it manually via Gateway of Tally → Import Data.",
+            "records" => count($apps),
+            "total_amount" => $total
         ]);
         exit;
     }

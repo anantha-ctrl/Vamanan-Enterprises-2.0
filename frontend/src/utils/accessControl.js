@@ -82,7 +82,8 @@ export const canAccessRoute = (user, permissionId, allowedRoles = []) => {
 export const defaultRouteForRole = (role) => {
   if (role === 'admin') return '/admin';
   if (role === 'manager') return '/manager';
-  if (role === 'staff') return '/staff';
+  // Staff use the admin dashboard, permission-filtered to only their granted tabs.
+  if (role === 'staff') return '/admin';
   if (role === 'advocate') return '/advocate';
   if (role === 'customer') return '/dashboard';
   return '/login';

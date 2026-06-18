@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldAlert, BarChart3, PauseCircle, Users, Wallet, ArrowLeft, ArrowRight, History, CheckCircle, CheckCircle2, XCircle, Loader2, Search, Settings, Settings2, Trash2, ShieldCheck, TrendingUp, TrendingDown, ShoppingBag, Plus, Activity, Zap, UserPlus, Megaphone, Globe, CreditCard, MessageCircle, AlertTriangle, LogOut, Eye, EyeOff, ExternalLink, Menu, Package, Award, ShoppingCart, Clock, Coins, Star, Save, Edit3, X, Percent, Phone, Mail, UserCircle, FileText, RefreshCw, Network, ChevronRight, ChevronDown, Trophy, Target, Landmark } from 'lucide-react';
+import { ShieldAlert, BarChart3, PauseCircle, Users, Wallet, ArrowLeft, ArrowRight, History, CheckCircle, CheckCircle2, XCircle, Loader2, Search, Settings, Settings2, Trash2, ShieldCheck, TrendingUp, TrendingDown, ShoppingBag, Plus, Activity, Zap, UserPlus, Megaphone, Globe, CreditCard, MessageCircle, AlertTriangle, LogOut, Eye, EyeOff, ExternalLink, Menu, Package, Award, ShoppingCart, Clock, Coins, Star, Save, Edit3, X, Percent, Phone, Mail, UserCircle, FileText, RefreshCw, Network, ChevronRight, ChevronDown, Trophy, Target, Landmark, Printer, Receipt } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
@@ -36,6 +36,17 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({ revenue: 0, payouts: 0, users: 0, fraud: 0, withdrawals: [] });
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [productRequests, setProductRequests] = useState([]);
+  const [cashbackApplications, setCashbackApplications] = useState([]);
+  const [selectedCashbackApp, setSelectedCashbackApp] = useState(null);
+  const [gstFiling, setGstFiling] = useState(null);
+  const [gstMonth, setGstMonth] = useState('');   // '' = all time, else YYYY-MM
+  const [accessUserId, setAccessUserId] = useState('');
+  const [accessPerms, setAccessPerms] = useState([]);
+  const [accessSaving, setAccessSaving] = useState(false);
+  const [showBulkUsers, setShowBulkUsers] = useState(false);
+  const [bulkUserRows, setBulkUserRows] = useState([{ name: '', email: '', phone: '', role: 'customer' }]);
+  const [bulkUserSaving, setBulkUserSaving] = useState(false);
   const [withdrawals, setWithdrawals] = useState([]);
   const [investments, setInvestments] = useState([]);
   const [investmentHistory, setInvestmentHistory] = useState([]);
@@ -53,6 +64,8 @@ const AdminDashboard = () => {
     gold_base_price: '7850',
     silver_base_price: '100',
     gst_percentage: '3',
+    gold_gst: '3',
+    general_gst: '18',
     maintenance_mode: '0',
     payout_processing_fee: '10',
     daily_cashback_rate: '1',
@@ -82,7 +95,7 @@ const AdminDashboard = () => {
   const [adjForm, setAdjForm] = useState({ user_id: '', amount: '', type: 'credit', reason: '' });
   const [selectedUserPayout, setSelectedUserPayout] = useState(null);
   const [payoutLoading, setPayoutLoading] = useState(false);
-  const [staffForm, setStaffForm] = useState({ name: '', email: '', role: 'manager', password: '', permissions: AVAILABLE_PERMISSIONS.map(p => p.id) });
+  const [staffForm, setStaffForm] = useState({ name: '', email: '', role: 'staff', password: '', permissions: ['overview', 'kyc', 'tickets'] });
   const [showStaffPassword, setShowStaffPassword] = useState(false);
   const [notifForm, setNotifForm] = useState({ user_id: '', title: '', message: '', type: 'info' });
   const [notifEditId, setNotifEditId] = useState(null);
@@ -177,6 +190,8 @@ const AdminDashboard = () => {
         axios.get(`${API_BASE_URL}/admin/settings.php`),
         axios.get(`${API_BASE_URL}/admin/wallets.php`),
         axios.get(`${API_BASE_URL}/admin/categories.php`),
+        axios.get(`${API_BASE_URL}/admin/product_requests.php`),
+        axios.get(`${API_BASE_URL}/admin/cashback_applications.php`),
       ]);
 
       const getData = (idx) => results[idx]?.status === 'fulfilled' && results[idx].value?.data?.status === 'success' ? results[idx].value.data.data : null;
@@ -192,6 +207,8 @@ const AdminDashboard = () => {
       const setData   = getData(8); if (setData && !(isSilent && activeTab === 'settings')) setPlatformSettings(setData);
       const walData   = getData(9); if (walData) setWalletsData(walData);
       const catData   = getData(10); if (catData) setAdminCategories(catData);
+      const prData    = getData(11); if (prData) setProductRequests(prData);
+      const cbAppData = getData(12); if (cbAppData) setCashbackApplications(cbAppData);
 
       // Log any failed APIs for debugging
       results.forEach((r, i) => {
@@ -201,6 +218,136 @@ const AdminDashboard = () => {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Real-time GST filing report (refetches on tab open or month change)
+  const fetchGstFiling = async (month = gstMonth) => {
+    try {
+      const url = `${API_BASE_URL}/admin/gst_filing.php${month ? `?month=${month}` : ''}`;
+      const res = await axios.get(url);
+      if (res.data.status === 'success') setGstFiling(res.data.data);
+    } catch (err) {
+      console.error('GST filing fetch failed', err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'gst_filing') fetchGstFiling(gstMonth);
+  }, [activeTab, gstMonth]);
+
+  const downloadGstCsv = () => {
+    if (!gstFiling?.orders?.length) { showToast('No GST data to export.', 'error'); return; }
+    const head = ['Invoice', 'Date', 'Customer', 'Customer ID', 'Product', 'Taxable', 'GST %', 'CGST', 'SGST', 'Total GST', 'Invoice Total', 'Status'];
+    const lines = gstFiling.orders.map(o => [
+      o.invoice_no,
+      new Date(o.created_at).toLocaleDateString('en-IN'),
+      `"${(o.customer_name || '').replace(/"/g, '""')}"`,
+      o.customer_code || '',
+      `"${(o.product_name || '').replace(/"/g, '""')}"`,
+      o.taxable, o.rate, o.cgst, o.sgst, o.gst, o.total, o.status
+    ].join(','));
+    const csv = [head.join(','), ...lines].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `gst-filing-${gstFiling.period === 'All Time' ? 'all' : gstFiling.period}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  // ── Bulk add users ──
+  const addBulkUserRow = () => setBulkUserRows(prev => [...prev, { name: '', email: '', phone: '', role: 'customer' }]);
+  const removeBulkUserRow = (i) => setBulkUserRows(prev => prev.filter((_, idx) => idx !== i));
+  const updateBulkUserRow = (i, field, val) => setBulkUserRows(prev => prev.map((r, idx) => idx === i ? { ...r, [field]: val } : r));
+
+  const submitBulkUsers = async () => {
+    const users = bulkUserRows.filter(r => r.name.trim() && r.email.trim() && r.phone.trim());
+    if (users.length === 0) { showToast("Add at least one row with name, email and phone.", "error"); return; }
+    setBulkUserSaving(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/bulk_add_users.php`, { users });
+      if (res.data.status === 'success') {
+        showToast(res.data.message, res.data.inserted > 0 ? "success" : "error");
+        if ((res.data.errors || []).length) console.warn('Bulk add skipped:', res.data.errors);
+        setShowBulkUsers(false);
+        setBulkUserRows([{ name: '', email: '', phone: '', role: 'customer' }]);
+        fetchData(true);
+      } else {
+        showToast(res.data.message || "Bulk add failed", "error");
+      }
+    } catch (err) {
+      showToast("Bulk add failed: " + (err.response?.data?.message || "server error"), "error");
+    } finally {
+      setBulkUserSaving(false);
+    }
+  };
+
+  const downloadUserTemplate = () => {
+    const csv = [
+      'name,email,phone,password,role,referral_code',
+      'Ravi Kumar,ravi@example.com,9876543210,,customer,',
+      'Priya S,priya@example.com,9876500000,mypass123,customer,VEVABC12',
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'bulk-users-template.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  const importBulkUsersCsv = async (file) => {
+    if (!file) return;
+    setBulkUserSaving(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await axios.post(`${API_BASE_URL}/admin/bulk_add_users.php`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      showToast(res.data.message || 'Imported', res.data.inserted > 0 ? "success" : "error");
+      if ((res.data.errors || []).length) console.warn('CSV import skipped:', res.data.errors);
+      setShowBulkUsers(false);
+      fetchData(true);
+    } catch (err) {
+      showToast("CSV import failed: " + (err.response?.data?.message || "server error"), "error");
+    } finally {
+      setBulkUserSaving(false);
+    }
+  };
+
+  // ── Manual access control (Settings → Access Control) ──
+  const parsePerms = (raw) => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    try { const d = JSON.parse(raw); return Array.isArray(d) ? d : []; }
+    catch { return String(raw).split(',').map(s => s.trim()).filter(Boolean); }
+  };
+
+  const selectAccessUser = (id) => {
+    setAccessUserId(id);
+    const u = users.find(x => String(x.id) === String(id));
+    setAccessPerms(u ? parsePerms(u.permissions) : []);
+  };
+
+  const toggleAccessPerm = (pid) => {
+    setAccessPerms(prev => prev.includes(pid) ? prev.filter(p => p !== pid) : [...prev, pid]);
+  };
+
+  const saveAccessPerms = async () => {
+    if (!accessUserId) { showToast("Select a staff member first.", "error"); return; }
+    setAccessSaving(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/update_permissions.php`, { user_id: Number(accessUserId), permissions: accessPerms });
+      if (res.data.status === 'success') {
+        showToast("Access permissions updated.", "success");
+        fetchData(true);
+      } else {
+        showToast(res.data.message || "Update failed", "error");
+      }
+    } catch (err) {
+      showToast("Update failed: " + (err.response?.data?.message || "server error"), "error");
+    } finally {
+      setAccessSaving(false);
     }
   };
 
@@ -241,7 +388,7 @@ const AdminDashboard = () => {
         const res = await axios.post(`${API_BASE_URL}/admin/add_staff.php`, staffForm);
       if(res.data.status === 'success') {
         showToast("Staff credentials provisioned successfully!", "success");
-        setStaffForm({ name: '', email: '', role: 'manager', password: '', permissions: AVAILABLE_PERMISSIONS.map(p => p.id) });
+        setStaffForm({ name: '', email: '', role: 'staff', password: '', permissions: ['overview', 'kyc', 'tickets'] });
         setActiveTab('users');
         fetchData(true);
       }
@@ -357,6 +504,115 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleProcessProductRequest = async (id, status) => {
+    if (!window.confirm(`Mark this product request as ${humanStatus(status)}?`)) return;
+    setProcessing(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/product_requests.php`, { id, status });
+      if (res.data.status === 'success') {
+        showToast(`Product request marked as ${humanStatus(status)}.`, "success");
+        fetchData(true);
+      } else {
+        showToast("Error updating request: " + res.data.message, "error");
+      }
+    } catch (err) {
+      showToast("Connection fault: failed to update product request", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleProcessCashbackApp = async (id, status) => {
+    if (!window.confirm(`Mark this cashback application as ${humanStatus(status)}?`)) return;
+    setProcessing(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/cashback_applications.php`, { id, status });
+      if (res.data.status === 'success') {
+        showToast(`Cashback application marked as ${humanStatus(status)}.`, "success");
+        fetchData(true);
+      } else {
+        showToast("Error updating application: " + res.data.message, "error");
+      }
+    } catch (err) {
+      showToast("Connection fault: failed to update cashback application", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // Build a clean, self-contained printable copy of a cashback application
+  const printCashbackApp = (a) => {
+    if (!a) return;
+    const esc = (v) => (v === null || v === undefined || v === '') ? '—' : String(v).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const money = (v) => '₹' + Number(v || 0).toLocaleString('en-IN');
+    const row = (label, value) => `<tr><td class="lbl">${label}</td><td class="val">${esc(value)}</td></tr>`;
+    const win = window.open('', '_blank', 'width=900,height=1000');
+    if (!win) { showToast('Allow pop-ups to print the application.', 'error'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cashback Application #${esc(a.id)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        @page { size: A4; margin: 10mm; }
+        html, body { margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .sheet { max-width: 720px; margin: 0 auto; padding: 0; }
+        .head { display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #0f172a; padding-bottom:10px; margin-bottom:12px; }
+        .brand { font-size:22px; font-weight:800; letter-spacing:-0.5px; text-transform:uppercase; font-style:italic; }
+        .brand span { color:#d97706; }
+        .sub { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:#64748b; font-weight:700; margin-top:2px; }
+        .meta { text-align:right; font-size:10px; color:#475569; line-height:1.5; }
+        .section { page-break-inside: avoid; break-inside: avoid; margin-bottom:8px; }
+        h2 { font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:0 0 3px; padding-left:9px; color:#0f172a; border-left:4px solid #d97706; page-break-after: avoid; }
+        table { width:100%; border-collapse:collapse; table-layout:fixed; }
+        td { padding:3px 10px; font-size:11px; border-bottom:1px solid #e2e8f0; vertical-align:top; word-break:break-word; }
+        td.lbl { width:38%; color:#64748b; font-weight:700; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; }
+        td.val { font-weight:600; }
+        .declaration { page-break-inside: avoid; margin-top:10px; padding:9px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:10px; color:#475569; line-height:1.5; }
+        .sign { display:flex; justify-content:space-between; margin-top:30px; page-break-inside: avoid; }
+        .sign div { width:42%; border-top:1px solid #0f172a; padding-top:8px; font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#475569; text-align:center; }
+      </style></head><body>
+      <div class="sheet">
+        <div class="head">
+          <div><div class="brand">Vamanan <span>Gold</span></div><div class="sub">Cashback Application</div></div>
+          <div class="meta">Application #${esc(a.id)}<br/>Status: <strong>${esc((a.status || 'pending').toUpperCase())}</strong><br/>${esc(a.application_date || a.created_at || '')}</div>
+        </div>
+        <div class="section"><h2>Applicant Details</h2><table>
+          ${row('Customer Name', a.customer_name)}
+          ${row('Customer ID', a.customer_code)}
+          ${row('Referral ID', a.referral_id)}
+          ${row('Email', a.customer_email)}
+          ${row('Phone', a.phone)}
+          ${row('Address', a.address)}
+          ${row('Aadhaar No', a.aadhar_no)}
+          ${row('PAN No', a.pan_no)}
+        </table></div>
+        <div class="section"><h2>Purchase Details</h2><table>
+          ${row('Total Purchase Value', money(a.purchase_amount))}
+          ${row('Purchased Product', a.purchased_product)}
+          ${row('Product Details', a.product_details)}
+          ${row('Date of Purchase', a.purchase_date)}
+        </table></div>
+        <div class="section"><h2>Payment Details</h2><table>
+          ${row('Account Holder', a.bank_account_name)}
+          ${row('Account No', a.account_no)}
+          ${row('IFSC Code', a.ifsc_code)}
+          ${row('Bank Name', a.bank_name)}
+          ${row('Bank Branch', a.bank_branch)}
+        </table></div>
+        <div class="section"><h2>Agent / Referral</h2><table>
+          ${row('Agent Name', a.agent_name)}
+          ${row('Agent ID', a.agent_id)}
+          ${row('Place', a.place)}
+          ${row('Date', a.application_date)}
+        </table></div>
+        <div class="declaration">Submitted along with copies of PAN Card, Aadhaar Card and Bank details. The company is not responsible for any incorrect information provided by the applicant.</div>
+        <div class="sign"><div>Applicant Signature</div><div>Authorized Signatory</div></div>
+      </div>
+      </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 350);
+  };
+
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     setProcessing(true);
@@ -411,6 +667,24 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       showToast("Update failed: Secure communication channel fault", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDeleteInvestment = async (cycle_id) => {
+    if (!window.confirm(`Delete purchase record #${cycle_id}? This cannot be undone.`)) return;
+    setProcessing(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/delete_investment.php`, { cycle_id });
+      if (res.data.status === 'success') {
+        showToast(res.data.message || "Record deleted.", "success");
+        fetchData(true);
+      } else {
+        showToast(res.data.message || "Delete failed", "error");
+      }
+    } catch (err) {
+      showToast("Delete failed: " + (err.response?.data?.message || "server error"), "error");
     } finally {
       setProcessing(false);
     }
@@ -1084,10 +1358,12 @@ const AdminDashboard = () => {
                            <div className="lg:col-span-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Digital Asset</p>
                               <h4 className="text-sm font-black text-slate-900 uppercase italic leading-none">
-                                {inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
+                                {inv.asset_type === 'product'
+                                  ? (inv.product_name || 'Product Purchase')
+                                  : inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
                               </h4>
                               <p className="text-[10px] text-amber-600 font-black uppercase tracking-widest mt-1.5 flex items-center gap-2">
-                                <Package size={10}/> {parseFloat(inv.weight || 0).toFixed(3)} Grams
+                                <Package size={10}/> {inv.asset_type === 'product' ? 'Product Purchase' : `${parseFloat(inv.weight || 0).toFixed(3)} Grams`}
                               </p>
                            </div>
 
@@ -1182,6 +1458,7 @@ const AdminDashboard = () => {
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">Capital Matrix</th>
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 italic">UTR / Reference</th>
                         <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right italic">Status Code</th>
+                        <th className="py-5 px-8 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right italic">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1197,10 +1474,12 @@ const AdminDashboard = () => {
                           </td>
                           <td className="py-6 px-8">
                             <div className="text-xs font-black text-slate-900 uppercase italic">
-                              {inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
+                              {inv.asset_type === 'product'
+                                ? (inv.product_name || 'Product Purchase')
+                                : inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
                             </div>
                             <div className={`text-[9px] font-black uppercase tracking-widest mt-1 flex items-center gap-1 ${inv.asset_type === 'silver' ? 'text-slate-400' : 'text-amber-600'}`}>
-                              <Package size={10}/> {parseFloat(inv.weight || 0).toFixed(3)} Grams
+                              <Package size={10}/> {inv.asset_type === 'product' ? 'Product Purchase' : `${parseFloat(inv.weight || 0).toFixed(3)} Grams`}
                             </div>
                           </td>
                           <td className="py-6 px-8">
@@ -1232,11 +1511,18 @@ const AdminDashboard = () => {
                               {humanStatus(inv.cycle_status)}
                             </span>
                           </td>
+                          <td className="py-6 px-8 text-right">
+                            <button onClick={() => handleDeleteInvestment(inv.cycle_id)} disabled={processing}
+                              title="Delete record"
+                              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-600 hover:text-white transition-all active:scale-95 disabled:opacity-40">
+                              <Trash2 size={15} />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                       {investmentHistory.length === 0 && (
                         <tr>
-                          <td colSpan="6" className="py-24 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 italic">
+                          <td colSpan="7" className="py-24 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 italic">
                              Audit record is currently empty
                           </td>
                         </tr>
@@ -1828,6 +2114,11 @@ const AdminDashboard = () => {
                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Universal registry of all platform participants</p>
                 </div>
                 <div className="flex w-full md:w-auto gap-3 items-center flex-wrap">
+                   {/* Bulk Add Users */}
+                   <button onClick={() => setShowBulkUsers(true)}
+                     className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-900 text-amber-400 border-2 border-slate-900 hover:bg-amber-600 hover:text-white transition-all shadow-lg">
+                     <UserPlus size={13} /> Bulk Add Users
+                   </button>
                    {/* Select All toggle */}
                    <button onClick={toggleAll}
                      className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic border-2 transition-all ${allFilteredSelected ? 'bg-slate-900 text-amber-400 border-slate-900' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400'}`}>
@@ -1906,6 +2197,81 @@ const AdminDashboard = () => {
                    );
                 })}
              </div>
+
+             {/* Bulk Add Users Modal */}
+             <AnimatePresence>
+               {showBulkUsers && (
+                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
+                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                     className="bg-white rounded-[2.5rem] p-8 md:p-10 w-full max-w-3xl shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                     <div className="flex items-center justify-between mb-6">
+                       <div className="flex items-center gap-3">
+                         <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500"><UserPlus size={20} /></div>
+                         <div>
+                           <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Bulk Add Users</h3>
+                           <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic mt-0.5">Add multiple customers at once · auto VEV id + wallet</p>
+                         </div>
+                       </div>
+                       <button onClick={() => setShowBulkUsers(false)} className="text-slate-400 hover:text-slate-900"><X size={20} /></button>
+                     </div>
+
+                     {/* CSV import */}
+                     <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Import CSV</span>
+                       <input type="file" accept=".csv" onChange={(e) => importBulkUsersCsv(e.target.files?.[0])}
+                         className="text-[10px] font-bold text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-slate-900 file:text-white file:text-[9px] file:font-black file:uppercase file:tracking-widest file:cursor-pointer" />
+                       <button onClick={downloadUserTemplate} type="button"
+                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest italic hover:border-amber-400 hover:text-amber-600 transition-all">
+                         <FileText size={13} /> Download Template
+                       </button>
+                       <span className="text-[8px] font-bold text-slate-400 italic">Columns: name, email, phone, password, role, referral_code</span>
+                     </div>
+
+                     {/* Manual rows */}
+                     <div className="space-y-3">
+                       <div className="hidden md:grid grid-cols-[1.4fr_1.6fr_1fr_1fr_auto] gap-3 px-1">
+                         {['Name *', 'Email *', 'Phone *', 'Role', ''].map((h, i) => (
+                           <span key={i} className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">{h}</span>
+                         ))}
+                       </div>
+                       {bulkUserRows.map((row, i) => (
+                         <div key={i} className="grid grid-cols-1 md:grid-cols-[1.4fr_1.6fr_1fr_1fr_auto] gap-3 items-center">
+                           <input value={row.name} onChange={(e) => updateBulkUserRow(i, 'name', e.target.value)} placeholder="Full name"
+                             className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold italic outline-none focus:border-amber-500 focus:bg-white" />
+                           <input value={row.email} onChange={(e) => updateBulkUserRow(i, 'email', e.target.value)} placeholder="email@example.com" type="email"
+                             className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold italic outline-none focus:border-amber-500 focus:bg-white" />
+                           <input value={row.phone} onChange={(e) => updateBulkUserRow(i, 'phone', e.target.value)} placeholder="Phone"
+                             className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold italic outline-none focus:border-amber-500 focus:bg-white" />
+                           <select value={row.role} onChange={(e) => updateBulkUserRow(i, 'role', e.target.value)}
+                             className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-xs font-black italic uppercase outline-none focus:border-amber-500 focus:bg-white">
+                             <option value="customer">Customer</option>
+                             <option value="manager">Manager</option>
+                             <option value="staff">Staff</option>
+                             <option value="advocate">Advocate</option>
+                           </select>
+                           <button onClick={() => removeBulkUserRow(i)} disabled={bulkUserRows.length === 1}
+                             className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all disabled:opacity-30 shrink-0"><Trash2 size={15} /></button>
+                         </div>
+                       ))}
+                     </div>
+
+                     <button onClick={addBulkUserRow}
+                       className="mt-4 flex items-center gap-2 text-[9px] font-black text-amber-600 uppercase tracking-widest italic hover:text-amber-700"><Plus size={14} /> Add Row</button>
+
+                     <p className="text-[8px] text-slate-400 font-bold italic mt-4 leading-relaxed">Password defaults to the phone number if left blank. Duplicate emails are skipped automatically.</p>
+
+                     <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
+                       <button onClick={() => setShowBulkUsers(false)} disabled={bulkUserSaving}
+                         className="px-7 py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-50 text-slate-400 border border-slate-200 hover:bg-slate-100">Cancel</button>
+                       <button onClick={submitBulkUsers} disabled={bulkUserSaving}
+                         className="px-8 py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-900 text-white hover:bg-amber-600 transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50">
+                         {bulkUserSaving ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} className="text-amber-500" />} Add {bulkUserRows.filter(r => r.name && r.email && r.phone).length || ''} Users
+                       </button>
+                     </div>
+                   </motion.div>
+                 </div>
+               )}
+             </AnimatePresence>
 
              {/* Bulk Delete Confirm Modal */}
              <AnimatePresence>
@@ -2119,28 +2485,21 @@ const AdminDashboard = () => {
                       <input type="email" placeholder="staff.node@makkalgold.com" required value={staffForm.email} onChange={e => setStaffForm({...staffForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
                    </div>
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">System Role Authorization</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">System Role</label>
                       <div className="relative">
-                         <select 
-                           value={staffForm.role} 
-                           onChange={e => {
-                              const newRole = e.target.value;
-                              let newPerms = AVAILABLE_PERMISSIONS.map(p => p.id);
-                              if (newRole === 'staff') {
-                                 newPerms = ['overview', 'kyc', 'tickets'];
-                              } else if (newRole === 'advocate') {
-                                 newPerms = ['overview', 'agreements', 'users'];
-                              }
-                              setStaffForm({...staffForm, role: newRole, permissions: newPerms});
-                           }} 
-                           className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner appearance-none"
+                         <select
+                           required
+                           value={staffForm.role}
+                           onChange={e => setStaffForm({ ...staffForm, role: e.target.value })}
+                           className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-8 pr-16 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner text-slate-900 cursor-pointer"
                          >
-                            <option value="manager">MANAGER</option>
-                            <option value="staff">STAFF</option>
-                            <option value="advocate">ADVOCATE</option>
+                           <option value="staff">Staff</option>
+                           <option value="manager">Manager</option>
+                           <option value="advocate">Advocate</option>
                          </select>
-                         <Settings className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                         <ShieldCheck className="absolute right-6 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none" size={18} />
                       </div>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest italic ml-4">Access permissions are assigned manually in Settings → Access Control</p>
                    </div>
                    <div className="space-y-3">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Security Credentials</label>
@@ -2164,41 +2523,6 @@ const AdminDashboard = () => {
                    </div>
                 </div>
 
-                <div className="space-y-6">
-                   <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Permission-Based Access Control</label>
-                      <button 
-                        type="button" 
-                        onClick={() => setStaffForm({ ...staffForm, permissions: staffForm.permissions.length === AVAILABLE_PERMISSIONS.length ? [] : AVAILABLE_PERMISSIONS.map(p => p.id) })}
-                        className="text-[9px] font-black text-amber-600 uppercase tracking-widest hover:underline italic"
-                      >
-                         {staffForm.permissions.length === AVAILABLE_PERMISSIONS.length ? 'DESELECT ALL' : 'SELECT ALL ACCESS'}
-                      </button>
-                   </div>
-                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {AVAILABLE_PERMISSIONS.map((perm) => (
-                         <button
-                           key={perm.id}
-                           type="button"
-                           onClick={() => {
-                              const newPerms = staffForm.permissions.includes(perm.id)
-                                 ? staffForm.permissions.filter(p => p !== perm.id)
-                                 : [...staffForm.permissions, perm.id];
-                              setStaffForm({ ...staffForm, permissions: newPerms });
-                           }}
-                           className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
-                              staffForm.permissions.includes(perm.id)
-                              ? 'bg-slate-900 border-slate-900 text-white shadow-lg'
-                              : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-amber-500/50 hover:bg-white'
-                           }`}
-                         >
-                            <perm.icon size={20} className={staffForm.permissions.includes(perm.id) ? 'text-amber-500' : 'group-hover:text-amber-600'} />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-center italic">{perm.label}</span>
-                         </button>
-                      ))}
-                   </div>
-                </div>
-
                 <div className="p-8 bg-amber-50 border border-amber-100 rounded-[2.5rem] shadow-sm relative overflow-hidden">
                    <div className="absolute top-0 right-0 p-8 opacity-10"><ShieldAlert size={80} className="text-amber-600" /></div>
                    <div className="flex items-center gap-4 mb-3 text-amber-600 relative z-10">
@@ -2217,6 +2541,413 @@ const AdminDashboard = () => {
              </form>
           </motion.div>
         )}
+
+        {activeTab === 'product_requests' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
+            <div className="flex justify-between items-center mb-12">
+               <div>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Product Requests</h3>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Customer-submitted product requests awaiting review</p>
+               </div>
+               <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div> {productRequests.filter(r => r.status === 'pending').length} Pending Review
+               </div>
+            </div>
+
+            <div className="overflow-hidden rounded-[2.5rem] border border-slate-100 bg-white shadow-sm">
+               <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50">
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Requested Product</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Specs</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Status</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {productRequests.length === 0 ? (
+                         <tr><td colSpan="5" className="py-32 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 italic">No product requests submitted yet</td></tr>
+                      ) : (
+                         productRequests.map((r) => (
+                           <tr key={r.id} className="hover:bg-slate-50/70 transition group align-top">
+                              <td className="py-8 px-10">
+                                 <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(r.user_name || r.customer_name || '?')[0]}</div>
+                                    <div className="flex flex-col">
+                                       <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{r.user_name || r.customer_name}</span>
+                                       <span className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">{r.user_customer_id || r.customer_code}</span>
+                                       <span className="text-[10px] text-slate-400 font-bold mt-1 truncate max-w-[160px]">{r.user_email || r.customer_email}</span>
+                                    </div>
+                                 </div>
+                              </td>
+                              <td className="py-8 px-10">
+                                 <div className="text-sm font-black text-slate-900 uppercase italic tracking-tight">{r.product_name}</div>
+                                 {r.model && <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">Model: {r.model}</div>}
+                                 <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">{r.category}</div>
+                                 {r.description && (
+                                    <div className="text-[10px] text-slate-500 font-bold mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 max-w-[260px] break-words">{r.description}</div>
+                                 )}
+                              </td>
+                              <td className="py-8 px-10">
+                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">Qty {r.quantity}</div>
+                                 {Number(r.weight) > 0 && <div className="text-[9px] text-slate-400 font-bold mt-1.5">{parseFloat(r.weight).toFixed(3)} g</div>}
+                                 <div className="text-[9px] text-slate-300 font-black uppercase tracking-widest mt-2 italic flex items-center gap-1">
+                                    <Clock size={10} /> {r.created_at ? new Date(r.created_at.replace(' ', 'T')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : ''}
+                                 </div>
+                              </td>
+                              <td className="py-8 px-10">
+                                 <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
+                                    (r.status === 'approved' || r.status === 'fulfilled') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                    r.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                    'bg-amber-50 text-amber-600 border-amber-100'
+                                 }`}>
+                                    {humanStatus(r.status)}
+                                 </span>
+                              </td>
+                              <td className="py-8 px-10 text-right">
+                                 {(r.status === 'pending' || r.status === 'reviewing') ? (
+                                    <div className="flex justify-end gap-3">
+                                       <button
+                                         onClick={() => handleProcessProductRequest(r.id, 'approved')}
+                                         className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                       >
+                                          <CheckCircle2 size={12} className="text-amber-500" /> Approve
+                                       </button>
+                                       <button
+                                         onClick={() => handleProcessProductRequest(r.id, 'rejected')}
+                                         className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                       >
+                                          <XCircle size={12} /> Reject
+                                       </button>
+                                    </div>
+                                 ) : (
+                                    <div className="flex flex-col items-end gap-2">
+                                       {r.status === 'approved' && (
+                                          <button
+                                            onClick={() => handleProcessProductRequest(r.id, 'fulfilled')}
+                                            className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                          >
+                                             <Package size={12} className="text-amber-500" /> Mark Fulfilled
+                                          </button>
+                                       )}
+                                       <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">{humanStatus(r.status)}</span>
+                                    </div>
+                                 )}
+                              </td>
+                           </tr>
+                         ))
+                      )}
+                    </tbody>
+                  </table>
+               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'cashback_applications' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
+            <div className="flex justify-between items-center mb-12">
+               <div>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Cashback Applications</h3>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Customer-submitted cashback claim applications</p>
+               </div>
+               <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div> {cashbackApplications.filter(a => a.status === 'pending').length} Pending Review
+               </div>
+            </div>
+
+            <div className="overflow-hidden rounded-[2.5rem] border border-slate-100 bg-white shadow-sm">
+               <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50">
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Customer</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Purchase</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Bank / Payment</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Status</th>
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 text-right italic">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {cashbackApplications.length === 0 ? (
+                         <tr><td colSpan="5" className="py-32 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 italic">No cashback applications submitted yet</td></tr>
+                      ) : (
+                         cashbackApplications.map((a) => (
+                           <tr key={a.id} className="hover:bg-slate-50/70 transition group align-top">
+                              <td className="py-8 px-10">
+                                 <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(a.customer_name || '?')[0]}</div>
+                                    <div className="flex flex-col">
+                                       <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{a.customer_name}</span>
+                                       <span className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">{a.customer_code}</span>
+                                       <span className="text-[10px] text-slate-400 font-bold mt-1 truncate max-w-[160px]">{a.customer_email}</span>
+                                       <span className="text-[10px] text-slate-400 font-bold">{a.phone}</span>
+                                    </div>
+                                 </div>
+                              </td>
+                              <td className="py-8 px-10">
+                                 <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(a.purchase_amount || 0).toLocaleString('en-IN')}</div>
+                                 {a.purchased_product && <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest mt-1">{a.purchased_product}</div>}
+                                 {a.product_details && <div className="text-[10px] text-slate-500 font-bold mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 max-w-[240px] break-words">{a.product_details}</div>}
+                                 <div className="text-[9px] text-slate-300 font-black uppercase tracking-widest mt-2 italic flex items-center gap-1">
+                                    <Clock size={10} /> {a.purchase_date || (a.created_at ? new Date(a.created_at.replace(' ', 'T')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '')}
+                                 </div>
+                              </td>
+                              <td className="py-8 px-10">
+                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">{a.bank_name || '—'}</div>
+                                 <div className="text-[9px] text-slate-400 font-bold mt-1.5 bg-slate-100 p-3 rounded-xl border border-slate-200 max-w-[220px] break-words">
+                                    A/C {a.account_no || '—'}<br/>IFSC {a.ifsc_code || '—'}{a.bank_branch ? <><br/>{a.bank_branch}</> : ''}
+                                 </div>
+                              </td>
+                              <td className="py-8 px-10">
+                                 <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
+                                    a.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                    a.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                    'bg-amber-50 text-amber-600 border-amber-100'
+                                 }`}>
+                                    {humanStatus(a.status)}
+                                 </span>
+                              </td>
+                              <td className="py-8 px-10 text-right">
+                                 <div className="flex justify-end items-center gap-3 flex-wrap">
+                                    <button
+                                      onClick={() => setSelectedCashbackApp(a)}
+                                      className="bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                    >
+                                       <Eye size={12} /> View
+                                    </button>
+                                    {a.status === 'pending' ? (
+                                       <>
+                                          <button
+                                            onClick={() => handleProcessCashbackApp(a.id, 'approved')}
+                                            className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                          >
+                                             <CheckCircle2 size={12} className="text-amber-500" /> Approve
+                                          </button>
+                                          <button
+                                            onClick={() => handleProcessCashbackApp(a.id, 'rejected')}
+                                            className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                          >
+                                             <XCircle size={12} /> Reject
+                                          </button>
+                                       </>
+                                    ) : (
+                                       <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">{humanStatus(a.status)}</span>
+                                    )}
+                                 </div>
+                              </td>
+                           </tr>
+                         ))
+                      )}
+                    </tbody>
+                  </table>
+               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Cashback Application — View & Print modal */}
+        <AnimatePresence>
+          {selectedCashbackApp && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSelectedCashbackApp(null)}
+              className="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl"
+              >
+                {(() => {
+                  const a = selectedCashbackApp;
+                  const Row = ({ label, value }) => (
+                    <div className="flex flex-col gap-1 py-3 border-b border-slate-100">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">{label}</span>
+                      <span className="text-sm font-black text-slate-900 italic break-words">{value || '—'}</span>
+                    </div>
+                  );
+                  const Group = ({ title, children }) => (
+                    <div className="space-y-1">
+                      <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] italic border-l-4 border-amber-500 pl-3 mb-2">{title}</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">{children}</div>
+                    </div>
+                  );
+                  return (
+                    <>
+                      <div className="sticky top-0 bg-slate-900 text-white px-8 md:px-10 py-6 flex items-center justify-between rounded-t-[2.5rem] z-10">
+                        <div>
+                          <h3 className="text-xl font-black uppercase italic tracking-tighter">{a.customer_name}</h3>
+                          <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mt-1">Application #{a.id} · {a.customer_code || '—'}</p>
+                        </div>
+                        <button onClick={() => setSelectedCashbackApp(null)} className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-colors"><X size={18} /></button>
+                      </div>
+
+                      <div className="p-8 md:p-10 space-y-8">
+                        <Group title="Applicant Details">
+                          <Row label="Customer Name" value={a.customer_name} />
+                          <Row label="Customer ID" value={a.customer_code} />
+                          <Row label="Referral ID" value={a.referral_id} />
+                          <Row label="Email" value={a.customer_email} />
+                          <Row label="Phone" value={a.phone} />
+                          <Row label="Address" value={a.address} />
+                          <Row label="Aadhaar No" value={a.aadhar_no} />
+                          <Row label="PAN No" value={a.pan_no} />
+                        </Group>
+                        <Group title="Purchase Details">
+                          <Row label="Total Purchase Value" value={`₹${Number(a.purchase_amount || 0).toLocaleString('en-IN')}`} />
+                          <Row label="Purchased Product" value={a.purchased_product} />
+                          <Row label="Date of Purchase" value={a.purchase_date} />
+                          <Row label="Product Details" value={a.product_details} />
+                        </Group>
+                        <Group title="Payment Details">
+                          <Row label="Account Holder" value={a.bank_account_name} />
+                          <Row label="Account No" value={a.account_no} />
+                          <Row label="IFSC Code" value={a.ifsc_code} />
+                          <Row label="Bank Name" value={a.bank_name} />
+                          <Row label="Bank Branch" value={a.bank_branch} />
+                        </Group>
+                        <Group title="Agent / Declaration">
+                          <Row label="Agent Name" value={a.agent_name} />
+                          <Row label="Agent ID" value={a.agent_id} />
+                          <Row label="Place" value={a.place} />
+                          <Row label="Date" value={a.application_date} />
+                        </Group>
+                      </div>
+
+                      <div className="sticky bottom-0 bg-white border-t border-slate-100 px-8 md:px-10 py-5 flex flex-wrap items-center justify-end gap-3 rounded-b-[2.5rem]">
+                        {a.status === 'pending' && (
+                          <>
+                            <button onClick={() => { handleProcessCashbackApp(a.id, 'approved'); setSelectedCashbackApp(null); }} className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-500" /> Approve</button>
+                            <button onClick={() => { handleProcessCashbackApp(a.id, 'rejected'); setSelectedCashbackApp(null); }} className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"><XCircle size={12} /> Reject</button>
+                          </>
+                        )}
+                        <button onClick={() => printCashbackApp(a)} className="bg-amber-600 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"><Printer size={12} /> Print</button>
+                        <button onClick={() => setSelectedCashbackApp(null)} className="bg-slate-100 text-slate-500 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95 italic">Close</button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {activeTab === 'gst_filing' && (() => {
+          const gf = gstFiling;
+          const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          const s = gf?.summary || {};
+          return (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+              {/* Header + filters */}
+              <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><Receipt size={22} /></div>
+                    <div>
+                      <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">GST Filing</h3>
+                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Real-time CGST / SGST collected · Period: {gf?.period || '—'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 w-full lg:w-auto">
+                    <select value={gstMonth} onChange={(e) => setGstMonth(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-700 outline-none focus:border-amber-500 italic flex-1">
+                      <option value="">All Time</option>
+                      {(gf?.months || []).map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                    <button onClick={() => fetchGstFiling(gstMonth)} className="bg-white border border-slate-200 px-5 py-4 rounded-2xl text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"><RefreshCw size={16} /></button>
+                    <button onClick={downloadGstCsv} className="bg-slate-900 text-white px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl active:scale-95 italic flex items-center gap-2"><FileText size={14} /> Export CSV</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                {[
+                  { label: 'Taxable Value', value: fmt(s.taxable), sub: `${s.orders || 0} orders`, dark: false },
+                  { label: 'CGST Collected', value: fmt(s.cgst), sub: 'Central GST', dark: false },
+                  { label: 'SGST Collected', value: fmt(s.sgst), sub: 'State GST', dark: false },
+                  { label: 'Total GST', value: fmt(s.total_gst), sub: 'CGST + SGST', dark: true },
+                  { label: 'Invoice Total', value: fmt(s.total_invoice), sub: 'Incl. GST', dark: false },
+                ].map((c, i) => (
+                  <div key={i} className={`p-5 sm:p-7 rounded-[2rem] border shadow-sm ${c.dark ? 'bg-slate-900 border-slate-900' : 'bg-white border-slate-200/60'}`}>
+                    <p className={`text-[8px] font-black uppercase tracking-widest mb-2 italic ${c.dark ? 'text-amber-500/70' : 'text-slate-400'}`}>{c.label}</p>
+                    <h3 className={`text-lg md:text-xl font-black tracking-tighter italic ${c.dark ? 'text-white' : 'text-slate-900'}`}>{c.value}</h3>
+                    <p className={`text-[8px] font-black uppercase tracking-widest mt-2 italic ${c.dark ? 'text-slate-400' : 'text-slate-300'}`}>{c.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Slab-wise summary (GSTR-1 style) */}
+              <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
+                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest italic mb-6">Rate-wise Summary</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic border-b border-slate-100">
+                        <th className="py-3 pr-4">GST Rate</th><th className="py-3 px-4 text-right">Taxable</th>
+                        <th className="py-3 px-4 text-right">CGST</th><th className="py-3 px-4 text-right">SGST</th>
+                        <th className="py-3 px-4 text-right">Total GST</th><th className="py-3 pl-4 text-right">Orders</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(gf?.slabs || []).length === 0 ? (
+                        <tr><td colSpan={6} className="py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest italic">No GST data for this period</td></tr>
+                      ) : gf.slabs.map((sl, i) => (
+                        <tr key={i} className="text-xs font-black text-slate-700 italic border-b border-slate-50">
+                          <td className="py-4 pr-4 text-slate-900">{sl.rate}% <span className="text-slate-300">(CGST {sl.rate / 2}% + SGST {sl.rate / 2}%)</span></td>
+                          <td className="py-4 px-4 text-right">{fmt(sl.taxable)}</td>
+                          <td className="py-4 px-4 text-right text-emerald-600">{fmt(sl.cgst)}</td>
+                          <td className="py-4 px-4 text-right text-emerald-600">{fmt(sl.sgst)}</td>
+                          <td className="py-4 px-4 text-right text-slate-900">{fmt(sl.gst)}</td>
+                          <td className="py-4 pl-4 text-right">{sl.orders}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Per-order breakdown */}
+              <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
+                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest italic mb-6">Invoice-wise Breakdown</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic border-b border-slate-100">
+                        <th className="py-3 pr-4">Invoice</th><th className="py-3 px-4">Date</th><th className="py-3 px-4">Customer</th>
+                        <th className="py-3 px-4">Product</th><th className="py-3 px-4 text-right">Taxable</th><th className="py-3 px-4 text-center">GST%</th>
+                        <th className="py-3 px-4 text-right">CGST</th><th className="py-3 px-4 text-right">SGST</th><th className="py-3 pl-4 text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(gf?.orders || []).length === 0 ? (
+                        <tr><td colSpan={9} className="py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest italic">No orders for this period</td></tr>
+                      ) : gf.orders.map((o) => (
+                        <tr key={o.id} className="text-[11px] font-black text-slate-700 italic border-b border-slate-50 hover:bg-slate-50/50">
+                          <td className="py-3.5 pr-4 text-amber-600">{o.invoice_no}</td>
+                          <td className="py-3.5 px-4 text-slate-400">{new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</td>
+                          <td className="py-3.5 px-4 text-slate-900 truncate max-w-[140px]">{o.customer_name || '—'}</td>
+                          <td className="py-3.5 px-4 truncate max-w-[160px]">{o.product_name}</td>
+                          <td className="py-3.5 px-4 text-right">{fmt(o.taxable)}</td>
+                          <td className="py-3.5 px-4 text-center">{o.rate}%</td>
+                          <td className="py-3.5 px-4 text-right text-emerald-600">{fmt(o.cgst)}</td>
+                          <td className="py-3.5 px-4 text-right text-emerald-600">{fmt(o.sgst)}</td>
+                          <td className="py-3.5 pl-4 text-right text-slate-900">{fmt(o.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic mt-6 leading-relaxed">
+                  GST is split equally into CGST &amp; SGST (intra-state). Cashback / referral / commission are computed on the taxable value only — GST is excluded from every incentive.
+                </p>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {activeTab === 'withdrawals' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
@@ -2336,6 +3067,7 @@ const AdminDashboard = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50">
+                        <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Product ID</th>
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Asset Description</th>
 
                         <th className="py-6 px-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 italic">Classification</th>
@@ -2348,6 +3080,9 @@ const AdminDashboard = () => {
                     <tbody className="divide-y divide-slate-100">
                       {products.map((p) => (
                         <tr key={p.id} className="hover:bg-slate-50/70 transition group">
+                          <td className="py-8 px-10">
+                            <span className="text-xs font-black text-amber-600 uppercase tracking-widest italic">{p.product_code || `VEVP${String(p.id).padStart(3, '0')}`}</span>
+                          </td>
                           <td className="py-8 px-10">
                             <div className="flex items-center gap-4">
                                <div className="w-12 h-12 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shadow-inner">
@@ -2818,7 +3553,8 @@ const AdminDashboard = () => {
                        { id: 'company', label: 'Company Node', icon: Globe },
                        { id: 'security', label: 'Security Protocols', icon: ShieldCheck },
                        { id: 'protocol', label: 'Finance Parameters', icon: Zap },
-                       { id: 'payment', label: 'Payment Gateway', icon: CreditCard }
+                       { id: 'payment', label: 'Payment Gateway', icon: CreditCard },
+                       { id: 'access', label: 'Access Control', icon: ShieldAlert }
                     ].map((tab) => (
                        <button 
                          key={tab.id}
@@ -2985,7 +3721,8 @@ const AdminDashboard = () => {
                                 { label: 'Minimum Withdrawal (₹)', name: 'min_withdrawal', icon: Wallet, type: 'number', step: '1' },
                                 { label: 'Gold Base Price (₹/g)', name: 'gold_base_price', icon: TrendingUp, type: 'number', step: '1' },
                                 { label: 'Silver Base Price (₹/g)', name: 'silver_base_price', icon: Coins, type: 'number', step: '1' },
-                                { label: 'GST Percentage (%)', name: 'gst_percentage', icon: Globe, type: 'number', step: '0.1' },
+                                { label: 'Gold/Silver GST (%)', name: 'gold_gst', icon: Globe, type: 'number', step: '0.1' },
+                                { label: 'Other Products GST (%)', name: 'general_gst', icon: Globe, type: 'number', step: '0.1' },
                                 { label: 'Processing Fee (₹)', name: 'payout_processing_fee', icon: CreditCard, type: 'number', step: '1' }
                              ].map((field, i) => (
                                 <div key={i} className="space-y-3">
@@ -3139,6 +3876,70 @@ const AdminDashboard = () => {
                           </div>
                        </div>
                     )}
+
+                    {settingsSubTab === 'access' && (() => {
+                       const staffUsers = (users || []).filter(u => ['manager', 'staff', 'advocate'].includes((u.role || '').toLowerCase()));
+                       return (
+                          <div className="space-y-10">
+                             <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl"><ShieldAlert size={30} /></div>
+                                <div>
+                                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Access Control</h3>
+                                   <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Manually assign permission-based access to staff members</p>
+                                </div>
+                             </div>
+
+                             <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Select Staff Member</label>
+                                <div className="relative">
+                                   <select value={accessUserId} onChange={(e) => selectAccessUser(e.target.value)}
+                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all appearance-none">
+                                      <option value="">— Choose a staff member —</option>
+                                      {staffUsers.map(u => (
+                                         <option key={u.id} value={u.id}>{u.name} · {(u.role || '').toUpperCase()} · {u.email}</option>
+                                      ))}
+                                   </select>
+                                   <Settings className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                </div>
+                                {staffUsers.length === 0 && (
+                                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic ml-4">No staff yet — add staff via the Add Staff page first.</p>
+                                )}
+                             </div>
+
+                             {accessUserId && (
+                                <>
+                                   <div className="space-y-6">
+                                      <div className="flex items-center justify-between">
+                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Permission-Based Access Control</label>
+                                         <button type="button"
+                                           onClick={() => setAccessPerms(accessPerms.length === AVAILABLE_PERMISSIONS.length ? [] : AVAILABLE_PERMISSIONS.map(p => p.id))}
+                                           className="text-[9px] font-black text-amber-600 uppercase tracking-widest hover:underline italic">
+                                            {accessPerms.length === AVAILABLE_PERMISSIONS.length ? 'DESELECT ALL' : 'SELECT ALL ACCESS'}
+                                         </button>
+                                      </div>
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                         {AVAILABLE_PERMISSIONS.map((perm) => (
+                                            <button key={perm.id} type="button" onClick={() => toggleAccessPerm(perm.id)}
+                                              className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
+                                                 accessPerms.includes(perm.id)
+                                                 ? 'bg-slate-900 border-slate-900 text-white shadow-lg'
+                                                 : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-amber-500/50 hover:bg-white'
+                                              }`}>
+                                               <perm.icon size={20} className={accessPerms.includes(perm.id) ? 'text-amber-500' : 'group-hover:text-amber-600'} />
+                                               <span className="text-[8px] font-black uppercase tracking-widest text-center italic">{perm.label}</span>
+                                            </button>
+                                         ))}
+                                      </div>
+                                   </div>
+                                   <button onClick={saveAccessPerms} disabled={accessSaving}
+                                     className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50">
+                                      {accessSaving ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save Access Permissions</>}
+                                   </button>
+                                </>
+                             )}
+                          </div>
+                       );
+                    })()}
                  </motion.div>
               </AnimatePresence>
            </motion.div>

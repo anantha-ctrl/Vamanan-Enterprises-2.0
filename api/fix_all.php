@@ -32,7 +32,7 @@ try {
     try { $pdo->exec("ALTER TABLE cashback_cycles MODIFY COLUMN status ENUM('active', 'completed', 'paused', 'pending') DEFAULT 'pending'"); } catch(Exception $e){}
     echo "✅ Cashback Cycles Schema Synced.<br>";
 
-    try { $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('payout', 'referral', 'manual', 'deposit', 'purchase_request', 'other') DEFAULT 'other'"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('purchase', 'purchase_request', 'referral', 'cashback', 'payout', 'withdrawal', 'liquidation', 'manual', 'deposit', 'other') DEFAULT 'other'"); } catch(Exception $e){}
     echo "✅ Transactions Enum Synced.<br>";
 
     // 4. Fix agreements

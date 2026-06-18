@@ -102,7 +102,7 @@ const Login = () => {
   const redirectUser = (user) => {
     if (user.role === 'admin') navigate('/admin');
     else if (user.role === 'manager') navigate('/manager');
-    else if (user.role === 'staff') navigate('/staff');
+    else if (user.role === 'staff') navigate('/admin'); // permission-filtered admin dashboard
     else if (user.role === 'advocate') navigate('/advocate');
     else navigate('/dashboard');
   };

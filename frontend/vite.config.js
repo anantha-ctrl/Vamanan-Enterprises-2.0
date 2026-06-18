@@ -9,6 +9,17 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
-    // Proxy not needed — config.js auto-detects localhost via window.location.hostname
+    proxy: {
+      '/api': {
+        target: 'http://localhost/Vamanan1/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      // Serve backend-uploaded files (payment receipts, product images) through the dev server.
+      '/uploads': {
+        target: 'http://localhost/Vamanan1',
+        changeOrigin: true
+      }
+    }
   },
 })

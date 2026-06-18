@@ -22,7 +22,11 @@ if(!empty($data->name) && !empty($data->email) && !empty($data->password) && !em
 
         // 2. Store password as plain text (as requested)
         $hashed_password = $data->password;
-        $referralCode = strtoupper(substr(md5(uniqid()), 0, 8));
+        $referralCode = vevGenerateReferralCode($pdo);
+
+        // Sequential VEV### customer ID (e.g. VEV001)
+        $maxCust = (int)$pdo->query("SELECT COALESCE(MAX(CAST(SUBSTRING(customer_id, 4) AS UNSIGNED)), 0) FROM users WHERE customer_id LIKE 'VEV%'")->fetchColumn();
+        $customerId = 'VEV' . str_pad($maxCust + 1, 3, '0', STR_PAD_LEFT);
 
         $pdo->beginTransaction();
 
@@ -37,8 +41,8 @@ if(!empty($data->name) && !empty($data->email) && !empty($data->password) && !em
         }
 
         // 4. Create User
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, phone, referral_code, referrer_id) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$data->name, $data->email, $hashed_password, $data->phone, $referralCode, $referrerId]);
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, phone, customer_id, referral_code, referrer_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$data->name, $data->email, $hashed_password, $data->phone, $customerId, $referralCode, $referrerId]);
         $userId = $pdo->lastInsertId();
 
         // 5. Initialize Wallet

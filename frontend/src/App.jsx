@@ -17,6 +17,7 @@ import Agreement from './pages/Agreement';
 import Profile from './pages/Profile';
 import CashbackPlan from './pages/CashbackPlan';
 import CashbackApplication from './pages/CashbackApplication';
+import ProductRequest from './pages/ProductRequest';
 import WalletPage from './pages/Wallet';
 import WalletOverview from './pages/WalletOverview';
 import TransactionHistory from './pages/TransactionHistory';
@@ -96,6 +97,7 @@ function AppRoutes() {
         <Route path="/profile" element={<ProtectedRoute allowedRoles={['customer']}><Profile /></ProtectedRoute>} />
         <Route path="/cashback-plan" element={<ProtectedRoute allowedRoles={['customer']}><CashbackPlan /></ProtectedRoute>} />
         <Route path="/cashback-application" element={<ProtectedRoute allowedRoles={['customer']}><CashbackApplication /></ProtectedRoute>} />
+        <Route path="/product-request" element={<ProtectedRoute allowedRoles={['customer']}><ProductRequest /></ProtectedRoute>} />
 
         {/* Staff Panel */}
         <Route path="/staff" element={<ProtectedRoute allowedRoles={['staff']}><StaffDashboard /></ProtectedRoute>} />
@@ -108,17 +110,17 @@ function AppRoutes() {
         <Route path="/advocate-profile" element={<ProtectedRoute allowedRoles={['advocate']}><AdvocateProfile /></ProtectedRoute>} />
 
         {/* Admin Panel */}
-        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/wallets" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="wallets_view"><WalletListAdmin /></ProtectedRoute>} />
-        <Route path="/admin/cashbacks" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="cashback_payouts"><CashbackPayouts /></ProtectedRoute>} />
-        <Route path="/admin/export-payouts" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="export_payouts"><ExportPayoutExcel /></ProtectedRoute>} />
-        <Route path="/admin/payout-reconciliation" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="payout_reconciliation"><PayoutReconciliation /></ProtectedRoute>} />
-        <Route path="/admin/payout-reports" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="payout_reports"><PayoutReports /></ProtectedRoute>} />
-        <Route path="/admin/inventory" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="inventory"><Inventory /></ProtectedRoute>} />
-        <Route path="/admin/tally" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="tally_export"><TallyExport /></ProtectedRoute>} />
-        <Route path="/admin/tally-integration" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="tally_integration"><TallyIntegration /></ProtectedRoute>} />
-        <Route path="/admin/reports/:type" element={<ProtectedRoute allowedRoles={['admin', 'manager']} permission="fiscal_reports"><AdminReports /></ProtectedRoute>} />
-        <Route path="/admin/withdrawals" element={<ProtectedRoute allowedRoles={['admin']} permission="withdrawals"><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/wallets" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="wallets_view"><WalletListAdmin /></ProtectedRoute>} />
+        <Route path="/admin/cashbacks" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="cashback_payouts"><CashbackPayouts /></ProtectedRoute>} />
+        <Route path="/admin/export-payouts" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="export_payouts"><ExportPayoutExcel /></ProtectedRoute>} />
+        <Route path="/admin/payout-reconciliation" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="payout_reconciliation"><PayoutReconciliation /></ProtectedRoute>} />
+        <Route path="/admin/payout-reports" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="payout_reports"><PayoutReports /></ProtectedRoute>} />
+        <Route path="/admin/inventory" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="inventory"><Inventory /></ProtectedRoute>} />
+        <Route path="/admin/tally" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="tally_export"><TallyExport /></ProtectedRoute>} />
+        <Route path="/admin/tally-integration" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="tally_integration"><TallyIntegration /></ProtectedRoute>} />
+        <Route path="/admin/reports/:type" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} permission="fiscal_reports"><AdminReports /></ProtectedRoute>} />
+        <Route path="/admin/withdrawals" element={<ProtectedRoute allowedRoles={['admin', 'staff']} permission="withdrawals"><AdminDashboard /></ProtectedRoute>} />
 
         {/* Fallback to Home */}
         <Route path="*" element={<Navigate to="/" />} />

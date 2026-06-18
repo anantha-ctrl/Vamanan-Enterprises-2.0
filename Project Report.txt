@@ -1,5 +1,5 @@
 # Institutional Project Report: Vamanan Enterprises V (Makkal Gold)
-**Date**: May 16, 2026
+**Date**: May 16, 2026 (rev. June 18, 2026 — Multi-Role Staff Onboarding & Live Tally Auto-Refresh)
 **Project Status**: High-Fidelity Beta / Production Ready
 **Architect**: Antigravity (Advanced Agentic AI)
 
@@ -57,6 +57,21 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 - **Reconciliation & Audit**: Added a reconciliation matrix (source records vs. posted vouchers) and an immutable audit trail logging every accounting action with actor and timestamp.
 - **Plain-Language Interface**: Deployed a responsive, tabbed `TallyIntegration.jsx` admin module using human-readable labels and inline hints for non-accountant operators.
 
+## 💎 Phase 8: GST-Exclusive Cashback, Tax Invoicing & Compliance
+**Objective**: Make every reward GST-compliant and deliver tax-grade invoicing and filing.
+- **Category-Based GST Engine**: Admin-configurable GST rates (Gold/Silver vs. general products), auto-applied at checkout per product category and split equally into **CGST + SGST**.
+- **GST-Exclusive Rewards**: Re-architected the incentive core — customers pay the full GST-inclusive invoice, but daily cashback, 5-tier referral, and commissions are calculated strictly on the **ex-GST product value** (`cashback_eligible_amount`). Orders now persist `product_amount`, `gst_amount`, `total_amount`, and `cashback_eligible_amount` separately, and every payout engine honors the GST-excluded base.
+- **Automated Tax Invoice**: Each order auto-generates a printable Tax Invoice with a rate-wise CGST/SGST breakdown (viewable from the customer dashboard) plus an auto-created cashback application from live customer + bank data.
+- **GST Filing Console**: New admin module with a real-time, period-filterable summary — overall totals, rate-wise (GSTR-1 style) grouping, invoice-wise breakdown — and CSV export.
+- **GST-Aware Tally**: Sales vouchers book revenue ex-GST with Output CGST / Output SGST ledgers; P&L reports net revenue with GST separated; Balance Sheet carries a GST Payable liability; live sync falls back to XML download when Tally is offline.
+- **Bulk User Provisioning & Manual Access Control**: One-shot multi-user creation (form or CSV with template, auto VEV ID + wallet), and per-staff permission assignment moved to Settings → Access Control with a permission-filtered admin dashboard for staff.
+- **Record Integrity**: Each purchase is linked to its ledger transaction (`ledger_txn_id`) so approve/reject/delete hit the exact entry; deleting a record updates dashboard revenue in real time.
+
+## 👥 Phase 9: Multi-Role Staff Onboarding & Live Accounting Refresh
+**Objective**: Broaden staff provisioning beyond a single role and make the accounting bridge truly real-time.
+- **Multi-Role Recruitment**: Replaced the fixed `staff` role on the Add-Staff (Recruitment) node with a live **Staff / Manager / Advocate** selector. Each onboarding inserts directly into the MySQL `users` table with an auto-initialized wallet, server-side validated against an allow-list (`admin` is rejected by design). New accounts surface instantly in the user list and in Settings → Access Control.
+- **Real-Time Tally Auto-Refresh**: The Tally Integration module now silently re-pulls every data tab (Dashboard, Ledgers, Reports, Vouchers, Reconciliation, Audit) from MySQL every 15 seconds — no spinner flicker, paused when the browser tab is hidden, and skipping the Settings tab so an in-progress edit is never overwritten. Settings persist to and read back from the `tally_settings` table.
+
 ## 🔄 Project Workflow
 
 End-to-end flow across the customer journey, the backend core, the admin suite,
@@ -83,7 +98,8 @@ and the Tally ERP accounting bridge.
    |  Approve Purchases / KYC   |      |  6 Live Ledgers (Sales, Customer,   |
    |  Run Daily Payout          |      |  Cashback, Referral, Withdrawal,    |
    |  Reports & Analytics       |      |  Inventory)                         |
-   |  Staff Permission Matrix   |      |        |                            |
+   |  Onboard Staff/Mgr/Advocate|      |  (live pull - 15s auto-refresh)     |
+   |  Access Control (Perms)    |      |        |                            |
    +----------------------------+      |        v                            |
                                        |  P&L + Balance Sheet (auto)         |
                                        |  Voucher Management                 |
@@ -119,6 +135,10 @@ and the Tally ERP accounting bridge.
 - [x] Institutional Branding Synchronization (Vamanan Enterprises V)
 - [x] Secure Real-Time Email OTP Authentication Suite (Fintech Hardening)
 - [x] Tally ERP Prime Accounting Integration Module (Ledgers, P&L, Balance Sheet, Vouchers, Sync)
+- [x] GST-Exclusive Cashback, CGST/SGST Tax Invoicing & GST Filing Console
+- [x] GST-Aware Tally Bridge (ex-GST sales + Output CGST/SGST, GST Payable, offline XML fallback)
+- [x] Bulk User Provisioning & Manual Access Control (Settings → Access Control)
+- [x] Multi-Role Staff Onboarding (Staff/Manager/Advocate) & Live 15s Tally Auto-Refresh
 
 ---
 **Institutional Note**: This project is architected for extreme scalability and fiscal transparency, ensuring that every milligram of gold and every rupee of yield is accounted for in the sovereign ledger.

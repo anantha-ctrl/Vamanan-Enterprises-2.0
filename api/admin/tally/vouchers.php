@@ -104,7 +104,7 @@ try {
         }
 
         case 'save_settings': {
-            $allowed = ['company','gateway','sales_ledger','cashback_ledger','referral_ledger',
+            $allowed = ['company','gateway','sales_ledger','cgst_ledger','sgst_ledger','cashback_ledger','referral_ledger',
                         'bank_ledger','debtors_group','inventory_group'];
             $kv = array_intersect_key($body['settings'] ?? [], array_flip($allowed));
             tally_save_settings($db, $kv);

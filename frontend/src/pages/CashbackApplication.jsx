@@ -111,7 +111,7 @@ const CashbackApplication = () => {
           phone: u.phone || '',
           aadhar_no: u.aadhar_no || '',
           pan_no: u.pan_no || '',
-          customer_code: u.id ? `CUST${String(u.id).padStart(5, '0')}` : '',
+          customer_code: u.customer_id || (u.id ? `VEV${String(u.id).padStart(3, '0')}` : ''),
           customer_email: u.email || '',
           referral_id: u.referral_code || '',
           bank_account_name: u.name || '',
@@ -251,7 +251,7 @@ const CashbackApplication = () => {
                     <Field label="Phone No" name="phone" icon={Phone} placeholder="+91 00000 00000" required value={formData.phone} onChange={handleInputChange} />
                     <Field label="Aadhaar No" name="aadhar_no" icon={Fingerprint} placeholder="0000 0000 0000" value={formData.aadhar_no} onChange={handleInputChange} />
                     <Field label="PAN No" name="pan_no" icon={CreditCard} placeholder="ABCDE1234F" value={formData.pan_no} onChange={handleInputChange} />
-                    <Field label="Customer ID" name="customer_code" icon={CreditCard} placeholder="CUST00000" value={formData.customer_code} onChange={handleInputChange} />
+                    <Field label="Customer ID" name="customer_code" icon={CreditCard} placeholder="VEV000" value={formData.customer_code} onChange={handleInputChange} />
                     <Field label="Customer E-mail ID" name="customer_email" icon={Mail} placeholder="you@email.com" type="email" value={formData.customer_email} onChange={handleInputChange} />
                     <Field label="Customer's Referral ID" name="referral_id" icon={Hash} placeholder="REF Code" value={formData.referral_id} onChange={handleInputChange} />
                   </div>

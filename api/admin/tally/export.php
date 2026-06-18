@@ -64,8 +64,13 @@ try {
         exit;
     }
 
-    // default: Tally XML
-    $xml = build_tally_xml($rows, $settings['company'], $voucherType, $counter, $settings['debtors_group']);
+    // default: Tally XML — sales uses a GST-aware voucher (Sales ex-GST + CGST/SGST output tax).
+    if ($resource !== 'vouchers' && ($_GET['ledger'] ?? 'sales') === 'sales') {
+        $xml = build_sales_tally_xml($rows, $settings['company'], $settings['sales_ledger'],
+            $settings['cgst_ledger'], $settings['sgst_ledger'], $settings['debtors_group']);
+    } else {
+        $xml = build_tally_xml($rows, $settings['company'], $voucherType, $counter, $settings['debtors_group']);
+    }
     if ($mode === 'preview') {
         header('Content-Type: text/plain; charset=UTF-8');
         echo $xml;

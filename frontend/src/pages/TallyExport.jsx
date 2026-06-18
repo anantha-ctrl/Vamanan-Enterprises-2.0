@@ -72,6 +72,8 @@ const TallyExport = () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/admin/tally_export.php?${buildParams({ mode: 'push' })}`);
       setResult(res.data);
+      // Tally gateway offline → fall back to downloading the XML for manual import.
+      if (res.data?.status === 'offline') downloadXML();
     } catch (err) {
       setResult({ status: 'error', message: err.response?.data?.message || 'Push failed. Is Tally running with the gateway enabled?' });
     } finally {
@@ -200,8 +202,13 @@ const TallyExport = () => {
 
             {/* Push result */}
             {result && (
-              <div className={`p-5 rounded-2xl flex items-start gap-4 border ${result.status === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
-                {result.status === 'success' ? <CheckCircle2 size={20} className="shrink-0 mt-0.5" /> : <AlertCircle size={20} className="shrink-0 mt-0.5" />}
+              <div className={`p-5 rounded-2xl flex items-start gap-4 border ${
+                result.status === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                : result.status === 'offline' ? 'bg-blue-50 border-blue-100 text-blue-700'
+                : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+                {result.status === 'success' ? <CheckCircle2 size={20} className="shrink-0 mt-0.5" />
+                 : result.status === 'offline' ? <Download size={20} className="shrink-0 mt-0.5" />
+                 : <AlertCircle size={20} className="shrink-0 mt-0.5" />}
                 <div className="text-[10px] font-black uppercase tracking-wider italic leading-relaxed">
                   <p>{result.message}</p>
                   {result.status === 'success' && (result.created != null || result.errors != null) && (

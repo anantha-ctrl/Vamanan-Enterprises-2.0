@@ -4,10 +4,10 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
+
 require_once '../config.php';
 require_once '../mail_helper.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
 
 $data = json_decode(file_get_contents("php://input"));
 
@@ -21,7 +21,7 @@ if(!empty($data->email) && !empty($data->password)) {
 
         $userColumns = $pdo->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN);
         $selectColumns = ["id", "name", "email", "password", "role"];
-        foreach (["phone", "status", "permissions"] as $optionalColumn) {
+        foreach (["phone", "status", "permissions", "customer_id", "referral_code"] as $optionalColumn) {
             if (in_array($optionalColumn, $userColumns, true)) {
                 $selectColumns[] = $optionalColumn;
             }
@@ -48,26 +48,16 @@ if(!empty($data->email) && !empty($data->password)) {
                     exit;
                 }
 
-                // --- Generate Fintech OTP for Login Flow ---
-                $otp = sprintf("%06d", mt_rand(100000, 999999));
-                $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
-                $expires_at = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-
-                // Invalidate old login OTP sessions for this email
-                $delStmt = $pdo->prepare("DELETE FROM login_otps WHERE email = ?");
-                $delStmt->execute([$user['email']]);
-
-                // Insert new OTP record
-                $insStmt = $pdo->prepare("INSERT INTO login_otps (email, otp_hash, expires_at) VALUES (?, ?, ?)");
-                $insStmt->execute([$user['email'], $otp_hash, $expires_at]);
-
-                // Dispatch email
-                sendLoginOTPMail($user['email'], $otp);
+                // --- Direct login (OTP verification disabled) ---
+                unset($user['password']);
+                $user['phone'] = $user['phone'] ?? '';
+                $user['status'] = $accountStatus;
+                $user['permissions'] = $user['permissions'] ?? '';
 
                 echo json_encode([
-                    "status" => "otp_required",
-                    "message" => "Security verification code dispatched to your registered email address.",
-                    "email" => $user['email']
+                    "status" => "success",
+                    "message" => "Welcome back, " . $user['name'],
+                    "user" => $user
                 ]);
             } else {
                 echo json_encode(["status" => "error", "message" => "Incorrect password. Please try again."]);

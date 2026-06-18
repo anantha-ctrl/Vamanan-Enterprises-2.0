@@ -5,7 +5,7 @@ import {
   RefreshCw, Zap, CheckCircle2, AlertTriangle, X, Search,
   TrendingUp, ShoppingBag, BarChart3, History, Bell,
   ArrowRight, ChevronUp, ChevronDown, ArrowUpDown,
-  Check, AlertCircle, RotateCcw, Minus
+  Check, AlertCircle, RotateCcw, Minus, Upload, Download, FileSpreadsheet
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -62,6 +62,8 @@ const Inventory = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [toast,         setToast]         = useState(null);
   const [search,        setSearch]        = useState('');
+  const [currentPage,   setCurrentPage]   = useState(1);
+  const PAGE_SIZE = 10;
 
   // Stock tracking requires api/admin/inventory.php on the server.
   // If that endpoint is missing (e.g. not yet deployed), we degrade to products-only.
@@ -75,6 +77,15 @@ const Inventory = () => {
   const [categorySearch, setCategorySearch] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [savingCategory, setSavingCategory] = useState(false);
+
+  // bulk selection (for bulk delete)
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // bulk upload modal
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkFile,      setBulkFile]      = useState(null);
+  const [bulkResult,    setBulkResult]    = useState(null);
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   // stock modal
   const [stockModal,  setStockModal]  = useState(null);
@@ -165,6 +176,14 @@ const Inventory = () => {
     !search || p.name?.toLowerCase().includes(search.toLowerCase()) || p.category?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // ── Pagination ───────────────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const page = Math.min(currentPage, totalPages);
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Reset to first page whenever the search term changes
+  useEffect(() => { setCurrentPage(1); }, [search]);
+
   // ── Save Product (Add / Edit) ──────────────────────────────────────────────
   const handleSaveProduct = async (e) => {
     e.preventDefault();
@@ -195,6 +214,78 @@ const Inventory = () => {
       }
     } catch (err) {
       showToast(err.response?.data?.message || 'Connection error.', 'error');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // ── Bulk Upload ────────────────────────────────────────────────────────────
+  const downloadTemplate = () => {
+    const header = 'name,category,weight,purity,price,description,is_active';
+    const sample = [
+      '22K Gold Coin (5g),Gold,5,22K,39255,Pure 22K gold coin with BIS hallmark,1',
+      'Aashirvaad Atta (10kg),Groceries,0,,540,Whole wheat flour,1',
+      'boAt Rockerz 450,Electronics,0,,1499,Bluetooth headphone,1',
+    ];
+    const csv = [header, ...sample].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'product_bulk_template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleBulkUpload = async () => {
+    if (!bulkFile) { showToast('Please choose a CSV file first.', 'error'); return; }
+    setBulkUploading(true);
+    setBulkResult(null);
+    try {
+      const fd = new FormData();
+      fd.append('file', bulkFile);
+      const res = await axios.post(`${API_BASE_URL}/admin/bulk_upload_products.php`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data.status === 'success') {
+        setBulkResult(res.data);
+        showToast(res.data.message, res.data.inserted > 0 ? 'success' : 'error');
+        if (res.data.inserted > 0) fetchAll(true);
+      } else {
+        showToast(res.data.message || 'Upload failed.', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Connection error during upload.', 'error');
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
+  // ── Bulk Delete ────────────────────────────────────────────────────────────
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    if (!window.confirm(`Delete ${ids.length} selected product(s)? This cannot be undone.`)) return;
+    setProcessing(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/bulk_delete_products.php`, { ids });
+      if (res.data.status === 'success') {
+        showToast(res.data.message);
+        setSelectedIds(new Set());
+        fetchAll(true);
+      } else {
+        showToast(res.data.message || 'Bulk delete failed.', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Connection error during delete.', 'error');
     } finally {
       setProcessing(false);
     }
@@ -293,7 +384,7 @@ const Inventory = () => {
     <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
-      <div className="ml-0 lg:ml-72 min-h-screen w-full">
+      <div className="ml-0 lg:ml-72 min-h-screen flex-1 min-w-0">
         <CustomerHeader setShowMobileMenu={setShowMobileMenu} activeTab="Asset Inventory" />
 
         <main className="p-4 sm:p-6 md:p-8 pb-24 w-full max-w-[1600px] mx-auto space-y-8">
@@ -348,6 +439,18 @@ const Inventory = () => {
                   {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-700"><X size={11} /></button>}
                 </div>
 
+                {selectedIds.size > 0 && (
+                  <button onClick={handleBulkDelete} disabled={processing}
+                    className="bg-rose-600 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-rose-700 transition shadow-lg active:scale-95 uppercase tracking-widest italic disabled:opacity-50">
+                    <Trash2 size={15} strokeWidth={3} /> Delete Selected ({selectedIds.size})
+                  </button>
+                )}
+
+                <button onClick={() => { setBulkResult(null); setBulkFile(null); setShowBulkModal(true); }}
+                  className="bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:border-amber-500 hover:text-amber-600 transition shadow-sm active:scale-95 uppercase tracking-widest italic">
+                  <Upload size={15} strokeWidth={3} /> Bulk Upload
+                </button>
+
                 <button onClick={openAddModal}
                   className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest italic">
                   <Plus size={15} strokeWidth={3} /> Provision Asset
@@ -361,6 +464,12 @@ const Inventory = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50">
+                      <th className="py-5 pl-6 pr-2 border-b border-slate-100 w-10">
+                        <input type="checkbox"
+                          checked={filtered.length > 0 && filtered.every(p => selectedIds.has(p.id))}
+                          onChange={(e) => setSelectedIds(e.target.checked ? new Set(filtered.map(p => p.id)) : new Set())}
+                          className="w-4 h-4 accent-amber-600 cursor-pointer align-middle" />
+                      </th>
                       <th className="py-5 px-6 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border-b border-slate-100 italic">Asset Description</th>
                       <th className="py-5 px-6 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border-b border-slate-100 italic">Classification</th>
                       <th className="py-5 px-6 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border-b border-slate-100 italic">Metric / Purity</th>
@@ -373,14 +482,14 @@ const Inventory = () => {
                   <tbody className="divide-y divide-slate-50">
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={stockEnabled ? 7 : 6} className="py-20 text-center">
+                        <td colSpan={stockEnabled ? 8 : 7} className="py-20 text-center">
                           <Package size={48} className="text-slate-100 mx-auto mb-3" strokeWidth={1} />
                           <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-300">
                             {search ? 'No products match your search' : 'No products yet — provision your first asset'}
                           </p>
                         </td>
                       </tr>
-                    ) : filtered.map((p, i) => {
+                    ) : paginated.map((p, i) => {
                       const stock = stockMap[p.id];
                       const stockQty    = stock?.stock_quantity ?? '—';
                       const stockStatus = stock?.stock_status ?? null;
@@ -388,15 +497,30 @@ const Inventory = () => {
                         <motion.tr key={p.id}
                           initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.02 }}
-                          className="hover:bg-slate-50/60 transition group">
+                          className={`transition group ${selectedIds.has(p.id) ? 'bg-amber-50/50' : 'hover:bg-slate-50/60'}`}>
+
+                          {/* Select */}
+                          <td className="py-6 pl-6 pr-2">
+                            <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)}
+                              className="w-4 h-4 accent-amber-600 cursor-pointer align-middle" />
+                          </td>
 
                           {/* Asset */}
                           <td className="py-6 px-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shadow-inner shrink-0">
-                                {imgUrl(p.image)
-                                  ? <img src={imgUrl(p.image)} alt={p.name} className="w-full h-full object-cover" />
-                                  : <Package className="text-slate-200" size={18} />}
+                              <div className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shadow-inner shrink-0 relative">
+                                {imgUrl(p.image) && (
+                                  <img 
+                                    src={imgUrl(p.image)} 
+                                    alt={p.name} 
+                                    className="w-full h-full object-cover" 
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                                    }}
+                                  />
+                                )}
+                                <Package className="text-slate-200" size={18} style={{ display: imgUrl(p.image) ? 'none' : 'block' }} />
                               </div>
                               <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors max-w-[180px] truncate">
                                 {p.name}
@@ -475,11 +599,101 @@ const Inventory = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              {filtered.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 border-t border-slate-100">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">
+                    Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={page <= 1}
+                      className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest italic hover:border-amber-500 hover:text-amber-600 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:text-slate-600">
+                      <ChevronUp size={13} className="-rotate-90" /> Prev
+                    </button>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic px-2">Page {page} / {totalPages}</span>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+                      className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest italic hover:border-amber-500 hover:text-amber-600 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:text-slate-600">
+                      Next <ChevronUp size={13} className="rotate-90" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
 
         </main>
       </div>
+
+      {/* ════════════════ BULK UPLOAD MODAL ════════════════ */}
+      <AnimatePresence>
+        {showBulkModal && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[400] flex items-center justify-center p-4"
+            onClick={() => !bulkUploading && setShowBulkModal(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
+              <div className="bg-slate-900 px-8 py-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center text-amber-500 border border-white/10"><FileSpreadsheet size={20} /></div>
+                  <div>
+                    <h3 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Bulk Product Upload</h3>
+                    <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mt-1">Import multiple products via CSV</p>
+                  </div>
+                </div>
+                <button onClick={() => !bulkUploading && setShowBulkModal(false)} className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors"><X size={16} /></button>
+              </div>
+
+              <div className="p-8 space-y-6">
+                {/* Step 1 — template */}
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic mb-3">Step 1 · Download the template, fill your products</p>
+                  <button onClick={downloadTemplate}
+                    className="w-full bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest italic flex items-center justify-center gap-2 hover:border-amber-500 hover:text-amber-600 transition-all active:scale-95">
+                    <Download size={14} /> Download CSV Template
+                  </button>
+                  <p className="text-[8px] font-bold text-slate-400 mt-3 leading-relaxed">Columns: <span className="text-slate-600">name*</span>, category, weight, purity, <span className="text-slate-600">price*</span>, description, is_active. (* required)</p>
+                </div>
+
+                {/* Step 2 — choose file */}
+                <div>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic mb-3">Step 2 · Upload your filled CSV</p>
+                  <label className="flex items-center justify-center gap-3 w-full border-2 border-dashed border-slate-200 rounded-2xl py-6 px-4 cursor-pointer hover:border-amber-500 hover:bg-amber-50/30 transition-all group">
+                    <input type="file" accept=".csv,text/csv" className="hidden"
+                      onChange={(e) => { setBulkFile(e.target.files?.[0] || null); setBulkResult(null); }} />
+                    <Upload size={18} className="text-slate-300 group-hover:text-amber-500" />
+                    <span className="text-[11px] font-black italic text-slate-600 truncate max-w-[280px]">{bulkFile ? bulkFile.name : 'Choose a CSV file…'}</span>
+                  </label>
+                </div>
+
+                {/* Result */}
+                {bulkResult && (
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 max-h-44 overflow-y-auto">
+                    <p className="text-sm font-black text-emerald-600 italic flex items-center gap-2"><CheckCircle2 size={16} /> {bulkResult.inserted} imported</p>
+                    {bulkResult.errors?.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest italic">{bulkResult.errors.length} skipped:</p>
+                        {bulkResult.errors.map((err, i) => (
+                          <p key={i} className="text-[9px] text-slate-500 font-bold leading-relaxed">• {err}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => setShowBulkModal(false)} disabled={bulkUploading}
+                    className="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest italic hover:bg-slate-200 transition-all active:scale-95 disabled:opacity-50">Close</button>
+                  <button onClick={handleBulkUpload} disabled={bulkUploading || !bulkFile}
+                    className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest italic hover:bg-amber-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                    {bulkUploading ? <Loader2 className="animate-spin" size={16} /> : <><Upload size={14} /> Import Products</>}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ════════════════ PRODUCT MODAL (ADD / EDIT) ════════════════ */}
       <AnimatePresence>
@@ -643,7 +857,18 @@ const Inventory = () => {
                         </div>
                       ) : productForm.image && typeof productForm.image === 'string' ? (
                         <div className="flex items-center gap-3">
-                          <img src={imgUrl(productForm.image)} alt="current" className="w-10 h-10 rounded-lg object-cover border border-slate-200" />
+                          <div className="w-10 h-10 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 relative">
+                            <img 
+                              src={imgUrl(productForm.image)} 
+                              alt="current" 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                              }}
+                            />
+                            <Package className="text-slate-200" size={14} style={{ display: 'none' }} />
+                          </div>
                           <p className="text-[9px] font-black italic text-slate-500">Current image (upload to replace)</p>
                         </div>
                       ) : (
@@ -698,19 +923,32 @@ const Inventory = () => {
       {/* ════════════════ STOCK UPDATE MODAL ════════════════ */}
       <AnimatePresence>
         {stockModal && (
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[450] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[450] flex items-center justify-center p-4"
+            onClick={() => setStockModal(null)}>
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
               className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden">
 
               <div className="bg-slate-900 p-7 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                <button onClick={() => setStockModal(null)} className="absolute top-5 right-5 p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white/60 hover:text-white transition-colors"><X size={16} /></button>
+                <button onClick={() => setStockModal(null)} className="absolute top-5 right-5 z-20 p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white/60 hover:text-white transition-colors"><X size={16} /></button>
                 <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-11 h-11 rounded-xl overflow-hidden bg-white/10 border border-white/10 shrink-0">
-                    {imgUrl(stockModal.image)
-                      ? <img src={imgUrl(stockModal.image)} alt={stockModal.name} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full flex items-center justify-center"><Package size={18} className="text-white/40" /></div>}
+                  <div className="w-11 h-11 rounded-xl overflow-hidden bg-white/10 border border-white/10 shrink-0 flex items-center justify-center relative">
+                    {imgUrl(stockModal.image) && (
+                      <img 
+                        src={imgUrl(stockModal.image)} 
+                        alt={stockModal.name} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    )}
+                    <div className="w-full h-full flex items-center justify-center" style={{ display: imgUrl(stockModal.image) ? 'none' : 'flex' }}>
+                      <Package size={18} className="text-white/40" />
+                    </div>
                   </div>
                   <div>
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] italic mb-1">Update Stock</p>
