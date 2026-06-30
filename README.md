@@ -10,8 +10,8 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 
 - **Live Market Synchronization**: Real-time integration with global gold exchanges (XAU/INR) featuring automated 10-minute synchronization and direct TradingView chart validation.
 - **Cinematic Landing Portal**: High-end landing page with real-time market tickers, military-grade security matrices, and dynamic institutional performance metrics.
-- **Automated Yield Protocol**: Proprietary "1% Diurnal Yield" engine that processes daily cashback and 5-tier referral commissions with real-time transaction telemetry.
-- **Recency-Ranked Genealogy Tree**: A live referral hierarchy that re-ranks the network by join recency — the most recently referred member is always elevated to **Level 1**, every earlier member cascades down a level automatically, and the account holder anchors the deepest level (`YOU`). The tree recalculates whenever a new referral joins, with cycle-safe traversal and near-real-time synchronization across the frontend, PHP-REST layer, and MySQL core. (Distinct from the **5-tier commission ladder**, which continues to flow up the true referral ancestry so payouts remain correct.)
+- **Automated Yield Protocol**: Proprietary "1% Diurnal Yield" engine that credits daily cashback and 5-tier referral commissions on the ex-GST product value. It now runs **automatically once per calendar day** via a self-triggering ("lazy cron") guard — fired the first time any customer or admin opens their dashboard — backed by an **atomic once-per-day claim** plus a per-cycle `last_paid_at` guard that make double-payment impossible. The same `daily_yield_engine.php` also powers the manual **Process Daily Yield** trigger and any OS/cPanel cron, so manual and automatic runs share one idempotent code path.
+- **Referral Genealogy Org-Chart**: A live, top-down **downline tree** — the account holder (`YOU`) anchors the top and every direct referral branches beneath them, recursively, connected by org-chart lines. Children render **newest-first**, and the most recently joined member network-wide is badged **Newest**. Built from the real `referrer_id` ancestry with cycle-safe traversal, served as a nested tree by the PHP-REST layer straight from the MySQL core, and polled live so the chart redraws as the network grows. (Distinct from the **5-tier commission ladder**, which continues to flow up the true referral ancestry so payouts remain correct.)
 - **Digital Ratification Workflow**: Secure, multi-party agreement protocol requiring Advocate Ratification and Partner Verification for all institutional gold contracts.
 - **Advanced Audit Command Center**:
   - **Cashback Reports**: Premium gold-black dashboard with monthly/daily yield tracking and automated liability forecasting.
@@ -20,6 +20,7 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 - **GST-Exclusive Cashback & Tax Engine**: Category-based GST (admin-configurable Gold/Silver vs. general-product rates) applied at checkout with automatic **CGST + SGST** split. Customers pay the full GST-inclusive invoice, but **every incentive — daily cashback, 5-tier referral, and commission — is calculated strictly on the ex-GST product value**; GST never contributes to any reward. Each order auto-generates a printable **Tax Invoice** (with CGST/SGST breakdown, viewable from the customer dashboard) plus a linked cashback application, and a dedicated **GST Filing** console surfaces a real-time, rate-wise (GSTR-1 style) and invoice-wise summary with CSV export.
 - **Bulk User Provisioning**: One-shot creation of multiple customers/staff via an inline multi-row form or **CSV upload** (with downloadable template) — each new account is auto-assigned a sequential VEV ID, referral code, and initialized wallet.
 - **Multi-Role Staff Onboarding & Permission Matrix**: Granular role-based access control (RBAC). The Add-Staff (Recruitment) node provisions **Staff, Manager, or Advocate** accounts from a single role selector — each created live in the MySQL `users` table with an auto-initialized wallet, then surfaced instantly in the access list. The `admin` role is intentionally blocked from this form. Module access is assigned **manually in Settings → Access Control**; staff then operate a permission-filtered admin dashboard showing only their granted tabs.
+- **Account Approval Gate**: Self-registered customers are created with a `pending` status and **cannot log in until an admin grants access** — login is blocked with a clear "pending admin approval" message for pending accounts and a suspension notice for suspended ones. The admin's **Investor Calibration** panel exposes **Grant Access** (→ active), **Suspend ID**, and credential reset, flipping the live `users.status` flag that the login node enforces.
 - **Self-Healing Database Matrix**: Zero-config database initialization that automatically constructs schemas and relationships on first request, including automated migrations for new fiscal parameters.
 - **Secure Email OTP Authentication Matrix**: High-security, two-phase verification required for all logins. Upon password verification, generates a 6-digit OTP, stores its secure hash in a database session table, and dispatches a branded fintech HTML email via Gmail SMTP, integrated with segmented inputs, backspace navigation, auto-pasting, and live countdown timers in the frontend.
 - **Tally ERP Prime Integration Module**: A complete real-time accounting bridge between the platform's MySQL core and Tally ERP Prime. Surfaces six live ledgers (Sales, Customer, Cashback, Referral, Withdrawal, Inventory) sourced directly from existing tables, auto-computes **Profit & Loss** and **Balance Sheet** statements, and provides full **Voucher Management** (manual create, auto-generate from any ledger, post). **GST-aware**: sales vouchers book revenue ex-GST with separate **Output CGST / Output SGST** ledgers, and the Balance Sheet carries a **GST Payable** liability. Supports **XML / Excel / CSV export**, **direct real-time synchronization** to Tally's HTTP gateway (with automatic **fallback to XML download** when Tally is offline), **transaction reconciliation** (source records vs. posted vouchers), and an immutable **audit trail** of every accounting action — all wrapped in a plain-language, responsive admin interface. Every data tab **silently auto-refreshes from MySQL every 15 seconds** (pausing when the browser tab is hidden, and skipping the Settings tab so an in-progress edit is never overwritten), keeping ledgers, reports, vouchers, and metrics genuinely live.
@@ -33,11 +34,12 @@ End-to-end flow across the customer journey, the administrative core, and the Ta
 ```mermaid
 flowchart TD
     subgraph CUST["👤 Customer Journey"]
-        A1[Register] --> A2[Email OTP Login]
+        A1[Register] --> A1g["Pending →<br/>Admin Grants Access"]
+        A1g --> A2[Email OTP Login]
         A2 --> A3[KYC Verification]
         A3 --> A4[Buy Gold / Asset]
         A4 --> A5[Wallet Credited]
-        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral"]
+        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral<br/>(auto · once daily)"]
         A6 --> A7[Withdraw to Bank]
     end
 
@@ -50,8 +52,8 @@ flowchart TD
     end
 
     subgraph ADMIN["🏛️ Admin Audit Suite"]
-        C1[Approve Purchases / KYC]
-        C2[Run Daily Payout]
+        C1[Approve / KYC · Grant Access]
+        C2["Daily Yield<br/>(auto + manual)"]
         C3[Reports & Analytics]
         C4["Onboard Staff / Manager / Advocate"]
         C5[Permission Matrix · Access Control]
@@ -75,6 +77,7 @@ flowchart TD
     B2 & B3 & B4 & B5 <--> B1
 
     C1 & C2 --> B1
+    C1 -.grants access.-> A1g
     C4 -->|"create user + wallet"| B1
     B1 --> C3
     C4 --> C5
@@ -169,7 +172,8 @@ Makkal_Gold/
 ## 📡 Operational Maintenance
 
 - **Market Sync**: The system background-syncs with global gold rates every 10 minutes. Manual sync can be triggered via the **SYNC MARKET** protocol in the Admin dashboard.
-- **Daily Protocol**: Manually trigger the yield engine via the Admin Dashboard or call `/api/cron/process_cashback.php`.
+- **Daily Protocol (Automatic)**: The 1% yield + 5-tier referral payout runs **automatically once per calendar day** — a date-guarded "lazy cron" in `api/cron/daily_yield_engine.php` fires the first time any customer or admin dashboard loads, claims the day atomically, and credits every active cycle (idempotent, so it never double-pays). It can still be triggered manually from the Admin Dashboard or via `/api/cron/process_cashback.php`; for guaranteed execution on zero-traffic days, point an OS/cPanel cron at that URL once daily.
+- **Account Approval**: New self-registrations land as `pending` and are blocked at login until an admin clicks **Grant Access** in the Investor Calibration panel (flips `users.status` to `active`).
 - **High-Frequency Polling**: Dashboards are synchronized every 30 seconds to ensure zero-latency data viewing; the **Referral Network** genealogy polls every 10 seconds so newly-joined members surface at Level 1 almost instantly.
 - **Export Protocols**: All fiscal registries support high-fidelity CSV and Ledger exports for external auditing.
 - **Tally Synchronization**: Ledgers and vouchers can be exported as Tally-ready XML/Excel/CSV, or pushed live to Tally ERP Prime via its HTTP gateway (default `http://localhost:9000`). Configure company name, ledger mapping, and gateway address in the **Tally Integration → Settings** panel (all values persisted in the MySQL `tally_settings` table). The module's data tabs auto-refresh from MySQL every 15 seconds; live push requires TallyPrime to be open with the gateway enabled.

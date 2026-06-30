@@ -68,6 +68,13 @@ This document outlines the complete architectural development and deployment of 
 - **Multi-Role Recruitment Node**: Upgraded the Add-Staff (Recruitment) interface from a single hard-coded `staff` role to a live **Staff / Manager / Advocate** role selector. Each onboarding writes directly to the MySQL `users` table (with an auto-initialized wallet), validated server-side against an allow-list — the `admin` role is deliberately rejected so no administrator can be provisioned through this form. New hires appear instantly in the user list and in **Settings → Access Control** for permission assignment.
 - **Real-Time Tally Auto-Refresh**: Made the Tally Integration module genuinely live — every data tab (Dashboard, Ledgers, Reports, Vouchers, Reconciliation, Audit) silently re-pulls from MySQL every 15 seconds without spinner flicker, pauses while the browser tab is hidden, and skips the Settings tab so an in-progress configuration edit is never clobbered. Verified the full settings round-trip persists to and reads back from the `tally_settings` table.
 
+### Phase 10: Automated Daily Yield, Account Approval Gate & Downline Tree
+- **Automatic Daily Cashback ("Lazy Cron")**: Extracted the 1% yield + 5-level referral logic into a shared, reusable engine (`api/cron/daily_yield_engine.php`) that now runs **automatically once per calendar day** — fired the first time any customer or admin opens their dashboard, claimed atomically via a `last_yield_run` flag so concurrent requests can't double-trigger it. Combined with the per-cycle `last_paid_at` guard, double-payment is impossible. The manual **Process Daily Yield** button and any OS/cPanel cron now call the same idempotent engine. End-to-end tested (pay → idempotent re-run → verified credit) on throwaway data.
+- **Account Approval Gate**: Self-registered customers are now created as `pending` (registration explicitly sets the status rather than relying on the `users.status` default, which had been overridden to `active`). The login node blocks `pending`/`suspended` accounts with clear messaging, and the admin's **Investor Calibration** panel grants access (→ `active`), suspends, or resets credentials. Verified: register → login blocked → admin Grant Access → login succeeds.
+- **Referral Genealogy → Top-Down Org-Chart**: Reworked the referral view from a left-stepping recency list into a true **downline hierarchy org-chart** — `get_genealogy.php` now returns a nested parent→child `tree` (root = YOU) alongside the flat list, and `RecencyGenealogyTree.jsx` renders it as a centered, connector-lined tree with children newest-first and the newest member badged. Verified branching and chain layouts against live data.
+- **Global Text-Visibility Fix**: Removed an over-broad `h1–h6, p { color: navy }` rule that overrode inherited `text-white` and rendered headings invisible on dark cards (Network Expansion, Account Security, balances). Headings now correctly show white on dark panels and navy on light surfaces app-wide.
+- **Payout Preview Fix**: Corrected an undefined-variable crash (`totalAmount` → `filteredTotal`) that blanked the **Export Payout File → Preview Batch** modal; the bulk-transfer preview and consolidated batch total now render.
+
 ---
 
 ## 🔄 Project Workflow
@@ -77,11 +84,12 @@ End-to-end flow across the customer journey, the administrative core, and the Ta
 ```mermaid
 flowchart TD
     subgraph CUST["👤 Customer Journey"]
-        A1[Register] --> A2[Email OTP Login]
+        A1[Register] --> A1g["Pending →<br/>Admin Grants Access"]
+        A1g --> A2[Email OTP Login]
         A2 --> A3[KYC Verification]
         A3 --> A4[Buy Gold / Asset]
         A4 --> A5[Wallet Credited]
-        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral"]
+        A5 --> A6["1% Diurnal Yield<br/>+ 5-Tier Referral<br/>(auto · once daily)"]
         A6 --> A7[Withdraw to Bank]
     end
 
@@ -94,8 +102,8 @@ flowchart TD
     end
 
     subgraph ADMIN["🏛️ Admin Audit Suite"]
-        C1[Approve Purchases / KYC]
-        C2[Run Daily Payout]
+        C1[Approve / KYC · Grant Access]
+        C2["Daily Yield<br/>(auto + manual)"]
         C3[Reports & Analytics]
         C4["Onboard Staff / Manager / Advocate"]
         C5[Permission Matrix · Access Control]
@@ -119,6 +127,7 @@ flowchart TD
     B2 & B3 & B4 & B5 <--> B1
 
     C1 & C2 --> B1
+    C1 -.grants access.-> A1g
     C4 -->|"create user + wallet"| B1
     B1 --> C3
     C4 --> C5
@@ -148,7 +157,7 @@ flowchart TD
 ---
 
 ## ✅ Current Project Status
-The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, the secure real-time email OTP authentication suite, the **Tally ERP Prime Accounting Integration Module**, the **GST-Exclusive Cashback, Tax Invoicing & Compliance** suite (category GST, CGST/SGST invoices, GST Filing, GST-aware Tally, bulk user provisioning, and manual access control), and the latest **multi-role staff onboarding (Staff/Manager/Advocate)** with **live 15-second Tally auto-refresh**—are fully operational and database-backed.
+The project is now **fully synchronized** with the central repository on GitHub. All features requested—including the real-time payout reports, withdrawal histories, cinematic landing page, the secure real-time email OTP authentication suite, the **Tally ERP Prime Accounting Integration Module**, the **GST-Exclusive Cashback, Tax Invoicing & Compliance** suite (category GST, CGST/SGST invoices, GST Filing, GST-aware Tally, bulk user provisioning, and manual access control), the **multi-role staff onboarding (Staff/Manager/Advocate)** with **live 15-second Tally auto-refresh**, and the newest **automatic daily yield engine**, **account approval gate**, and **top-down downline referral org-chart**—are fully operational and database-backed.
 
 **Project Delivered by CloudHawk.**
-*Date: May 22, 2026 · Tally Integration Module added June 12, 2026 · GST-Exclusive Cashback & Tax Compliance suite added June 17, 2026 · Multi-Role Staff Onboarding & Live Tally Auto-Refresh added June 18, 2026*
+*Date: May 22, 2026 · Tally Integration Module added June 12, 2026 · GST-Exclusive Cashback & Tax Compliance suite added June 17, 2026 · Multi-Role Staff Onboarding & Live Tally Auto-Refresh added June 18, 2026 · Automated Daily Yield, Account Approval Gate & Downline Tree added June 19, 2026*
