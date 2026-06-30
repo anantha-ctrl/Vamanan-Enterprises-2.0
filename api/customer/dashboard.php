@@ -5,8 +5,13 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../models/Wallet.php';
+require_once __DIR__ . '/../cron/daily_yield_engine.php';
 $db = $pdo;
 $walletModel = new Wallet($db);
+
+// Lazy daily cron: auto-credit today's cashback (once per day, for everyone)
+// when a customer opens their dashboard. Never throws.
+maybe_run_daily_yield($db);
 
 $userId = isset($_GET['user_id']) ? $_GET['user_id'] : null;
 

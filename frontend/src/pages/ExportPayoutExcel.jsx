@@ -456,7 +456,7 @@ const ExportPayoutExcel = () => {
               <div className="p-8 bg-slate-900 flex justify-between items-center">
                 <div>
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Consolidated Batch Value</p>
-                  <p className="text-2xl font-black text-white italic">₹{totalAmount.toLocaleString()}</p>
+                  <p className="text-2xl font-black text-white italic">₹{filteredTotal.toLocaleString()}</p>
                 </div>
                 <button 
                   onClick={() => { setShowPreview(false); exportExcel(); }}

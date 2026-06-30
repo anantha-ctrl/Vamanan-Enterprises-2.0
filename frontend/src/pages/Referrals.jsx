@@ -56,7 +56,8 @@ const Referrals = () => {
     if (!silent) setLoadingGenealogy(true);
     try {
       const res = await axios.get(`${API_BASE_URL}/customer/get_genealogy.php?user_id=${user.id}`);
-      if (res.data.status === 'success') setGenealogy(res.data.data);
+      // Prefer the nested hierarchy (org-chart); fall back to flat list for older API.
+      if (res.data.status === 'success') setGenealogy(res.data.tree ?? res.data.data);
     } catch (err) { console.error('Failed to fetch genealogy', err); }
     finally { setLoadingGenealogy(false); }
   };

@@ -41,9 +41,12 @@ body,
   color: #0B2545 !important;
 }
 
-/* Ensure headings and core elements default to this premium navy blue */
-h1, h2, h3, h4, h5, h6,
-p, label, input, select, textarea, th, td {
+/* Form controls default to premium navy (they sit on light surfaces).
+   NOTE: headings (h1–h6) and <p> are intentionally NOT forced here — doing so
+   overrides the inherited `text-white` on dark cards and makes those headings
+   invisible (dark navy text on a dark navy panel). They inherit navy from
+   `body` on light surfaces and white from their parent on dark cards. */
+input, select, textarea {
   color: #0B2545;
 }
 

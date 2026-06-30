@@ -40,8 +40,10 @@ if(!empty($data->name) && !empty($data->email) && !empty($data->password) && !em
             }
         }
 
-        // 4. Create User
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, phone, customer_id, referral_code, referrer_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        // 4. Create User — force 'pending' so self-registered accounts cannot log in
+        //    until an admin grants access (the `status` column default is 'active',
+        //    so we must set it explicitly here rather than rely on the default).
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, phone, customer_id, referral_code, referrer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
         $stmt->execute([$data->name, $data->email, $hashed_password, $data->phone, $customerId, $referralCode, $referrerId]);
         $userId = $pdo->lastInsertId();
 

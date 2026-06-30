@@ -5,6 +5,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once '../config/db.php';
 require_once '../config/migrate.php';
+require_once __DIR__ . '/../cron/daily_yield_engine.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -15,6 +16,10 @@ if (!$db) {
 
 // Ensure database is up to date
 runMigrations($db);
+
+// Lazy daily cron: auto-credit today's cashback (once per day) when the admin
+// dashboard loads — so payouts run automatically even without an OS cron job.
+maybe_run_daily_yield($db);
 
 try {
     // 1. Total Revenue (Purchase transactions)

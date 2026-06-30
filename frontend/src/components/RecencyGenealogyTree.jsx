@@ -1,21 +1,98 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { User, Network, TrendingUp, ShieldCheck, Sparkles, Crown } from 'lucide-react';
 
 /*
- * RECENCY-RANKED GENEALOGY
- * The newest member is always Level 1 (top). Every earlier member shifts down a
- * level, and the account owner (YOU) sits at the deepest level. Levels are sent
- * pre-sorted by the backend (newest first).
+ * REFERRAL GENEALOGY — TOP-DOWN ORG CHART
+ * The viewing user (YOU) is the root at the top; every direct referral branches
+ * beneath them, recursively, connected by lines — a true downline hierarchy.
+ * Children arrive newest-first from the backend, and the most recently joined
+ * member in the whole network is flagged `is_newest`.
+ *
+ * Input: `data` is the nested root node ({ id, name, children: [...] }).
  */
 
-const LEVEL_THEME = [
+// Depth-cycled palette (root = depth 0).
+const DEPTH_THEME = [
+  { dot: 'bg-slate-900',   ring: 'border-slate-900',   badge: 'bg-amber-500 text-slate-900', text: 'text-amber-600' },
   { dot: 'bg-amber-500',   ring: 'border-amber-400',   badge: 'bg-amber-500 text-slate-900', text: 'text-amber-600' },
   { dot: 'bg-blue-500',    ring: 'border-blue-400',    badge: 'bg-blue-500 text-white',      text: 'text-blue-600' },
   { dot: 'bg-emerald-500', ring: 'border-emerald-400', badge: 'bg-emerald-500 text-white',   text: 'text-emerald-600' },
   { dot: 'bg-indigo-500',  ring: 'border-indigo-400',  badge: 'bg-indigo-500 text-white',    text: 'text-indigo-600' },
-  { dot: 'bg-rose-500',    ring: 'border-rose-400',    badge: 'bg-rose-500 text-white',       text: 'text-rose-600' },
+  { dot: 'bg-rose-500',    ring: 'border-rose-400',     badge: 'bg-rose-500 text-white',      text: 'text-rose-600' },
 ];
+
+const NodeCard = ({ node, depth }) => {
+  const theme = DEPTH_THEME[depth % DEPTH_THEME.length];
+  const created = node.created_at
+    ? new Date(node.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className={`inline-flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl bg-white border-2 shadow-sm hover:shadow-lg transition-all ${theme.ring} ${
+        node.is_newest ? 'ring-2 ring-amber-400/60' : ''
+      } ${node.is_you ? 'ring-2 ring-slate-900/20' : ''}`}
+    >
+      {/* avatar */}
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-white font-black text-[13px] ${theme.dot} shadow`}>
+        {node.is_you ? <Crown size={18} /> : (node.name?.[0]?.toUpperCase() || <User size={16} />)}
+      </div>
+
+      {/* name */}
+      <p className="text-[11px] font-black uppercase tracking-tight italic text-slate-900 leading-none whitespace-nowrap max-w-[150px] truncate">
+        {node.name}
+      </p>
+
+      {/* badges */}
+      <div className="flex items-center justify-center gap-1 flex-wrap">
+        {node.is_you && (
+          <span className="text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-900 text-amber-400 italic">You</span>
+        )}
+        {node.is_newest && (
+          <span className="inline-flex items-center gap-1 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 italic">
+            <Sparkles size={8} /> Newest
+          </span>
+        )}
+        {node.kyc_status === 'verified' && (
+          <ShieldCheck size={12} className="text-emerald-500 shrink-0" />
+        )}
+      </div>
+
+      {/* meta */}
+      <div className="flex flex-col items-center gap-0.5">
+        {node.referral_code && (
+          <p className="text-[7px] text-slate-400 font-black uppercase tracking-widest italic leading-none">{node.referral_code}</p>
+        )}
+        {created && (
+          <p className="text-[7px] text-slate-300 font-black uppercase tracking-widest italic leading-none">{created}</p>
+        )}
+        {node.total_investment > 0 && (
+          <p className="text-[7px] text-emerald-600 font-black uppercase tracking-widest italic leading-none">
+            ₹{parseFloat(node.total_investment).toLocaleString()}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// Recursive tree node → renders <li>{card}{<ul> children </ul>}</li>
+const TreeNode = ({ node, depth = 0 }) => (
+  <li>
+    <NodeCard node={node} depth={depth} />
+    {node.children && node.children.length > 0 && (
+      <ul>
+        {node.children.map((child) => (
+          <TreeNode key={child.id} node={child} depth={depth + 1} />
+        ))}
+      </ul>
+    )}
+  </li>
+);
 
 const RecencyGenealogyTree = ({ data, loading }) => {
   if (loading) {
@@ -27,7 +104,7 @@ const RecencyGenealogyTree = ({ data, loading }) => {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data || !data.id) {
     return (
       <div className="py-20 text-center bg-slate-50 border border-dashed border-slate-200 rounded-[2rem]">
         <Network size={40} className="mx-auto mb-4 text-slate-300" />
@@ -36,6 +113,8 @@ const RecencyGenealogyTree = ({ data, loading }) => {
     );
   }
 
+  const hasChildren = data.children && data.children.length > 0;
+
   return (
     <div className="w-full">
       {/* Header banner + legend */}
@@ -43,83 +122,93 @@ const RecencyGenealogyTree = ({ data, loading }) => {
         <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12"><Network size={150} /></div>
         <div className="relative z-10 text-center md:text-left">
           <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Your Referral Tree</h3>
-          <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">Newest member on top — levels update live as your network grows</p>
+          <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">You at the top — your referrals branch below, live as your network grows</p>
         </div>
-        <div className="relative z-10 flex flex-wrap justify-center gap-2">
-          {['L1','L2','L3','L4','L5'].map((l, i) => (
-            <div key={l} className={`px-3 py-1 rounded-full text-[8px] font-black border shadow-lg ${LEVEL_THEME[i].badge}`}>{l}</div>
-          ))}
+        <div className="relative z-10 flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-amber-400 italic"><Crown size={10} /> You</span>
+          <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-amber-200 italic"><Sparkles size={10} /> Newest</span>
         </div>
       </div>
 
-      {/* Cascading recency list (L1 at top, each older member steps down) */}
-      <div className="relative max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
-        <AnimatePresence initial={false}>
-          {data.map((node, idx) => {
-            const theme  = LEVEL_THEME[(node.level - 1) % LEVEL_THEME.length];
-            const indent = Math.min(idx, 6) * 28; // stagger the cascade, capped so deep trees stay readable
-            const created = node.created_at
-              ? new Date(node.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
-              : '';
-
-            return (
-              <motion.div
-                key={node.id}
-                layout
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35, delay: idx * 0.04 }}
-                style={{ marginLeft: `${indent}px` }}
-                className={`relative mb-2.5 flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border-l-4 bg-white shadow-sm hover:shadow-md transition-all ${theme.ring} ${node.is_newest ? 'ring-2 ring-amber-400/60' : ''}`}
-              >
-                {/* connector line back to the member above */}
-                {idx > 0 && (
-                  <span className="absolute -left-[14px] top-1/2 w-3.5 border-t-2 border-slate-200" />
-                )}
-
-                {/* avatar */}
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-black text-[11px] ${theme.dot} shadow`}>
-                  {node.is_you ? <Crown size={16} /> : (node.name?.[0]?.toUpperCase() || <User size={16} />)}
-                </div>
-
-                {/* identity */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight truncate italic text-slate-900">{node.name}</p>
-                    <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full italic ${theme.badge}`}>L{node.level}</span>
-                    {node.is_newest && (
-                      <span className="inline-flex items-center gap-1 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 italic">
-                        <Sparkles size={8} /> Newest
-                      </span>
-                    )}
-                    {node.is_you && (
-                      <span className="text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-900 text-amber-400 italic">You</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">{node.referral_code}</p>
-                    {created && <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">Joined {created}</p>}
-                    {node.total_investment > 0 && (
-                      <p className="text-[8px] text-emerald-600 font-black uppercase tracking-widest italic">₹{parseFloat(node.total_investment).toLocaleString()}</p>
-                    )}
-                  </div>
-                </div>
-
-                {node.kyc_status === 'verified' && (
-                  <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
-                )}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+      {/* Org chart (scrolls horizontally for wide networks) */}
+      <div className="gtree-scroll overflow-x-auto overflow-y-hidden pb-4">
+        <div className="gtree inline-block min-w-full">
+          <ul>
+            <TreeNode node={data} depth={0} />
+          </ul>
+        </div>
+        {!hasChildren && (
+          <p className="text-center text-[9px] font-black text-slate-400 uppercase tracking-widest italic mt-6">
+            No referrals yet — share your code to grow your tree.
+          </p>
+        )}
       </div>
 
       <style jsx="true">{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        .gtree-scroll::-webkit-scrollbar { height: 6px; }
+        .gtree-scroll::-webkit-scrollbar-track { background: transparent; }
+        .gtree-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .gtree-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        .gtree { text-align: center; padding: 8px 0 20px; }
+        .gtree ul {
+          display: flex;
+          justify-content: center;
+          padding-top: 26px;
+          position: relative;
+          margin: 0;
+          list-style: none;
+          transition: all 0.3s;
+        }
+        .gtree > ul { padding-top: 0; }
+        .gtree li {
+          list-style: none;
+          text-align: center;
+          position: relative;
+          padding: 26px 10px 0 10px;
+        }
+        /* connector lines from parent to children */
+        .gtree li::before,
+        .gtree li::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 50%;
+          border-top: 2px solid #e2e8f0;
+          width: 50%;
+          height: 26px;
+        }
+        .gtree li::after {
+          right: auto;
+          left: 50%;
+          border-left: 2px solid #e2e8f0;
+        }
+        /* a single child needs no horizontal connectors */
+        .gtree li:only-child::after,
+        .gtree li:only-child::before { display: none; }
+        .gtree li:only-child { padding-top: 26px; }
+        /* trim the connectors at the ends of each sibling row */
+        .gtree li:first-child::before,
+        .gtree li:last-child::after { border: 0 none; }
+        .gtree li:last-child::before {
+          border-right: 2px solid #e2e8f0;
+          border-radius: 0 6px 0 0;
+        }
+        .gtree li:first-child::after { border-radius: 6px 0 0 0; }
+        /* vertical line coming down from each parent into its children row */
+        .gtree ul ul::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 50%;
+          border-left: 2px solid #e2e8f0;
+          width: 0;
+          height: 26px;
+        }
+        /* root node sits flush with no incoming connector */
+        .gtree > ul > li { padding-top: 0; }
+        .gtree > ul > li::before,
+        .gtree > ul > li::after { display: none; }
       `}</style>
     </div>
   );

@@ -1,17 +1,18 @@
 <?php
 // api/customer/get_genealogy.php
 //
-// RECENCY-RANKED GENEALOGY
-// ------------------------
-// Unlike a classic downline tree (direct child = L1), this view ranks every
-// member of the network by how recently they joined. The most recently referred
-// member is ALWAYS Level 1, and everyone who came before shifts down one level.
-// The viewing user (the root) is included too, and — being the oldest — always
-// sits at the deepest level.
+// REFERRAL GENEALOGY (DOWNLINE HIERARCHY + RECENCY RANKING)
+// --------------------------------------------------------
+// Returns the viewing user's network in two shapes:
 //
-// Example chain  Jessica -> Kavin -> Muthu
-//   After Kavin joins :  Kavin L1, Jessica L2
-//   After Muthu joins :  Muthu L1, Kavin L2, Jessica L3
+//   data : a flat, recency-ranked list (newest member = L1, you = deepest level).
+//          Kept for backward compatibility with any list-style consumers.
+//
+//   tree : a nested parent -> child hierarchy rooted at the viewing user (YOU on
+//          top). Each node carries its direct referrals in `children`, so the
+//          frontend can draw a real top-down org-chart. Children are ordered
+//          newest-first. The single most-recently-joined member is flagged
+//          `is_newest` and exposed separately as `newest_id`.
 //
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
@@ -30,15 +31,17 @@ try {
     if (!$userId) {
         throw new Exception("User ID is required");
     }
+    $userId = (int)$userId;
 
-    // 1. Collect the whole subtree (all descendants) of this user.
-    //    A visited-set guards against circular referrer links.
+    // 1. Collect the whole subtree (all descendants) of this user, keeping the
+    //    referrer linkage so we can rebuild the hierarchy. A visited-set guards
+    //    against circular referrer links.
     $visited = [];
     $members = [];
 
     $collect = function ($parentId) use (&$collect, $db, &$members, &$visited) {
         $stmt = $db->prepare("
-            SELECT id, name, email, referral_code, created_at, kyc_status
+            SELECT id, name, email, referral_code, referrer_id, created_at, kyc_status
             FROM users
             WHERE referrer_id = ?
         ");
@@ -54,39 +57,96 @@ try {
 
     // 2. Include the viewing user themselves (the root of this network).
     $rootStmt = $db->prepare("
-        SELECT id, name, email, referral_code, created_at, kyc_status
+        SELECT id, name, email, referral_code, referrer_id, created_at, kyc_status
         FROM users
         WHERE id = ?
     ");
     $rootStmt->execute([$userId]);
     $root = $rootStmt->fetch(PDO::FETCH_ASSOC);
-    if ($root) {
-        $root['is_you'] = true;
-        $members[] = $root;
+    if (!$root) {
+        throw new Exception("User not found");
+    }
+    $root['is_you'] = true;
+    $members[] = $root;
+
+    // 3. Live investment total per member (active cashback cycles).
+    $invStmt = $db->prepare("SELECT COALESCE(SUM(total_value),0) FROM cashback_cycles WHERE user_id = ? AND status = 'active'");
+
+    // 4. Determine the single newest-joined member (excluding YOU). This is the
+    //    node highlighted as "Newest" in the tree.
+    $newestId = null;
+    $newestTs = null;
+    foreach ($members as $m) {
+        if ((int)$m['id'] === $userId) continue;          // skip the root/you
+        $ts = strtotime((string)$m['created_at']);
+        if ($newestTs === null || $ts > $newestTs || ($ts === $newestTs && (int)$m['id'] > (int)$newestId)) {
+            $newestTs = $ts;
+            $newestId = (int)$m['id'];
+        }
     }
 
-    // 3. Rank by recency — newest first (ties broken by id so order is stable).
-    usort($members, function ($a, $b) {
+    // 5. Normalise every member into a node map keyed by id.
+    $nodes = [];
+    foreach ($members as $m) {
+        $id = (int)$m['id'];
+        $invStmt->execute([$id]);
+        $nodes[$id] = [
+            'id'               => $id,
+            'name'             => $m['name'],
+            'referral_code'    => $m['referral_code'],
+            'created_at'       => $m['created_at'],
+            'kyc_status'       => $m['kyc_status'],
+            'referrer_id'      => $m['referrer_id'] !== null ? (int)$m['referrer_id'] : null,
+            'is_you'           => ($id === $userId),
+            'is_newest'        => ($id === $newestId),
+            'total_investment' => (float)$invStmt->fetchColumn(),
+        ];
+    }
+
+    // 6. Build the child index (parent id -> [child ids]).
+    $childrenMap = [];
+    foreach ($nodes as $id => $n) {
+        if ($id === $userId) continue;                    // root has no parent here
+        $pid = $n['referrer_id'];
+        if ($pid !== null && isset($nodes[$pid])) {
+            $childrenMap[$pid][] = $id;
+        }
+    }
+
+    // 7. Recursively assemble the nested tree, ordering children newest-first.
+    $build = function ($id) use (&$build, $nodes, $childrenMap) {
+        $node = $nodes[$id];
+        unset($node['referrer_id']);
+        $kids = $childrenMap[$id] ?? [];
+        usort($kids, function ($a, $b) use ($nodes) {
+            $c = strcmp((string)$nodes[$b]['created_at'], (string)$nodes[$a]['created_at']);
+            return $c !== 0 ? $c : ($b - $a);
+        });
+        $node['children'] = array_map($build, $kids);
+        return $node;
+    };
+    $tree = $build($userId);
+
+    // 8. Flat recency-ranked list (newest first) — preserved for compatibility.
+    $flat = array_values($nodes);
+    usort($flat, function ($a, $b) {
         $cmp = strcmp((string)$b['created_at'], (string)$a['created_at']);
         if ($cmp !== 0) return $cmp;
         return (int)$b['id'] - (int)$a['id'];
     });
-
-    // 4. Assign levels (newest = L1) and attach live investment totals.
-    $invStmt = $db->prepare("SELECT COALESCE(SUM(total_value),0) FROM cashback_cycles WHERE user_id = ? AND status = 'active'");
-    foreach ($members as $i => &$m) {
-        $m['level'] = $i + 1;                       // L1 = newest
-        $m['is_newest'] = ($i === 0);               // top of the tree
-        $m['is_you'] = !empty($m['is_you']);
-        $invStmt->execute([$m['id']]);
-        $m['total_investment'] = (float)$invStmt->fetchColumn();
+    foreach ($flat as $i => &$m) {
+        $m['level'] = $i + 1;                              // L1 = newest
+        $m['is_newest'] = ($i === 0);
+        unset($m['referrer_id']);
     }
     unset($m);
 
     echo json_encode([
-        "status" => "success",
-        "total_members" => count($members),
-        "data" => $members,
+        "status"        => "success",
+        "total_members" => count($nodes),
+        "newest_id"     => $newestId,
+        "data"          => $flat,
+        "tree"          => $tree,
     ]);
 
 } catch (Exception $e) {

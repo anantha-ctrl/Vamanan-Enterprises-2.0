@@ -1,0 +1,98 @@
+================================================================================
+                      LOCAL API CONFIGURATION & SETUP GUIDE
+================================================================================
+
+இந்த கோப்பு (File) உங்கள் local environment-ல் API-களை எவ்வாறு configure மற்றும் run செய்வது என்பதை தெளிவாக விளக்குகிறது.
+
+--------------------------------------------------------------------------------
+1. FRONTEND CONFIGURATION (API URL & Proxy Settings)
+--------------------------------------------------------------------------------
+
+Frontend-ல் API calls செய்வதற்கும், அதை local PHP backend-க்கு route செய்வதற்கும் 
+இரண்டு முக்கியமான கோப்புகள் பயன்படுத்தப்படுகின்றன:
+
+A) config.js (ఫ్రంట్-ఎండ్ కాన్ఫిగ్)
+   Path: frontend/src/config.js
+   * இது நீங்கள் local-ல் இயங்குகிறீர்களா அல்லது production-ல் இயங்குகிறீர்களா என்பதை 
+     தானாகவே கண்டறியும் (window.location.hostname வைத்து).
+   * Local-ல் இயங்கும்போது LOCAL_API_BASE_URL-ஐ '/api' என்று அமைக்கும்.
+   
+   Code snippet:
+   const LOCAL_API_BASE_URL = '/api';
+   const PRODUCTION_API_BASE_URL = 'https://vamananenterprisesv.com/api';
+   const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isLocalHost ? LOCAL_API_BASE_URL : PRODUCTION_API_BASE_URL);
+
+B) vite.config.js (Vite Proxy Setup)
+   Path: frontend/vite.config.js
+   * Vite dev server (port 5173)-ல் இருந்து வரும் '/api' மற்றும் '/uploads' 
+     requests-ஐ local Apache web server (XAMPP)-க்கு proxy செய்கிறது.
+   
+   Code snippet:
+   proxy: {
+     '/api': {
+       target: 'http://localhost/Vamanan1/api',
+       changeOrigin: true,
+       rewrite: (path) => path.replace(/^\/api/, '')
+     },
+     '/uploads': {
+       target: 'http://localhost/Vamanan1',
+       changeOrigin: true
+     }
+   }
+
+   *குறிப்பு: உங்கள் local XAMPP folder name "Vamanan1" என்று இல்லாமல் வேறு பெயர் 
+   இருந்தால், vite.config.js-ல் target-ஐ மாற்ற வேண்டும் (எ.கா: http://localhost/MyProjectName/api).*
+
+--------------------------------------------------------------------------------
+2. BACKEND API ENDPOINTS (PHP Core)
+--------------------------------------------------------------------------------
+
+API-ல் இருந்து தரவுகளை (text/JSON response) பெற அல்லது generate செய்ய 'api/' 
+ஃபோல்டரில் உள்ள PHP கோப்புகள் பயன்படுத்தப்படுகின்றன.
+
+உதாரணம் (LandingPage.jsx-ல் உள்ள API Call):
+   * Frontend Page: LandingPage.jsx-ல் stats.php என்ற API அழைக்கப்படுகிறது:
+     axios.get(`${API_BASE_URL}/public/stats.php`)
+   
+   * Local-ல் இது '/api/public/stats.php' ஆக மாறும்.
+   
+   * Vite Proxy அதை 'http://localhost/Vamanan1/api/public/stats.php'-க்கு redirect செய்யும்.
+   
+   * Local Apache Server-ல் இந்த கோப்பு இயங்கி JSON response-ஐ generate செய்யும்:
+     File Path: api/public/stats.php
+
+--------------------------------------------------------------------------------
+3. DATABASE CONFIGURATION
+--------------------------------------------------------------------------------
+
+Local database இணைப்புகள் மற்றும் database அட்டவணைகள் (tables) auto-creation 
+செய்யும் பகுதி:
+
+Config File Path: api/config.php
+   * உள்ளூர் MySQL database-ன் username, password மற்றும் database name-ஐ 
+     இங்கு configure செய்ய வேண்டும்.
+   
+   Code snippet:
+   $host = "localhost";
+   $db_name = "makkal_gold";
+   $username = "root";
+   $password = "anantha";  // உங்கள் Local MySQL password-ஐ இங்கு மாற்றவும்
+
+   * இந்த கோப்பு Self-healing தன்மை கொண்டது. முதல்முறை API-ஐ அணுகும்போது 
+     'makkal_gold' database மற்றும் தேவையான அனைத்து tables-ஐயும் இதுவே உருவாக்கிவிடும்.
+
+--------------------------------------------------------------------------------
+4. HOW TO RUN & TEST LOCALLY
+--------------------------------------------------------------------------------
+
+1. XAMPP / WAMP server-ல் Apache மற்றும் MySQL-ஐ Start செய்யவும்.
+2. இந்த 'Vamanan1' திட்டப் போல்டரை `xampp/htdocs/` உள்ளே வைக்கவும்.
+3. Database tables-ஐ generate செய்ய, browser-ல் `http://localhost/Vamanan1/api/config.php` 
+   என்ற முகவரிக்குச் செல்லவும்.
+4. Frontend-ஐத் தொடங்க:
+   cd frontend
+   npm run dev
+5. இப்போது `http://localhost:5173` முகவரியில் frontend இயங்கும் மற்றும் local API-களுடன் 
+   இணைக்கப்படும்.
+================================================================================
