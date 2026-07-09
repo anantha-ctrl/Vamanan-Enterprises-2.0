@@ -82,22 +82,22 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
       <div className="flex items-center gap-3 md:gap-4">
         <button 
           onClick={() => setShowMobileMenu(true)} 
-          className="lg:hidden p-2 bg-slate-900 rounded-xl text-white shadow-sm active:scale-95 transition-all"
+          className="lg:hidden p-2 bg-blue-900 rounded-xl text-white shadow-sm active:scale-95 transition-all"
         >
           <Menu size={18} />
         </button>
         
         <div className="hidden lg:flex items-center gap-3">
-          <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden p-1.5 shadow-lg border border-white/10">
-            <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+          <div className="w-11 h-11 bg-blue-900 rounded-2xl flex items-center justify-center overflow-hidden p-1.5 shadow-lg border border-white/10">
+            <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2 text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mb-0.5">
-              <span>Vamanan Gold</span>
+              <span>Vamanan Enterprises V</span>
               <div className="w-1 h-1 rounded-full bg-amber-500"></div>
               <span className="text-amber-600 italic">{portal}</span>
             </div>
-            <h1 className="text-2xl font-black tracking-tighter uppercase italic text-slate-900 leading-none">
+            <h1 className="text-2xl font-black tracking-tighter uppercase italic text-blue-900 leading-none">
               {activeTab}
             </h1>
           </div>
@@ -105,11 +105,11 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
 
         {/* Mobile App Title - Optimized */}
         <div className="lg:hidden flex items-center gap-2">
-          <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-md">
-            <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+          <div className="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-md">
+            <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col justify-center">
-             <h1 className="text-[12px] font-black tracking-tighter uppercase leading-none text-slate-900 italic">Vamanan Gold</h1>
+             <h1 className="text-[12px] font-black tracking-tighter uppercase leading-none text-blue-900 italic">Vamanan Enterprises V</h1>
              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-0.5">{portal}</span>
           </div>
         </div>
@@ -125,7 +125,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
           </div>
           <div className="flex flex-col">
             <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Status</span>
-            <span className="text-[10px] font-black text-slate-900 italic tracking-tight">Online</span>
+            <span className="text-[10px] font-black text-blue-900 italic tracking-tight">Online</span>
           </div>
         </div>
 
@@ -144,11 +144,11 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
         <div className="flex items-center gap-3 pl-2 md:pl-4 border-l border-slate-100">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 italic">Investor</span>
-            <span className="text-[11px] font-black text-slate-900 leading-none truncate max-w-[100px]">{user.name || 'User'}</span>
+            <span className="text-[11px] font-black text-blue-900 leading-none truncate max-w-[100px]">{user.name || 'User'}</span>
           </div>
           <button 
             onClick={() => navigate('/profile')}
-            className="w-10 h-10 md:w-11 md:h-11 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-500 font-black text-base shadow-xl hover:scale-105 active:scale-95 transition-all"
+            className="w-10 h-10 md:w-11 md:h-11 bg-blue-900 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-500 font-black text-base shadow-xl hover:scale-105 active:scale-95 transition-all"
           >
             {user.name ? user.name[0].toUpperCase() : <User size={20} />}
           </button>
@@ -164,7 +164,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowNotifications(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-blue-900/40 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: -100, opacity: 0 }}
@@ -177,11 +177,11 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
                     <Bell size={20} />
                   </div>
-                  <h3 className="font-black text-slate-900 text-sm uppercase tracking-tight italic">Broadcast History</h3>
+                  <h3 className="font-black text-blue-900 text-sm uppercase tracking-tight italic">Broadcast History</h3>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)}
-                  className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
+                  className="p-2 text-slate-400 hover:text-blue-900 transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -193,7 +193,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
                     <div key={i} className={`p-5 rounded-[1.5rem] border transition-all group relative ${n.is_read == 1 ? 'bg-white border-slate-100 opacity-80' : 'bg-slate-50 border-amber-100'}`}>
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <h4 className={`text-[11px] font-black uppercase tracking-tight mb-2 italic transition-colors ${n.is_read == 1 ? 'text-slate-500' : 'text-slate-900 group-hover:text-amber-600'}`}>{n.title}</h4>
+                          <h4 className={`text-[11px] font-black uppercase tracking-tight mb-2 italic transition-colors ${n.is_read == 1 ? 'text-slate-500' : 'text-blue-900 group-hover:text-amber-600'}`}>{n.title}</h4>
                           <p className="text-[10px] text-slate-500 leading-relaxed mb-3 font-medium">{n.message}</p>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -208,7 +208,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
                              <button 
                               onClick={() => handleDeleteNotification(n.id)}
                               title="Delete Notification"
-                              className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              className="p-1.5 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                              >
                               <Trash2 size={14} />
                              </button>
@@ -233,7 +233,7 @@ const CustomerHeader = ({ setShowMobileMenu, activeTab = "Dashboard" }) => {
 
               <button 
                 onClick={() => setShowNotifications(false)}
-                className="w-full mt-6 py-5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all italic"
+                className="w-full mt-6 py-5 bg-blue-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all italic"
               >
                 Dismiss Panel
               </button>

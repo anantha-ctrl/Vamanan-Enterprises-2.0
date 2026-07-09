@@ -53,7 +53,7 @@ try {
         $placeholders = implode(',', array_fill(0, count($currentLevelIds), '?'));
 
         // Count + user list at this level
-        $usersStmt = $db->prepare("SELECT id, name, created_at FROM users WHERE referrer_id IN ($placeholders)");
+        $usersStmt = $db->prepare("SELECT id, customer_id, name, created_at FROM users WHERE referrer_id IN ($placeholders)");
         $usersStmt->execute($currentLevelIds);
         $levelUsers = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
         $count = count($levelUsers);
@@ -84,12 +84,12 @@ try {
 
     // ── 4. Direct referrals (Level 1 full list) ──────────────────
     $directStmt = $db->prepare("
-        SELECT u.id, u.name, u.created_at, u.kyc_status,
+        SELECT u.id, u.customer_id, u.name, u.created_at, u.kyc_status,
                COALESCE(SUM(c.total_value), 0) as invested
         FROM users u
         LEFT JOIN cashback_cycles c ON c.user_id = u.id AND c.status = 'active'
         WHERE u.referrer_id = ?
-        GROUP BY u.id, u.name, u.created_at, u.kyc_status
+        GROUP BY u.id, u.customer_id, u.name, u.created_at, u.kyc_status
         ORDER BY u.created_at DESC
     ");
     $directStmt->execute([$userId]);

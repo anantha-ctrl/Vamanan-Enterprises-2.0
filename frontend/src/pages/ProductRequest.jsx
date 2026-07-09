@@ -19,9 +19,9 @@ const FALLBACK_CATEGORIES = [
 const STATUS_STYLES = {
   pending:   { label: 'Pending',   cls: 'bg-amber-50 text-amber-600 border-amber-100' },
   reviewing: { label: 'Reviewing', cls: 'bg-blue-50 text-blue-600 border-blue-100' },
-  approved:  { label: 'Approved',  cls: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-  rejected:  { label: 'Rejected',  cls: 'bg-rose-50 text-rose-600 border-rose-100' },
-  fulfilled: { label: 'Fulfilled', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  approved:  { label: 'Approved',  cls: 'bg-amber-50 text-amber-600 border-amber-100' },
+  rejected:  { label: 'Rejected',  cls: 'bg-blue-50 text-blue-600 border-blue-100' },
+  fulfilled: { label: 'Fulfilled', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
 };
 
 // Defined at module scope so inputs don't remount (and lose focus) on each keystroke.
@@ -40,7 +40,7 @@ const Field = ({ label, name, icon: Icon, placeholder, type = 'text', required =
         onChange={onChange}
         readOnly={readOnly}
         placeholder={placeholder}
-        className={`w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight ${readOnly ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight ${readOnly ? 'opacity-70 cursor-not-allowed' : ''}`}
       />
     </div>
   </div>
@@ -54,10 +54,10 @@ const SectionCard = ({ title, icon: Icon, children, delay = 0 }) => (
     className="bg-white border border-slate-200/60 p-8 md:p-14 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm space-y-10 md:space-y-12"
   >
     <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-      <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg">
+      <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg">
         <Icon size={20} />
       </div>
-      <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">{title}</h3>
+      <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">{title}</h3>
     </div>
     {children}
   </motion.div>
@@ -175,7 +175,7 @@ const ProductRequest = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
@@ -194,7 +194,7 @@ const ProductRequest = () => {
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                 <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Catalogue</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Request a Product</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Request a Product</h1>
               <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Can't find what you want? Request it and our team will add it</p>
             </div>
           </motion.div>
@@ -207,7 +207,7 @@ const ProductRequest = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={`p-5 md:p-6 rounded-2xl md:rounded-[2rem] flex items-center gap-4 md:gap-6 border shadow-xl ${
-                    status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'
+                    status.type === 'success' ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-blue-50 border-blue-100 text-blue-600'
                   }`}
                 >
                   {status.type === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
@@ -241,7 +241,7 @@ const ProductRequest = () => {
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
-                        className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight"
+                        className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight"
                       >
                         {categories.map((c) => (
                           <option key={c} value={c}>{c}</option>
@@ -265,13 +265,13 @@ const ProductRequest = () => {
                         value={formData.description}
                         onChange={handleInputChange}
                         placeholder="Describe the product you'd like us to add (brand, purity, model, etc.)"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight resize-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight resize-none"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-slate-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
+                <div className="flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-blue-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
                   <ShieldCheck className="text-amber-500 shrink-0 mt-1" size={22} strokeWidth={2.5} />
                   <p className="text-[8px] md:text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider italic">
                     Your request is sent to our team for review. Once approved, the product will be added to the catalogue and you'll be notified.
@@ -283,7 +283,7 @@ const ProductRequest = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
+              className="w-full bg-blue-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
             >
               {submitting ? <Loader2 className="animate-spin" size={22} /> : (
                 <>Submit Request <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>
@@ -309,7 +309,7 @@ const ProductRequest = () => {
                           <Package size={20} />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-black text-slate-900 uppercase italic truncate">{r.product_name}</p>
+                          <p className="text-sm font-black text-blue-900 uppercase italic truncate">{r.product_name}</p>
                           <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest italic mt-1">
                             {r.model ? `${r.model} · ` : ''}{r.category} · Qty {r.quantity}
                           </p>

@@ -52,8 +52,8 @@ const MobileHeader = ({ setShowMobileMenu }) => {
             className="w-full h-full object-contain" 
           />
         </div>
-        <h1 className="text-sm font-black tracking-tighter uppercase leading-none text-slate-900 italic">
-          Vamanan Gold
+        <h1 className="text-sm font-black tracking-tighter uppercase leading-none text-blue-900 italic">
+          Vamanan Enterprises V
         </h1>
       </div>
 
@@ -70,7 +70,7 @@ const MobileHeader = ({ setShowMobileMenu }) => {
         </button>
         <button 
           onClick={() => setShowMobileMenu(true)} 
-          className="p-2.5 bg-slate-900 rounded-xl text-white shadow-sm active:scale-95 transition-all"
+          className="p-2.5 bg-blue-900 rounded-xl text-white shadow-sm active:scale-95 transition-all"
         >
           <Menu size={20} />
         </button>
@@ -85,7 +85,7 @@ const MobileHeader = ({ setShowMobileMenu }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowNotifications(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-blue-900/40 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: -100, opacity: 0 }}
@@ -98,11 +98,11 @@ const MobileHeader = ({ setShowMobileMenu }) => {
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
                     <Bell size={20} />
                   </div>
-                  <h3 className="font-black text-slate-900 text-sm uppercase tracking-tight">Recent Broadcasts</h3>
+                  <h3 className="font-black text-blue-900 text-sm uppercase tracking-tight">Recent Broadcasts</h3>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)}
-                  className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
+                  className="p-2 text-slate-400 hover:text-blue-900 transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -112,7 +112,7 @@ const MobileHeader = ({ setShowMobileMenu }) => {
                 {notifications.length > 0 ? (
                   notifications.map((n, i) => (
                     <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-tight mb-1">{n.title}</h4>
+                      <h4 className="text-[11px] font-black text-blue-900 uppercase tracking-tight mb-1">{n.title}</h4>
                       <p className="text-[10px] text-slate-500 leading-relaxed mb-2 font-medium">{n.message}</p>
                       <div className="flex items-center gap-1.5 text-[8px] font-bold text-slate-400 uppercase tracking-wider">
                         <Clock size={10} />
@@ -132,7 +132,7 @@ const MobileHeader = ({ setShowMobileMenu }) => {
 
               <button 
                 onClick={() => setShowNotifications(false)}
-                className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-200"
+                className="w-full mt-6 py-4 bg-blue-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-200"
               >
                 Close Panel
               </button>

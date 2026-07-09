@@ -93,7 +93,7 @@ const CashbackPlan = () => {
   const progressPct = activeCycle?.days_completed ?? 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
@@ -110,7 +110,7 @@ const CashbackPlan = () => {
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Cashback Plan</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">My Cashback</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">My Cashback</h1>
               <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 italic">1% daily payout from your investment — tracked live</p>
             </div>
             <button
@@ -128,7 +128,7 @@ const CashbackPlan = () => {
 
             {/* Total Invested */}
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0 }}
-              className="bg-slate-900 p-5 sm:p-7 rounded-[2rem] shadow-xl group relative overflow-hidden col-span-1"
+              className="bg-blue-900 p-5 sm:p-7 rounded-[2rem] shadow-xl group relative overflow-hidden col-span-1"
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform duration-700"><TrendingUp size={80} /></div>
               <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4"><TrendingUp size={18} className="text-amber-500" /></div>
@@ -143,9 +143,9 @@ const CashbackPlan = () => {
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }}
               className="bg-white border border-slate-200/60 p-5 sm:p-7 rounded-[2rem] shadow-sm hover:shadow-xl transition-all group"
             >
-              <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-slate-900 transition-all duration-500"><Zap size={18} className="text-emerald-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
+              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-900 transition-all duration-500"><Zap size={18} className="text-amber-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Daily Payout</p>
-              <h3 className="text-xl md:text-2xl font-black text-emerald-600 italic tracking-tighter">₹{parseFloat(stats.total_daily_payout || 0).toLocaleString()}</h3>
+              <h3 className="text-xl md:text-2xl font-black text-amber-600 italic tracking-tighter">₹{parseFloat(stats.total_daily_payout || 0).toLocaleString()}</h3>
               <p className="text-[8px] text-slate-300 font-black uppercase mt-2 italic">Per day (1%)</p>
             </motion.div>
 
@@ -153,9 +153,9 @@ const CashbackPlan = () => {
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
               className="bg-white border border-slate-200/60 p-5 sm:p-7 rounded-[2rem] shadow-sm hover:shadow-xl transition-all group"
             >
-              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-slate-900 transition-all duration-500"><Gift size={18} className="text-amber-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
+              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-900 transition-all duration-500"><Gift size={18} className="text-amber-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Earned</p>
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(stats.total_earned || 0).toLocaleString()}</h3>
+              <h3 className="text-xl md:text-2xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(stats.total_earned || 0).toLocaleString()}</h3>
               <p className="text-[8px] text-slate-300 font-black uppercase mt-2 italic">{stats.cashback_percentage || 0}% of product value (excl. GST)</p>
             </motion.div>
 
@@ -163,9 +163,9 @@ const CashbackPlan = () => {
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }}
               className="bg-white border border-slate-200/60 p-5 sm:p-7 rounded-[2rem] shadow-sm hover:shadow-xl transition-all group"
             >
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-slate-900 transition-all duration-500"><Coins size={18} className="text-blue-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-900 transition-all duration-500"><Coins size={18} className="text-blue-600 group-hover:text-amber-500 transition-colors duration-500" /></div>
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Today's Earning</p>
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(stats.today_earned || 0).toLocaleString()}</h3>
+              <h3 className="text-xl md:text-2xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(stats.today_earned || 0).toLocaleString()}</h3>
               <p className="text-[8px] text-slate-300 font-black uppercase mt-2 italic">Credited today</p>
             </motion.div>
           </div>
@@ -179,7 +179,7 @@ const CashbackPlan = () => {
             >
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 uppercase italic tracking-tight">Cycle Progress</h3>
+                  <h3 className="text-lg md:text-xl font-black text-blue-900 uppercase italic tracking-tight">Cycle Progress</h3>
                   {activeCycle?.product_name && (
                     <p className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">
                       {activeCycle.product_name} · {parseFloat(activeCycle.weight || 0).toFixed(3)} Grams
@@ -187,7 +187,7 @@ const CashbackPlan = () => {
                   )}
                 </div>
                 <div className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${
-                  activeCycle?.status === 'active'    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                  activeCycle?.status === 'active'    ? 'bg-amber-50 text-amber-600 border-amber-100' :
                   activeCycle?.status === 'pending'   ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse' :
                   activeCycle?.status === 'completed' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                   'bg-slate-50 text-slate-400 border-slate-200'
@@ -212,7 +212,7 @@ const CashbackPlan = () => {
                       initial={{ width: 0 }}
                       animate={{ width: `${activeCycle?.status === 'completed' ? 100 : progressPct}%` }}
                       transition={{ duration: 1.5, ease: 'easeOut' }}
-                      className={`h-full rounded-full relative ${activeCycle?.status === 'completed' ? 'bg-blue-500' : 'bg-slate-900'}`}
+                      className={`h-full rounded-full relative ${activeCycle?.status === 'completed' ? 'bg-blue-500' : 'bg-blue-900'}`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
                     </motion.div>
@@ -228,11 +228,11 @@ const CashbackPlan = () => {
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-100 mt-6">
                 <div className="text-center">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Remaining</p>
-                  <p className="text-lg font-black text-rose-600 italic tracking-tighter">₹{parseFloat(activeCycle?.remaining_value ?? stats.total_invested ?? 0).toLocaleString()}</p>
+                  <p className="text-lg font-black text-blue-600 italic tracking-tighter">₹{parseFloat(activeCycle?.remaining_value ?? stats.total_invested ?? 0).toLocaleString()}</p>
                 </div>
                 <div className="text-center border-x border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Days Left</p>
-                  <p className="text-lg font-black text-slate-900 italic tracking-tighter">{activeCycle?.days_remaining ?? 100}</p>
+                  <p className="text-lg font-black text-blue-900 italic tracking-tighter">{activeCycle?.days_remaining ?? 100}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Referral Income</p>
@@ -243,7 +243,7 @@ const CashbackPlan = () => {
 
             {/* Next Payout + Info */}
             <motion.div initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }}
-              className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden group"
+              className="bg-blue-900 text-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden group"
             >
               <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><Clock size={200} /></div>
               <div className="relative z-10">
@@ -262,7 +262,7 @@ const CashbackPlan = () => {
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">No payouts on weekends & holidays</p>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
-                  <TrendingDown size={14} className="text-rose-400 shrink-0" />
+                  <TrendingDown size={14} className="text-blue-400 shrink-0" />
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Cycle closes when 100% is earned</p>
                 </div>
               </div>
@@ -275,9 +275,9 @@ const CashbackPlan = () => {
           >
             <div className="p-8 md:p-12 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Activity size={20} /></div>
+                <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Activity size={20} /></div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 tracking-tighter uppercase italic">Cashback History</h3>
+                  <h3 className="text-lg font-black text-blue-900 tracking-tighter uppercase italic">Cashback History</h3>
                   <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic">{filteredTx.length} entries found</p>
                 </div>
               </div>
@@ -286,7 +286,7 @@ const CashbackPlan = () => {
                 {['all', 'cashback', 'referral'].map(f => (
                   <button key={f} type="button" onClick={() => setActiveFilter(f)}
                     className={`px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest border transition-all ${
-                      activeFilter === f ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-400 hover:text-amber-600'
+                      activeFilter === f ? 'bg-blue-900 text-white border-blue-900' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-400 hover:text-amber-600'
                     }`}
                   >{f}</button>
                 ))}
@@ -315,25 +315,25 @@ const CashbackPlan = () => {
                         initial={{ opacity:0 }} whileInView={{ opacity:1 }}
                         className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group/row"
                       >
-                        <td className="px-8 md:px-12 py-5 text-[10px] font-black text-slate-900 italic">
+                        <td className="px-8 md:px-12 py-5 text-[10px] font-black text-blue-900 italic">
                           {date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                           <p className="text-[8px] text-slate-300 font-black uppercase mt-0.5">{date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</p>
                         </td>
                         <td className="px-8 md:px-12 py-5">
                           <span className={`px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${
-                            isCashback ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
+                            isCashback ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                           }`}>
                             {isCashback ? '🎁 Cashback' : '👥 Referral'}
                           </span>
                         </td>
                         <td className="px-8 md:px-12 py-5 text-[9px] font-black text-slate-500 italic max-w-[200px] truncate">{tx.description}</td>
                         <td className="px-8 md:px-12 py-5 text-right">
-                          <span className="text-base md:text-lg font-black text-emerald-600 italic tracking-tighter group-hover/row:text-amber-600 transition-colors">
+                          <span className="text-base md:text-lg font-black text-amber-600 italic tracking-tighter group-hover/row:text-amber-600 transition-colors">
                             +₹{parseFloat(tx.amount).toLocaleString()}
                           </span>
                         </td>
                         <td className="px-8 md:px-12 py-5 text-center">
-                          <div className={`inline-flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest ${tx.status === 'completed' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                          <div className={`inline-flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest ${tx.status === 'completed' ? 'text-amber-500' : 'text-amber-500'}`}>
                             {tx.status === 'completed' ? <CheckCircle2 size={13} strokeWidth={3} /> : <Clock size={13} />}
                             {humanStatus(tx.status)}
                           </div>

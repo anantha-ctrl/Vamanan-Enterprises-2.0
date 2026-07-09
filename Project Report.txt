@@ -1,5 +1,5 @@
 # Institutional Project Report: Vamanan Enterprises V (Makkal Gold)
-**Date**: May 16, 2026 (rev. June 18, 2026 — Multi-Role Staff Onboarding & Live Tally Auto-Refresh)
+**Date**: May 16, 2026 (rev. July 9, 2026 — Engagement Suite, Blue-Navy Rebrand & Mobile Hardening)
 **Project Status**: High-Fidelity Beta / Production Ready
 **Architect**: Antigravity (Advanced Agentic AI)
 
@@ -14,7 +14,7 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 **Objective**: Establish the core data matrix and authentication protocols.
 - **Self-Healing Database Architecture**: Engineered a zero-config PHP initialization script that automatically constructs the MySQL schema, including complex relationships for Wallets, Transactions, and Investment Cycles.
 - **Sovereign Auth Node**: Implemented a secure registration and login system with encrypted session persistence and role-based redirect logic (Admin, Manager, Staff, Customer).
-- **Cinematic Landing Interface**: Developed a premium "Gold & Black" landing portal with high-impact typography, Framer Motion transitions, and real-time performance indicators.
+- **Cinematic Landing Interface**: Developed a premium landing portal with high-impact typography, Framer Motion transitions, and real-time performance indicators (re-themed to the blue-navy + gold palette in Phase 11).
 
 ## 📦 Phase 2: Asset Management & Commercial Node
 **Objective**: Enable gold/silver acquisition and inventory oversight.
@@ -71,6 +71,15 @@ Vamanan Enterprises V is a state-of-the-art institutional gold management platfo
 **Objective**: Broaden staff provisioning beyond a single role and make the accounting bridge truly real-time.
 - **Multi-Role Recruitment**: Replaced the fixed `staff` role on the Add-Staff (Recruitment) node with a live **Staff / Manager / Advocate** selector. Each onboarding inserts directly into the MySQL `users` table with an auto-initialized wallet, server-side validated against an allow-list (`admin` is rejected by design). New accounts surface instantly in the user list and in Settings → Access Control.
 - **Real-Time Tally Auto-Refresh**: The Tally Integration module now silently re-pulls every data tab (Dashboard, Ledgers, Reports, Vouchers, Reconciliation, Audit) from MySQL every 15 seconds — no spinner flicker, paused when the browser tab is hidden, and skipping the Settings tab so an in-progress edit is never overwritten. Settings persist to and read back from the `tally_settings` table.
+
+## 🤝 Phase 11: Engagement Suite, Blue-Navy Rebrand & Mobile Hardening
+**Objective**: Add two-way customer engagement, promotional reach, consistent member identity, and a cohesive responsive theme.
+- **Two-Way Feedback & Remarks**: New bidirectional channel on a `feedbacks` table — customers submit rated feedback and read team replies (widget on Dashboard + Profile); admin/staff operate a **Feedback & Remarks** console with a customer inbox, compose-to-customer (auto-notifies the recipient), and sent history. Both sides poll every 20 seconds.
+- **Festival Offers & Login Promotions**: Admin **Offers & Festivals** console (`offers` table) publishes banners with a pick-able accent colour and optional validity window; active offers appear as a **post-login popup** and a **login-page banner**, managed in real time.
+- **VEV Member IDs Everywhere**: `VEV###` member IDs surfaced across the Profile, admin Users grid (own ID + **Referred By** upline), the Advocate customer directory, and the Referral direct-members and downline tree — all served live from MySQL.
+- **Profile / Login / Register Redesign**: Rebuilt the profile hero so the name always sits on a white identity card (never over the banner), added referral code / join date / lifetime cashback, and embedded the feedback widget; enlarged the logo + **Vamanan Enterprises V** wordmark on the auth cards with a live offers banner.
+- **Advocate Purchase Totals**: Real-time totals summary (count, total incl. GST, ex-GST, GST) plus a grand-total footer on the Advocate Purchases tab.
+- **Blue-Navy + Gold Rebrand & Mobile Pass**: Re-themed the whole suite (white base, `blue-900` surfaces, `blue-600` primary, gold accents, red Logout) and hardened mobile layouts across the admin credential modal, Settings, Tally Integration/Export, Wallet List, and the Landing page (incl. fixing the clipped mobile-menu Register button).
 
 ## 🔄 Project Workflow
 
@@ -139,6 +148,11 @@ and the Tally ERP accounting bridge.
 - [x] GST-Aware Tally Bridge (ex-GST sales + Output CGST/SGST, GST Payable, offline XML fallback)
 - [x] Bulk User Provisioning & Manual Access Control (Settings → Access Control)
 - [x] Multi-Role Staff Onboarding (Staff/Manager/Advocate) & Live 15s Tally Auto-Refresh
+- [x] Two-Way Feedback & Remarks Channel (customer ↔ admin/staff, real-time)
+- [x] Festival Offers & Login Promotions (admin console + post-login popup + login banner)
+- [x] VEV Member IDs Surfaced Across Profile, Users, Advocate & Referral Views
+- [x] Profile / Login / Register Redesign & Advocate Purchase Totals
+- [x] Blue-Navy + Gold Rebrand with Full Mobile-Responsiveness Pass
 
 ---
 **Institutional Note**: This project is architected for extreme scalability and fiscal transparency, ensuring that every milligram of gold and every rupee of yield is accounted for in the sovereign ledger.

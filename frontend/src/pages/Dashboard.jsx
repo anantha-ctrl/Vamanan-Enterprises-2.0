@@ -14,6 +14,7 @@ import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
 import { invoiceFromOrder } from '../utils/invoice';
+import FeedbackWidget from '../components/FeedbackWidget';
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -96,7 +97,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900 relative">
+    <div className="min-h-screen bg-slate-50 font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900 relative">
       <Sidebar 
         showMobileMenu={showMobileMenu} 
         setShowMobileMenu={setShowMobileMenu} 
@@ -114,17 +115,17 @@ const Dashboard = () => {
            >
               <div className="max-w-2xl">
                  <div className="flex items-center gap-3 mb-3 md:mb-4">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Active Session</span>
                  </div>
-                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Dashboard</h1>
+                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Dashboard</h1>
                  <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-4 italic">Welcome back, {user.name} • Customer ID {data?.customer_id || user.customer_id || `VEV${String(user.id).padStart(3, '0')}`}</p>
               </div>
                <div className="flex items-center gap-3 w-full lg:w-auto">
                   <button type="button" onClick={() => fetchDashboardData(true)}
                     className="bg-white border border-slate-200 px-5 py-5 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"
                   ><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /></button>
-                  <button onClick={() => navigate('/shop')} className="flex-1 lg:flex-none bg-slate-900 text-white px-8 md:px-12 py-5 rounded-2xl md:rounded-[2rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl active:scale-95 italic group flex items-center justify-center gap-3">
+                  <button onClick={() => navigate('/shop')} className="flex-1 lg:flex-none bg-blue-900 text-white px-8 md:px-12 py-5 rounded-2xl md:rounded-[2rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl active:scale-95 italic group flex items-center justify-center gap-3">
                      Invest Now <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                   </button>
                </div>
@@ -135,7 +136,7 @@ const Dashboard = () => {
 
               {/* Tile 1 — Total Invested Amount */}
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0 }}
-                className="bg-slate-900 p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl hover:shadow-amber-900/20 hover:-translate-y-2 transition-all group relative overflow-hidden"
+                className="bg-blue-900 p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl hover:shadow-amber-900/20 hover:-translate-y-2 transition-all group relative overflow-hidden"
               >
                 <div className="absolute -right-8 -bottom-8 text-white/5 group-hover:scale-110 transition-transform duration-700"><TrendingUp size={100} /></div>
                 <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-amber-500/20 transition-all">
@@ -154,15 +155,15 @@ const Dashboard = () => {
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
                 className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group"
               >
-                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500">
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500">
                   <Award className="text-amber-600" size={22} />
                 </div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Gold Cashback</p>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic">
+                <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic">
                   ₹{parseFloat(data?.active_cycle?.total_earned || 0).toLocaleString()}
                 </h3>
-                <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-3 italic flex items-center gap-2">
-                   <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span> Total Realized
+                <p className="text-[8px] font-bold text-amber-500 uppercase tracking-widest mt-3 italic flex items-center gap-2">
+                   <span className="w-1 h-1 bg-amber-500 rounded-full animate-pulse"></span> Total Realized
                 </p>
               </motion.div>
 
@@ -170,11 +171,11 @@ const Dashboard = () => {
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
                 className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group"
               >
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500">
-                  <Zap className="text-emerald-600" size={22} />
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500">
+                  <Zap className="text-amber-600" size={22} />
                 </div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Daily Cashback</p>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic">
+                <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic">
                   ₹{parseFloat(data?.active_cycle?.today_earning || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-3 italic">
@@ -186,11 +187,11 @@ const Dashboard = () => {
                <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3 }}
                  className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group"
                >
-                 <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500">
+                 <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500">
                    <Network className="text-blue-600" size={22} />
                  </div>
                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Network Commissions</p>
-                 <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic">
+                 <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic">
                    ₹{parseFloat(data?.active_cycle?.total_referral_earned || 0).toLocaleString()}
                  </h3>
                  <p className="text-[8px] font-bold text-blue-500 uppercase tracking-widest mt-3 italic flex items-center gap-2">
@@ -200,13 +201,13 @@ const Dashboard = () => {
 
               {/* Tile 5 — Remaining Amount (decreasing) */}
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.4 }}
-                className={`p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group ${data?.active_cycle?.is_closing_soon ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-200/60'}`}
+                className={`p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group ${data?.active_cycle?.is_closing_soon ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200/60'}`}
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500 ${data?.active_cycle?.is_closing_soon ? 'bg-rose-100' : 'bg-slate-50'}`}>
-                  <TrendingDown className={data?.active_cycle?.is_closing_soon ? 'text-rose-500' : 'text-amber-600'} size={22} />
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500 ${data?.active_cycle?.is_closing_soon ? 'bg-blue-100' : 'bg-slate-50'}`}>
+                  <TrendingDown className={data?.active_cycle?.is_closing_soon ? 'text-blue-500' : 'text-amber-600'} size={22} />
                 </div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Remaining Amount</p>
-                <h3 className={`text-2xl md:text-3xl font-black tracking-tighter italic ${data?.active_cycle?.is_closing_soon ? 'text-rose-600' : 'text-slate-900'}`}>
+                <h3 className={`text-2xl md:text-3xl font-black tracking-tighter italic ${data?.active_cycle?.is_closing_soon ? 'text-blue-600' : 'text-blue-900'}`}>
                   ₹{parseFloat(data?.active_cycle?.remaining_value ?? data?.active_cycle?.total_value ?? 0).toLocaleString()}
                 </h3>
                 <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
@@ -214,7 +215,7 @@ const Dashboard = () => {
                     initial={{ width: 0 }}
                     animate={{ width: `${data?.active_cycle?.cashback_percentage || 0}%` }}
                     transition={{ duration: 1.2, ease: 'easeOut' }}
-                    className={`h-full rounded-full ${data?.active_cycle?.is_closing_soon ? 'bg-rose-500' : 'bg-amber-400'}`}
+                    className={`h-full rounded-full ${data?.active_cycle?.is_closing_soon ? 'bg-blue-500' : 'bg-amber-400'}`}
                   />
                 </div>
               </motion.div>
@@ -223,11 +224,11 @@ const Dashboard = () => {
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.4 }}
                 className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group"
               >
-                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500">
+                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500">
                   <Calendar className="text-blue-600 group-hover:text-amber-500 transition-colors duration-500" size={22} />
                 </div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Days Progress</p>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic">
+                <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic">
                   {data?.active_cycle?.days_completed || 0}
                   <span className="text-slate-300 text-lg"> / 100</span>
                 </h3>
@@ -236,7 +237,7 @@ const Dashboard = () => {
                     initial={{ width: 0 }}
                     animate={{ width: `${data?.active_cycle?.days_completed || 0}%` }}
                     transition={{ duration: 1.2, ease: 'easeOut' }}
-                    className="h-full bg-slate-900 rounded-full"
+                    className="h-full bg-blue-900 rounded-full"
                   />
                 </div>
               </motion.div>
@@ -246,17 +247,17 @@ const Dashboard = () => {
                 className="bg-white p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group cursor-pointer"
                 onClick={() => navigate('/wallet')}
               >
-                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-slate-900 transition-all duration-500">
-                  <Wallet className="text-slate-900 group-hover:text-amber-500 transition-colors duration-500" size={22} />
+                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-blue-900 transition-all duration-500">
+                  <Wallet className="text-blue-900 group-hover:text-amber-500 transition-colors duration-500" size={22} />
                 </div>
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Wallet Balance</p>
                   <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span className="text-[8px] text-emerald-500 font-black uppercase tracking-widest">Live</span>
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                    <span className="text-[8px] text-amber-500 font-black uppercase tracking-widest">Live</span>
                   </span>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic">
+                <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic">
                   ₹{parseFloat(data?.balance || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-3 italic group-hover:text-amber-600 transition-colors">
@@ -276,7 +277,7 @@ const Dashboard = () => {
               >
                  <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-10 md:mb-12">
                     <div>
-                       <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Investment Progress</h3>
+                       <h3 className="text-xl md:text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Investment Progress</h3>
                        {data?.active_cycle?.product_name && (
                          <p className="text-[9px] md:text-[10px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">
                            {data.active_cycle.product_name} · {parseFloat(data.active_cycle.weight || 0).toFixed(3)} Grams
@@ -285,7 +286,7 @@ const Dashboard = () => {
                        <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Real-time tracking of your active investments</p>
                     </div>
                     <div className={`px-5 md:px-6 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm italic ${
-                      data?.active_cycle?.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      data?.active_cycle?.status === 'active' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                       data?.active_cycle?.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                       data?.active_cycle?.status === 'completed' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                       'bg-slate-50 text-slate-400 border-slate-200'
@@ -309,7 +310,7 @@ const Dashboard = () => {
                           ) : data?.active_cycle?.status === 'completed' ? (
                             <span className="text-blue-600">✓ 100 / 100 Days Complete</span>
                           ) : (
-                            <span className="text-emerald-600">{data?.active_cycle?.days_completed || 0} / 100 Days</span>
+                            <span className="text-amber-600">{data?.active_cycle?.days_completed || 0} / 100 Days</span>
                           )}
                        </div>
 
@@ -326,7 +327,7 @@ const Dashboard = () => {
                               animate={{ width: data?.active_cycle?.status === 'completed' ? '100%' : `${data?.active_cycle?.days_completed || 0}%` }}
                               transition={{ duration: 1.5, ease: "easeOut" }}
                               className={`h-full rounded-full relative ${
-                                data?.active_cycle?.status === 'completed' ? 'bg-blue-500' : 'bg-slate-900'
+                                data?.active_cycle?.status === 'completed' ? 'bg-blue-500' : 'bg-blue-900'
                               }`}
                             >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
@@ -349,28 +350,28 @@ const Dashboard = () => {
                           <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shrink-0"><Calendar size={18} /></div>
                           <div>
                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Days Done</p>
-                             <p className="text-xs md:text-sm font-black text-slate-900 italic">{data?.active_cycle?.days_completed || 0} <span className="text-slate-300">/ 100</span></p>
+                             <p className="text-xs md:text-sm font-black text-blue-900 italic">{data?.active_cycle?.days_completed || 0} <span className="text-slate-300">/ 100</span></p>
                           </div>
                        </div>
                        <div className="flex items-center gap-3 md:gap-4">
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm shrink-0"><Zap size={18} /></div>
+                          <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-600 shadow-sm shrink-0"><Zap size={18} /></div>
                           <div>
                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Daily Payout</p>
-                             <p className="text-xs md:text-sm font-black text-emerald-600 italic">₹{parseFloat(data?.active_cycle?.daily_payout || 0).toLocaleString()}</p>
+                             <p className="text-xs md:text-sm font-black text-amber-600 italic">₹{parseFloat(data?.active_cycle?.daily_payout || 0).toLocaleString()}</p>
                           </div>
                        </div>
                        <div className="flex items-center gap-3 md:gap-4">
                           <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-blue-600 shadow-sm shrink-0"><Clock size={18} /></div>
                           <div>
                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Days Left</p>
-                             <p className="text-xs md:text-sm font-black text-slate-900 italic">{data?.active_cycle?.days_remaining ?? 100} Days</p>
+                             <p className="text-xs md:text-sm font-black text-blue-900 italic">{data?.active_cycle?.days_remaining ?? 100} Days</p>
                           </div>
                        </div>
                        <div className="flex items-center gap-3 md:gap-4">
                           <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-600 shadow-sm shrink-0"><TrendingUp size={18} /></div>
                           <div>
                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Daily Rate</p>
-                             <p className="text-xs md:text-sm font-black text-slate-900 italic">{data?.active_cycle?.daily_rate || 1}%</p>
+                             <p className="text-xs md:text-sm font-black text-blue-900 italic">{data?.active_cycle?.daily_rate || 1}%</p>
                           </div>
                        </div>
                     </div>
@@ -378,7 +379,7 @@ const Dashboard = () => {
                     {/* Active Plans Badge */}
                     {(data?.active_cycle?.active_plans_count || 0) > 0 && (
                       <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">
                           {data.active_cycle.active_plans_count} Active Investment {data.active_cycle.active_plans_count > 1 ? 'Plans' : 'Plan'} Running
                         </span>
@@ -391,7 +392,7 @@ const Dashboard = () => {
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-slate-900 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group border border-white/5"
+                className="bg-blue-900 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group border border-white/5"
               >
                  <div className="absolute -right-20 -bottom-20 text-white/5 group-hover:scale-110 transition-transform duration-1000"><Globe size={250} /></div>
                  
@@ -432,7 +433,7 @@ const Dashboard = () => {
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button 
                       onClick={() => navigate('/referrals')}
-                      className="w-full bg-slate-800 text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] hover:bg-slate-700 transition-all border border-white/5 flex items-center justify-center gap-2 italic"
+                      className="w-full bg-blue-800 text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] hover:bg-slate-700 transition-all border border-white/5 flex items-center justify-center gap-2 italic"
                     >
                         <Network size={14} className="text-amber-500" /> View Network
                     </button>
@@ -443,7 +444,7 @@ const Dashboard = () => {
                         navigator.clipboard.writeText(refLink);
                         alert("Referral link copied to clipboard!");
                       }}
-                      className="w-full bg-white text-slate-900 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] hover:bg-amber-500 hover:text-white transition-all shadow-xl active:scale-95 italic flex items-center justify-center gap-2"
+                      className="w-full bg-white text-blue-900 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] hover:bg-amber-500 hover:text-white transition-all shadow-xl active:scale-95 italic flex items-center justify-center gap-2"
                     >
                         <Share2 size={14} /> Copy Link
                     </button>
@@ -461,9 +462,9 @@ const Dashboard = () => {
            >
               <div className="flex items-center justify-between mb-8 md:mb-10">
                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><FileText size={20} /></div>
+                    <div className="w-11 h-11 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><FileText size={20} /></div>
                     <div>
-                       <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase italic">Orders & Invoices</h3>
+                       <h3 className="text-lg md:text-xl font-black text-blue-900 tracking-tighter uppercase italic">Orders & Invoices</h3>
                        <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5 italic">Tax invoices with CGST / SGST breakdown</p>
                     </div>
                  </div>
@@ -484,7 +485,7 @@ const Dashboard = () => {
                        <div className="flex items-center gap-4 min-w-0">
                           <div className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 shrink-0"><ShoppingBag size={16} /></div>
                           <div className="min-w-0">
-                             <p className="text-xs md:text-sm font-black text-slate-900 italic truncate">{order.cycle_product_name || order.product_name || `Order #${order.id}`}</p>
+                             <p className="text-xs md:text-sm font-black text-blue-900 italic truncate">{order.cycle_product_name || order.product_name || `Order #${order.id}`}</p>
                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic mt-0.5">
                                 INV-{order.id} · {new Date(order.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })} · ₹{parseFloat(order.total_amount || order.total_value || 0).toLocaleString()} incl. GST
                              </p>
@@ -492,14 +493,14 @@ const Dashboard = () => {
                        </div>
                        <div className="flex items-center gap-3 shrink-0">
                           <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
-                            order.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            order.status === 'active' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                             order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                             order.status === 'completed' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                            order.status === 'rejected' ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                            order.status === 'rejected' ? 'bg-blue-50 text-blue-500 border-blue-100' :
                             'bg-slate-100 text-slate-400 border-slate-200'
                           }`}>{order.status}</span>
                           <button onClick={() => viewInvoice(order)}
-                            className="bg-slate-900 text-white px-4 md:px-5 py-2.5 rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all active:scale-95 italic flex items-center gap-2">
+                            className="bg-blue-900 text-white px-4 md:px-5 py-2.5 rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all active:scale-95 italic flex items-center gap-2">
                              <FileText size={13} /> View Invoice
                           </button>
                        </div>
@@ -528,20 +529,23 @@ const Dashboard = () => {
                 onClick={() => navigate('/shop')} 
                 className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-amber-500 transition-all shadow-sm hover:shadow-2xl"
               >
-                 <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-900 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center text-amber-500 mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-500 shadow-xl"><TrendingUp size={32} md:size={40} strokeWidth={2.5} /></div>
-                 <h4 className="text-lg md:text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Acquire Gold</h4>
+                 <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-900 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center text-amber-500 mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-500 shadow-xl"><TrendingUp size={32} md:size={40} strokeWidth={2.5} /></div>
+                 <h4 className="text-lg md:text-xl font-black text-blue-900 uppercase italic tracking-tighter mb-2">Acquire Gold</h4>
                  <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest italic text-center">Scale your institutional portfolio</p>
               </button>
               
               <button 
                 onClick={() => navigate('/wallet')} 
-                className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-slate-900 transition-all shadow-sm hover:shadow-2xl"
+                className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-blue-900 transition-all shadow-sm hover:shadow-2xl"
               >
-                 <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center text-slate-400 mb-6 md:mb-8 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-xl"><CreditCard size={32} md:size={40} strokeWidth={2.5} /></div>
-                 <h4 className="text-lg md:text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Wallet Operations</h4>
+                 <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center text-slate-400 mb-6 md:mb-8 group-hover:bg-blue-900 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-xl"><CreditCard size={32} md:size={40} strokeWidth={2.5} /></div>
+                 <h4 className="text-lg md:text-xl font-black text-blue-900 uppercase italic tracking-tighter mb-2">Wallet Operations</h4>
                  <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest italic text-center">Manage withdrawals and terminal history</p>
               </button>
            </div>
+
+           {/* Feedback & Remarks */}
+           <FeedbackWidget />
         </main>
       </div>
     </div>

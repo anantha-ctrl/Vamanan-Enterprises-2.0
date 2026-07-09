@@ -15,7 +15,7 @@ $user_id = $_GET['user_id'];
 
 try {
     // 1. Fetch User Basic Info
-    $user_query = "SELECT id, name, email, phone, address, kyc_status, aadhar_no, pan_no, avatar, bank_name, account_no, ifsc_code FROM users WHERE id = :id";
+    $user_query = "SELECT id, customer_id, name, email, phone, address, kyc_status, aadhar_no, pan_no, avatar, bank_name, account_no, ifsc_code, referral_code, created_at FROM users WHERE id = :id";
     $user_stmt = $pdo->prepare($user_query);
     $user_stmt->bindParam(":id", $user_id);
     $user_stmt->execute();
@@ -33,11 +33,13 @@ try {
     $wallet_stmt->execute();
     $wallet = $wallet_stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 3. Fetch Stats (Total Invested, Active Cycles)
-    $stats_query = "SELECT 
+    // 3. Fetch Stats (Total Invested, Active Cycles, Referrals, Cashback earned)
+    $stats_query = "SELECT
                         (SELECT COUNT(*) FROM cashback_cycles WHERE user_id = :id AND status = 'active') as active_cycles,
                         (SELECT SUM(total_value) FROM cashback_cycles WHERE user_id = :id) as total_invested,
-                        (SELECT COUNT(*) FROM users WHERE referrer_id = :id) as referral_count";
+                        (SELECT COUNT(*) FROM users WHERE referrer_id = :id) as referral_count,
+                        (SELECT COALESCE(SUM(t.amount),0) FROM transactions t JOIN wallets w ON t.wallet_id = w.id
+                          WHERE w.user_id = :id AND t.category = 'cashback' AND t.type = 'credit') as total_cashback";
     $stats_stmt = $pdo->prepare($stats_query);
     $stats_stmt->bindParam(":id", $user_id);
     $stats_stmt->execute();
@@ -51,7 +53,8 @@ try {
             "stats" => [
                 "active_cycles" => $stats['active_cycles'] ?: 0,
                 "total_invested" => $stats['total_invested'] ?: 0,
-                "referral_count" => $stats['referral_count'] ?: 0
+                "referral_count" => $stats['referral_count'] ?: 0,
+                "total_cashback" => $stats['total_cashback'] ?: 0
             ]
         ]
     ]);

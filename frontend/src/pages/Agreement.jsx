@@ -55,7 +55,7 @@ const Agreement = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900 print:bg-white">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900 print:bg-white">
       <div className="print:hidden">
         <Sidebar 
           showMobileMenu={showMobileMenu} 
@@ -90,19 +90,19 @@ const Agreement = () => {
                   <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                   <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Legal Document</span>
                </div>
-               <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Agreement</h2>
+               <h2 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Agreement</h2>
                <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Your digital gold purchase certificate</p>
             </div>
             <div className="flex w-full md:w-auto gap-4">
                 <button 
                   onClick={handlePrint}
-                  className="flex-1 md:flex-none p-4 md:p-5 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-slate-400 hover:text-slate-900 transition-all shadow-sm active:scale-95 group flex items-center justify-center"
+                  className="flex-1 md:flex-none p-4 md:p-5 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-slate-400 hover:text-blue-900 transition-all shadow-sm active:scale-95 group flex items-center justify-center"
                   title="Print"
                 >
                   <Printer size={20} md:size={22} className="group-hover:scale-110 transition-transform" />
                 </button>
                <button 
-                 className="flex-1 md:flex-none flex items-center justify-center gap-3 md:gap-4 bg-slate-900 text-white px-6 md:px-10 py-4 md:py-5 rounded-xl md:rounded-[1.5rem] font-black hover:bg-amber-600 transition-all shadow-2xl active:scale-95 uppercase text-[9px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] italic border border-white/10"
+                 className="flex-1 md:flex-none flex items-center justify-center gap-3 md:gap-4 bg-blue-900 text-white px-6 md:px-10 py-4 md:py-5 rounded-xl md:rounded-[1.5rem] font-black hover:bg-amber-600 transition-all shadow-2xl active:scale-95 uppercase text-[9px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] italic border border-white/10"
                >
                  <Download size={18} md:size={20} /> Download
                </button>
@@ -119,10 +119,10 @@ const Agreement = () => {
                   <ShieldCheck size={40} md:size={64} strokeWidth={1} />
                </div>
                <div>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 uppercase mb-3 tracking-tighter italic leading-none">No Agreement Yet</h3>
+                  <h3 className="text-2xl md:text-3xl font-black text-blue-900 uppercase mb-3 tracking-tighter italic leading-none">No Agreement Yet</h3>
                   <p className="text-[10px] md:text-[11px] text-slate-400 font-black uppercase tracking-[0.25em] italic leading-relaxed max-w-xs mx-auto">You haven't made a purchase yet. Buy gold to generate your agreement.</p>
                </div>
-               <button onClick={() => navigate('/shop')} className="bg-slate-900 text-white px-10 md:px-12 py-5 md:py-6 rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] shadow-2xl hover:bg-amber-600 transition-all italic active:scale-95">Buy Gold</button>
+               <button onClick={() => navigate('/shop')} className="bg-blue-900 text-white px-10 md:px-12 py-5 md:py-6 rounded-xl md:rounded-[1.5rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] shadow-2xl hover:bg-amber-600 transition-all italic active:scale-95">Buy Gold</button>
             </motion.div>
           ) : (
             <motion.div 
@@ -132,10 +132,10 @@ const Agreement = () => {
               className="bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-slate-100 p-8 sm:p-12 md:p-24 lg:p-32 rounded-[2.5rem] md:rounded-[5rem] relative overflow-hidden print-container print:rounded-none"
             >
               {/* Document Header */}
-              <div className="text-center mb-8 md:mb-24 border-b-4 border-slate-900 pb-6 md:pb-16 relative print:mb-6 print:pb-4">
+              <div className="text-center mb-8 md:mb-24 border-b-4 border-blue-900 pb-6 md:pb-16 relative print:mb-6 print:pb-4">
                 <div className="absolute top-0 right-0 p-8 opacity-5 print:hidden"><Crown size={150} /></div>
                 <div className="flex justify-center mb-8 md:mb-10">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-900 rounded-2xl md:rounded-[2rem] flex items-center justify-center p-3 md:p-4 shadow-2xl border-4 border-white">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-blue-900 rounded-2xl md:rounded-[2rem] flex items-center justify-center p-3 md:p-4 shadow-2xl border-4 border-white">
                     <img 
                       src="/vamanan-logo.png" 
                       alt="Logo" 
@@ -143,13 +143,13 @@ const Agreement = () => {
                     />
                   </div>
                 </div>
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 mb-3 md:mb-4 uppercase italic leading-tight">{humanAgreementType(data.agreement?.type || 'Gold Purchase Agreement')}</h1>
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-blue-900 mb-3 md:mb-4 uppercase italic leading-tight">{humanAgreementType(data.agreement?.type || 'Gold Purchase Agreement')}</h1>
                 <p className="text-amber-600 text-[9px] md:text-[11px] font-black tracking-[0.3em] md:tracking-[0.5em] uppercase italic">Agreement ID: {data.agreement?.agreement_id || `VAM_${data.agreement?.id || '01'}`}</p>
               </div>
 
               {/* Legal Text Section */}
-              <div className="space-y-8 md:space-y-16 text-slate-800 leading-loose text-sm sm:text-base md:text-lg font-serif italic print:space-y-4">
-                <p className="text-base sm:text-xl border-l-4 border-amber-500 pl-6 md:pl-8 py-2 font-black text-slate-900 not-italic uppercase tracking-tight">
+              <div className="space-y-8 md:space-y-16 text-blue-800 leading-loose text-sm sm:text-base md:text-lg font-serif italic print:space-y-4">
+                <p className="text-base sm:text-xl border-l-4 border-amber-500 pl-6 md:pl-8 py-2 font-black text-blue-900 not-italic uppercase tracking-tight">
                   This agreement is made on this <span className="text-amber-600 underline decoration-amber-500/30 underline-offset-8">{data.agreement?.agreement_date ? new Date(data.agreement.agreement_date).getDate() : '---'}</span> day of <span className="text-amber-600 underline decoration-amber-500/30 underline-offset-8">{data.agreement?.agreement_date ? new Date(data.agreement.agreement_date).toLocaleString('default', { month: 'long' }) : '---'}</span>, <span className="text-amber-600 underline decoration-amber-500/30 underline-offset-8">{data.agreement?.agreement_date ? new Date(data.agreement.agreement_date).getFullYear() : '2026'}</span> at the Krishnagiri Hub.
                 </p>
 
@@ -157,7 +157,7 @@ const Agreement = () => {
                   <div className="bg-slate-50 p-8 md:p-12 rounded-[2rem] md:rounded-[3.5rem] border border-slate-100 shadow-inner relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000"><Landmark size={120} /></div>
                     <h3 className="font-black text-slate-400 mb-4 md:mb-6 uppercase tracking-[0.4em] text-[8px] md:text-[10px] italic relative z-10">Company (Seller)</h3>
-                    <p className="text-lg md:text-xl font-black text-slate-900 uppercase italic mb-3 md:mb-4 relative z-10">{data.company?.name || 'VAMANAN ENTERPRISES'}</p>
+                    <p className="text-lg md:text-xl font-black text-blue-900 uppercase italic mb-3 md:mb-4 relative z-10">{data.company?.name || 'VAMANAN ENTERPRISES'}</p>
                     <p className="text-slate-500 text-[9px] md:text-[11px] font-bold uppercase tracking-widest leading-relaxed relative z-10">{data.company?.office || 'Krishnagiri Operations Center, Tamil Nadu – 635 002.'}</p>
                   </div>
 
@@ -167,11 +167,11 @@ const Agreement = () => {
                     <div className="space-y-4 md:space-y-6 relative z-10">
                        <div>
                          <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1 italic">Name</p>
-                         <p className="text-lg md:text-xl font-black text-slate-900 uppercase italic">{data.user?.name || '---'}</p>
+                         <p className="text-lg md:text-xl font-black text-blue-900 uppercase italic">{data.user?.name || '---'}</p>
                        </div>
                        <div>
                          <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1 italic">Aadhaar / PAN</p>
-                         <p className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-tighter">{data.user?.aadhar_no || '---'} / {data.user?.pan_no || '---'}</p>
+                         <p className="text-xs md:text-sm font-black text-blue-900 uppercase tracking-tighter">{data.user?.aadhar_no || '---'} / {data.user?.pan_no || '---'}</p>
                        </div>
                     </div>
                   </div>
@@ -179,8 +179,8 @@ const Agreement = () => {
 
                 <section className="space-y-8 md:space-y-10">
                   <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
-                     <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-900 text-amber-500 rounded-xl flex items-center justify-center shadow-lg"><FileText size={20} md:size={24} /></div>
-                     <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">1. Purchase Details</h2>
+                     <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-900 text-amber-500 rounded-xl flex items-center justify-center shadow-lg"><FileText size={20} md:size={24} /></div>
+                     <h2 className="text-xl md:text-2xl font-black text-blue-900 uppercase italic tracking-tighter">1. Purchase Details</h2>
                   </div>
                   <div className="space-y-6 md:space-y-8 font-sans not-italic">
                     <p className="text-slate-600 text-xs md:text-base leading-relaxed"><strong>1.1 Purchase:</strong> The customer buys gold and starts earning daily cashback right away.</p>
@@ -190,7 +190,7 @@ const Agreement = () => {
                     <div className="mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 border-y-2 border-slate-100 py-8 md:py-12 bg-slate-50/50 rounded-[2rem] md:rounded-[3rem] px-8 md:px-10">
                       <div>
                         <p className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mb-3 md:mb-4 italic">Product</p>
-                        <p className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">{data.agreement?.product_name || 'Gold'}</p>
+                        <p className="text-xl md:text-2xl font-black text-blue-900 uppercase italic tracking-tighter">{data.agreement?.product_name || 'Gold'}</p>
                       </div>
                       <div className="sm:border-l border-slate-200 sm:pl-12">
                         <p className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mb-3 md:mb-4 italic">Total Value</p>
@@ -198,7 +198,7 @@ const Agreement = () => {
                       </div>
                       <div className="sm:border-l border-slate-200 sm:pl-12">
                         <p className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mb-3 md:mb-4 italic">Weight</p>
-                        <p className="text-xl md:text-3xl font-black text-slate-900 italic tracking-tighter">{data.agreement?.weight || '---'} Grams</p>
+                        <p className="text-xl md:text-3xl font-black text-blue-900 italic tracking-tighter">{data.agreement?.weight || '---'} Grams</p>
                       </div>
                     </div>
                   </div>
@@ -206,8 +206,8 @@ const Agreement = () => {
 
                 <section className="space-y-8 md:space-y-10">
                   <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
-                     <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-900 text-amber-500 rounded-xl flex items-center justify-center shadow-lg"><ShieldCheck size={20} md:size={24} /></div>
-                     <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">2. Terms & Conditions</h2>
+                     <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-900 text-amber-500 rounded-xl flex items-center justify-center shadow-lg"><ShieldCheck size={20} md:size={24} /></div>
+                     <h2 className="text-xl md:text-2xl font-black text-blue-900 uppercase italic tracking-tighter">2. Terms & Conditions</h2>
                   </div>
                   <div className="space-y-4 md:space-y-6 font-sans not-italic text-[9px] md:text-xs text-slate-500 uppercase font-black tracking-widest leading-loose italic">
                     <p>2.1 The minimum purchase is 1 gram of gold.</p>
@@ -221,14 +221,14 @@ const Agreement = () => {
                 <div className="mt-20 md:mt-32 pt-16 md:pt-20 border-t-2 border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-10 font-sans not-italic signature-section print:mt-10 print:pt-6">
                   {/* Issuer Sign */}
                   <div className="text-center group">
-                    <div className="w-full h-32 border-b-2 border-slate-200 mb-6 flex items-center justify-center relative overflow-hidden rounded-2xl bg-slate-50 group-hover:bg-slate-900 transition-all duration-500 signature-box print:mb-2 print:h-24">
+                    <div className="w-full h-32 border-b-2 border-slate-200 mb-6 flex items-center justify-center relative overflow-hidden rounded-2xl bg-slate-50 group-hover:bg-blue-900 transition-all duration-500 signature-box print:mb-2 print:h-24">
                        <Landmark size={50} className="text-slate-200 group-hover:text-amber-500 transition-colors opacity-20" />
                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <p className="text-[9px] font-black text-amber-500 uppercase tracking-[0.4em] italic">VAM_SEC_AUTH_7</p>
                        </div>
                     </div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 mb-1">Authorized Control</p>
-                    <p className="text-xs md:text-sm font-black text-slate-900 uppercase italic">Vamanan Gold</p>
+                    <p className="text-xs md:text-sm font-black text-blue-900 uppercase italic">Vamanan Enterprises V</p>
                   </div>
 
                   {/* Advocate Sign */}
@@ -248,17 +248,17 @@ const Agreement = () => {
                       )}
                     </div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 mb-1">Verified By</p>
-                    <p className="text-xs md:text-sm font-black text-slate-900 uppercase italic">Legal Team</p>
+                    <p className="text-xs md:text-sm font-black text-blue-900 uppercase italic">Legal Team</p>
                   </div>
                   
                   {/* Partner Sign */}
                   <div className="text-center group">
-                    <div className={`w-full h-32 border-b-2 border-slate-200 mb-6 flex flex-col items-center justify-center rounded-xl md:rounded-[1.5rem] transition-all duration-500 signature-box print:mb-2 print:h-24 ${data.agreement?.status === 'verified' ? 'bg-emerald-50 group-hover:bg-emerald-500' : (data.agreement?.status === 'ratified' ? 'bg-amber-50 animate-pulse border-amber-300' : 'bg-slate-50')}`}>
+                    <div className={`w-full h-32 border-b-2 border-slate-200 mb-6 flex flex-col items-center justify-center rounded-xl md:rounded-[1.5rem] transition-all duration-500 signature-box print:mb-2 print:h-24 ${data.agreement?.status === 'verified' ? 'bg-amber-50 group-hover:bg-amber-500' : (data.agreement?.status === 'ratified' ? 'bg-amber-50 animate-pulse border-amber-300' : 'bg-slate-50')}`}>
                       {data.agreement?.status === 'verified' ? (
                         <>
-                          <CheckCircle size={28} className="text-emerald-500 mb-2 group-hover:text-white transition-colors" />
-                          <p className="text-[8px] md:text-[9px] font-black text-emerald-600 uppercase tracking-widest italic group-hover:text-white transition-colors">Digitally Signed & Verified</p>
-                          <p className="text-[7px] text-emerald-400 font-bold mt-1 group-hover:text-white">TS: {new Date(data.agreement?.customer_signed_at).toLocaleDateString()}</p>
+                          <CheckCircle size={28} className="text-amber-500 mb-2 group-hover:text-white transition-colors" />
+                          <p className="text-[8px] md:text-[9px] font-black text-amber-600 uppercase tracking-widest italic group-hover:text-white transition-colors">Digitally Signed & Verified</p>
+                          <p className="text-[7px] text-amber-400 font-bold mt-1 group-hover:text-white">TS: {new Date(data.agreement?.customer_signed_at).toLocaleDateString()}</p>
                         </>
                       ) : data.agreement?.status === 'ratified' ? (
                         <>
@@ -273,7 +273,7 @@ const Agreement = () => {
                       )}
                     </div>
                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 mb-1">Your Signature</p>
-                    <p className="text-xs md:text-sm font-black text-slate-900 uppercase italic">{data.user?.name}</p>
+                    <p className="text-xs md:text-sm font-black text-blue-900 uppercase italic">{data.user?.name}</p>
                   </div>
                 </div>
 
@@ -299,7 +299,7 @@ const Agreement = () => {
                           alert("Signing failed: " + (err.response?.data?.message || "Something went wrong. Please try again."));
                         }
                       }}
-                      className="group relative bg-slate-900 text-white px-12 py-6 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.4em] italic shadow-2xl hover:bg-amber-600 transition-all active:scale-95 flex items-center gap-6"
+                      className="group relative bg-blue-900 text-white px-12 py-6 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.4em] italic shadow-2xl hover:bg-amber-600 transition-all active:scale-95 flex items-center gap-6"
                     >
                       <Fingerprint size={24} className="group-hover:rotate-12 transition-transform" />
                       Sign Agreement
@@ -309,14 +309,14 @@ const Agreement = () => {
               </div>
 
               {/* Security Watermark */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none opacity-[0.02] text-slate-900 font-black text-[60px] sm:text-[100px] md:text-[180px] whitespace-nowrap uppercase italic tracking-tighter select-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 pointer-events-none opacity-[0.02] text-blue-900 font-black text-[60px] sm:text-[100px] md:text-[180px] whitespace-nowrap uppercase italic tracking-tighter select-none">
                 VAMANAN VAULT SECURE
               </div>
             </motion.div>
           )}
 
           {/* Verification Badge */}
-          <div className="mt-8 md:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 text-emerald-600 font-black text-[9px] md:text-[11px] uppercase tracking-[0.3em] md:tracking-[0.4em] italic print:text-slate-400 print:mt-12">
+          <div className="mt-8 md:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 text-amber-600 font-black text-[9px] md:text-[11px] uppercase tracking-[0.3em] md:tracking-[0.4em] italic print:text-slate-400 print:mt-12">
             <ShieldCheck size={18} md:size={20} strokeWidth={2.5} /> SHA-256 Digitally Secured & Timestamped • {new Date().toLocaleDateString('en-GB')}
           </div>
         </main>

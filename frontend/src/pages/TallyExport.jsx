@@ -86,7 +86,7 @@ const TallyExport = () => {
   const inr = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
@@ -95,7 +95,7 @@ const TallyExport = () => {
           <div className="flex items-center gap-4">
             <button onClick={() => setShowMobileMenu(true)} className="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200"><Menu size={20} /></button>
             <div>
-              <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">Tally Export</h1>
+              <h1 className="text-xl font-black uppercase italic tracking-tighter text-blue-900 leading-none">Tally Export</h1>
               <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1 italic leading-none">Cashback Applications → Tally Accounting</p>
             </div>
           </div>
@@ -114,7 +114,7 @@ const TallyExport = () => {
 
           {/* Title */}
           <div>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Tally Voucher Export</h2>
+            <h2 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Tally Voucher Export</h2>
             <p className="text-[10px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.3em] mt-3 italic">Post customer purchases to Tally as sales vouchers</p>
           </div>
 
@@ -122,16 +122,16 @@ const TallyExport = () => {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { label: 'Applications', value: summary.count, icon: FileSpreadsheet, bg: 'bg-blue-50', color: 'text-blue-600', isAmount: false },
-              { label: 'Total Purchase Value', value: summary.total_amount, icon: Calculator, bg: 'bg-emerald-50', color: 'text-emerald-600', isAmount: true },
+              { label: 'Total Purchase Value', value: summary.total_amount, icon: Calculator, bg: 'bg-amber-50', color: 'text-amber-600', isAmount: true },
               { label: 'Voucher Type', value: settings.voucher_type, icon: Receipt, bg: 'bg-amber-50', color: 'text-amber-600', isText: true },
             ].map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm">
-                <div className={`w-12 h-12 ${s.bg} rounded-2xl flex items-center justify-center mb-5`}>
-                  <s.icon size={22} className={s.color} />
+                className="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[2rem] border border-slate-100 shadow-sm min-w-0">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 ${s.bg} rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-5`}>
+                  <s.icon size={20} className={s.color} />
                 </div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">{s.label}</p>
-                <h3 className="text-2xl font-black text-slate-900 italic tracking-tighter">
+                <h3 className="text-lg sm:text-2xl font-black text-blue-900 italic tracking-tighter break-words leading-tight">
                   {s.isAmount ? inr(s.value) : s.value}
                 </h3>
               </motion.div>
@@ -141,8 +141,8 @@ const TallyExport = () => {
           {/* Tally settings */}
           <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
-              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500"><Building2 size={18} /></div>
-              <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Tally Settings</h3>
+              <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500"><Building2 size={18} /></div>
+              <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">Tally Settings</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
@@ -187,11 +187,11 @@ const TallyExport = () => {
             {/* Action buttons */}
             <div className="flex flex-wrap gap-4 pt-2">
               <button onClick={downloadXML} disabled={summary.count === 0}
-                className="flex items-center gap-3 bg-slate-900 text-white px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-lg active:scale-95 disabled:opacity-40">
+                className="flex items-center gap-3 bg-blue-900 text-white px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-lg active:scale-95 disabled:opacity-40">
                 <Download size={16} /> Download Tally XML
               </button>
               <button onClick={pushToTally} disabled={pushing || summary.count === 0}
-                className="flex items-center gap-3 bg-emerald-600 text-white px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-emerald-700 transition-all shadow-lg active:scale-95 disabled:opacity-40">
+                className="flex items-center gap-3 bg-amber-600 text-white px-7 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-700 transition-all shadow-lg active:scale-95 disabled:opacity-40">
                 {pushing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} Push to Tally
               </button>
               <button onClick={previewXML} disabled={summary.count === 0}
@@ -203,9 +203,9 @@ const TallyExport = () => {
             {/* Push result */}
             {result && (
               <div className={`p-5 rounded-2xl flex items-start gap-4 border ${
-                result.status === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                result.status === 'success' ? 'bg-amber-50 border-amber-100 text-amber-700'
                 : result.status === 'offline' ? 'bg-blue-50 border-blue-100 text-blue-700'
-                : 'bg-rose-50 border-rose-100 text-rose-700'}`}>
+                : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
                 {result.status === 'success' ? <CheckCircle2 size={20} className="shrink-0 mt-0.5" />
                  : result.status === 'offline' ? <Download size={20} className="shrink-0 mt-0.5" />
                  : <AlertCircle size={20} className="shrink-0 mt-0.5" />}
@@ -222,7 +222,7 @@ const TallyExport = () => {
           {/* Applications table */}
           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Cashback Applications</h3>
+              <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">Cashback Applications</h3>
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{summary.count} record(s)</span>
             </div>
 
@@ -232,7 +232,7 @@ const TallyExport = () => {
               <div className="py-20 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest italic">No cashback applications found</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full min-w-[640px] text-left">
                   <thead>
                     <tr className="bg-slate-50 text-[8px] font-black text-slate-400 uppercase tracking-widest italic">
                       <th className="px-6 py-4">Voucher</th>
@@ -246,18 +246,18 @@ const TallyExport = () => {
                   <tbody>
                     {apps.map((a) => (
                       <tr key={a.id} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors text-xs font-bold text-slate-700 italic">
-                        <td className="px-6 py-4 font-black text-slate-900">CBA-{a.id}</td>
+                        <td className="px-6 py-4 font-black text-blue-900">CBA-{a.id}</td>
                         <td className="px-6 py-4">
-                          <p className="font-black text-slate-900">{a.customer_name || `Customer #${a.user_id}`}</p>
+                          <p className="font-black text-blue-900">{a.customer_name || `Customer #${a.user_id}`}</p>
                           <p className="text-[9px] text-slate-400">{a.customer_email}</p>
                         </td>
                         <td className="px-6 py-4">{a.purchased_product || '—'}</td>
                         <td className="px-6 py-4">{a.application_date || a.purchase_date || '—'}</td>
-                        <td className="px-6 py-4 text-right font-black text-slate-900">{inr(a.purchase_amount)}</td>
+                        <td className="px-6 py-4 text-right font-black text-blue-900">{inr(a.purchase_amount)}</td>
                         <td className="px-6 py-4">
                           <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                            a.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
-                            a.status === 'rejected' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                            a.status === 'approved' ? 'bg-amber-50 text-amber-600' :
+                            a.status === 'rejected' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
                           }`}>{a.status}</span>
                         </td>
                       </tr>

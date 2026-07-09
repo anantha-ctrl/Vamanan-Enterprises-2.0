@@ -17,6 +17,10 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : {};
   const role = user?.role || 'customer';
+  // Admin-side panels use a blue theme; customers/advocate keep the dark slate look.
+  const isAdminPanel = role === 'admin' || role === 'staff' || role === 'manager';
+  const darkBg = isAdminPanel ? 'bg-blue-900' : 'bg-blue-900';
+  const darkHover = isAdminPanel ? 'hover:bg-blue-900' : 'hover:bg-blue-900';
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -95,6 +99,8 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
           ]},
         ]},
         { group: 'System', items: [
+          { id: 'feedback', label: 'Feedback & Remarks', icon: MessageCircle },
+          { id: 'offers', label: 'Offers & Festivals', icon: Megaphone },
           { id: 'recruitment', label: 'Add Staff', icon: UserPlus },
           { id: 'settings', label: 'Settings', icon: Globe },
         ]}
@@ -127,10 +133,11 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
       return [
         { group: 'Legal', items: [
           { id: 'overview', label: 'Overview', icon: BarChart3, path: '/advocate?tab=overview' },
+          { id: 'purchases', label: 'Purchases', icon: ShoppingBag, path: '/advocate?tab=purchases' },
           { id: 'agreements', label: 'Agreements', icon: FileSignature, path: '/advocate?tab=agreements' },
-          { id: 'registry', label: 'Members', icon: Users, path: '/advocate?tab=registry' },
+          { id: 'registry', label: 'Customers', icon: Users, path: '/advocate?tab=registry' },
           { id: 'archive', label: 'Archive', icon: Landmark, path: '/advocate?tab=archive' },
-          { id: 'disputes', label: 'Dispute Resolution', icon: Shield, path: '/advocate?tab=disputes' },
+          { id: 'disputes', label: 'Disputes', icon: Shield, path: '/advocate?tab=disputes' },
         ]},
         { group: 'Account', items: [
           { id: 'profile', label: 'Profile', icon: Shield, path: '/advocate-profile' },
@@ -191,14 +198,14 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
     <AnimatePresence mode="wait">
       {(showMobileMenu || isDesktop) && (
         <>
-          {/* Overlay Matrix */}
+          {/* Mobile Overlay */}
           {!isDesktop && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowMobileMenu(false)} 
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[190]" 
+              className="fixed inset-0 bg-blue-950/60 backdrop-blur-md z-[190]" 
             />
           )}
 
@@ -216,26 +223,26 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
             {/* Sidebar Header */}
             <div className="flex justify-between items-center mb-10">
                 <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { navigate('/'); setShowMobileMenu(false); }}>
-                   <div className="w-10 h-10 bg-slate-900 rounded-[1rem] flex items-center justify-center overflow-hidden p-1.5 shadow-xl border border-white/5 transition-transform group-hover:rotate-12">
-                      <img src="/vamanan-logo.png" alt="Logo" className="w-full h-full object-contain" />
+                   <div className={`w-14 h-14 ${darkBg} rounded-[1.25rem] flex items-center justify-center overflow-hidden p-2 shadow-xl border border-white/5 transition-transform group-hover:rotate-12`}>
+                      <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
                    </div>
                    <div>
-                      <h1 className="text-sm font-black tracking-tighter uppercase italic leading-none text-slate-900">Vamanan <span className="text-amber-600">Gold</span></h1>
-                      <div className="flex items-center gap-1.5 mt-1">
-                         <div className="w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>
-                         <span className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 italic">{humanRole(role)}</span>
+                      <h1 className="text-lg font-black tracking-tighter uppercase italic leading-none text-blue-950">Vamanan <span className="text-amber-600">Enterprises V</span></h1>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                         <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                         <span className="text-[9px] font-black uppercase tracking-[0.35em] text-slate-400 italic">{humanRole(role)}</span>
                       </div>
                    </div>
                 </div>
                 <button 
                   onClick={() => setShowMobileMenu(false)} 
-                  className="lg:hidden w-9 h-9 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 active:scale-95 transition-all shadow-sm"
+                  className="lg:hidden w-9 h-9 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-xl text-slate-400 hover:text-blue-900 active:scale-95 transition-all shadow-sm"
                 >
                    <X size={18} />
                 </button>
             </div>
             
-            {/* Navigation Matrix */}
+            {/* Navigation Links */}
             <nav className="flex-1 space-y-8 overflow-y-auto custom-scrollbar pr-1 pb-4">
               {menuGroups.map((group, idx) => (
                 <div key={idx} className="space-y-2">
@@ -245,8 +252,8 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
                     const activeStyle = isActive 
                       ? (role === 'advocate' 
                           ? 'bg-amber-50 text-amber-600 border-2 border-amber-100 shadow-xl shadow-amber-500/5' 
-                          : 'bg-slate-900 text-white shadow-xl shadow-slate-200') 
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 border-2 border-transparent';
+                          : `${darkBg} text-white shadow-xl shadow-slate-200`)
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-blue-900 border-2 border-transparent';
                     
                     return (
                       <div key={item.id} className="space-y-1">
@@ -280,7 +287,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
                           )}
                         </button>
                         
-                        {/* Submenu Matrix */}
+                        {/* Submenu Links */}
                         <AnimatePresence>
                           {item.subItems && expandedItem === item.id && (
                             <motion.div 
@@ -293,7 +300,7 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
                                 <button
                                   key={sub.id}
                                   onClick={() => { navigate(sub.path); setShowMobileMenu(false); }}
-                                  className={`w-full text-left p-3 rounded-xl text-[8px] font-black uppercase tracking-widest italic transition-all ${location.pathname === sub.path ? 'text-amber-600 bg-amber-50' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
+                                  className={`w-full text-left p-3 rounded-xl text-[8px] font-black uppercase tracking-widest italic transition-all ${location.pathname === sub.path ? 'text-amber-600 bg-amber-50' : 'text-slate-400 hover:text-blue-900 hover:bg-slate-50'}`}
                                 >
                                   {sub.label}
                                 </button>
@@ -310,27 +317,27 @@ const Sidebar = ({ activeTab, setActiveTab, showMobileMenu, setShowMobileMenu })
 
             {/* Sidebar Footer */}
             <div className="mt-auto pt-6 border-t border-slate-100">
-              <div className="bg-slate-50 rounded-[1.25rem] p-4 border border-slate-100 group/footer transition-all hover:bg-slate-900">
+              <div className={`bg-slate-50 rounded-[1.25rem] p-4 border border-slate-100 group/footer transition-all ${darkHover}`}>
                  <div className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 group-hover/footer:bg-amber-500 transition-colors">
-                       <UserCircle size={18} className="text-slate-400 group-hover/footer:text-slate-900" />
+                       <UserCircle size={18} className="text-slate-400 group-hover/footer:text-blue-950" />
                     </div>
                     <div className="min-w-0">
-                       <p className="text-[9px] font-black text-slate-900 uppercase italic truncate group-hover/footer:text-white transition-colors">{user.name || 'Anonymous'}</p>
+                       <p className="text-[9px] font-black text-blue-950 uppercase italic truncate group-hover/footer:text-white transition-colors">{user.name || 'Anonymous'}</p>
                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate mt-0.5 group-hover/footer:text-amber-500/70 transition-colors">Signed In</p>
                     </div>
                  </div>
               </div>
 
-              <button 
-                onClick={() => { localStorage.clear(); navigate('/login'); setShowMobileMenu(false); }} 
-                className="flex items-center justify-between w-full p-4 group rounded-[1.25rem] text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 border border-transparent hover:border-rose-100"
+              <button
+                onClick={() => { localStorage.clear(); navigate('/login'); setShowMobileMenu(false); }}
+                className="flex items-center justify-between w-full mt-3 p-4 group rounded-[1.25rem] bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100 hover:border-red-600 shadow-sm"
               >
                 <div className="flex items-center gap-3">
-                   <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
-                   <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Log Out</span>
+                   <LogOut size={20} className="group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
+                   <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Log Out</span>
                 </div>
-                <div className="w-1 h-1 rounded-full bg-slate-200 group-hover:bg-rose-500 transition-colors"></div>
+                <div className="w-2 h-2 rounded-full bg-red-400 group-hover:bg-white transition-colors"></div>
               </button>
             </div>
           </motion.aside>

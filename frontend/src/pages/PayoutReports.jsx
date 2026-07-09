@@ -218,7 +218,7 @@ const PayoutReports = () => {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             
             {/* Primary Volume Chart */}
-            <div className="xl:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-slate-900/20">
+            <div className="xl:col-span-2 bg-blue-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-900/20">
               <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
               <div className="relative z-10 flex flex-col h-full justify-between">
                 <div className="flex items-center justify-between mb-10">
@@ -230,7 +230,7 @@ const PayoutReports = () => {
                     <button 
                       onClick={runDailyPayout}
                       disabled={loading}
-                      className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-slate-900 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                      className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-blue-900 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
                     >
                       {loading ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
                       Run Daily Protocol
@@ -277,7 +277,7 @@ const PayoutReports = () => {
               {[
                 { label: 'Total Capital Disbursed', value: `₹${parseFloat(data.summary.success_amount || 0).toLocaleString()}`, icon: DollarSign, color: 'text-amber-500', bg: 'bg-amber-50', sub: `${data.summary.success_count || 0} Successful Transmissions` },
                 { label: 'Pending Authorizations', value: `₹${parseFloat(data.summary.pending_amount || 0).toLocaleString()}`, icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50', sub: `${data.summary.pending_count || 0} Awaiting Protocol` },
-                { label: 'System Intercepts', value: `₹${parseFloat(data.summary.failed_amount || 0).toLocaleString()}`, icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50', sub: `${data.summary.failed_count || 0} Failed Node Matches` }
+                { label: 'System Intercepts', value: `₹${parseFloat(data.summary.failed_amount || 0).toLocaleString()}`, icon: AlertCircle, color: 'text-blue-500', bg: 'bg-blue-50', sub: `${data.summary.failed_count || 0} Failed Node Matches` }
               ].map((stat, i) => (
                 <div key={i} className="bg-white border border-slate-200 p-6 rounded-[2rem] shadow-sm hover:scale-[1.02] transition-transform group">
                   <div className="flex items-center gap-4">
@@ -286,7 +286,7 @@ const PayoutReports = () => {
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{stat.label}</p>
-                      <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">{stat.value}</h3>
+                      <h3 className="text-xl font-black text-blue-900 italic tracking-tighter">{stat.value}</h3>
                       <p className={`text-[8px] font-black uppercase tracking-tighter mt-1 ${stat.color}`}>{stat.sub}</p>
                     </div>
                   </div>
@@ -299,11 +299,11 @@ const PayoutReports = () => {
           <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-900 text-amber-500 rounded-xl">
+                <div className="p-3 bg-blue-900 text-amber-500 rounded-xl">
                   <Activity size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Global Payout Registry</h3>
+                  <h3 className="text-lg font-black text-blue-900 uppercase italic tracking-tighter">Global Payout Registry</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Live Multi-Node Transaction History</p>
                 </div>
               </div>
@@ -325,7 +325,7 @@ const PayoutReports = () => {
                 
                 <button 
                   onClick={exportExcel}
-                  className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-amber-600 transition-all active:scale-95"
+                  className="px-6 py-3 bg-blue-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-amber-600 transition-all active:scale-95"
                 >
                   <Download size={14} className="text-amber-500" />
                   Export Ledger
@@ -359,7 +359,7 @@ const PayoutReports = () => {
                             {p.user_name?.[0].toUpperCase()}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-xs font-black text-slate-900 uppercase italic tracking-tighter">{p.user_name}</span>
+                            <span className="text-xs font-black text-blue-900 uppercase italic tracking-tighter">{p.user_name}</span>
                             <span className="text-[9px] font-bold text-slate-400 tracking-widest">{p.user_email}</span>
                           </div>
                         </div>
@@ -371,12 +371,12 @@ const PayoutReports = () => {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-sm font-black text-slate-900 italic tracking-tighter">₹{parseFloat(p.amount).toLocaleString()}</span>
+                        <span className="text-sm font-black text-blue-900 italic tracking-tighter">₹{parseFloat(p.amount).toLocaleString()}</span>
                       </td>
                       <td className="px-8 py-6">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${
-                          p.status === 'success' || p.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                          p.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                          p.status === 'success' || p.status === 'completed' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                          p.status === 'failed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
                           {humanStatus(p.status)}

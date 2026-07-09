@@ -145,11 +145,11 @@ const AdvocateProfile = () => {
               <button onClick={() => navigate('/advocate')} className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-amber-500 transition-all shadow-sm">
                  <ArrowLeft size={20} />
               </button>
-              <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-900 rounded-xl md:rounded-[1.5rem] flex items-center justify-center overflow-hidden p-1.5 md:p-2 shadow-xl border-2 md:border-4 border-white">
-                 <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 md:w-16 md:h-16 bg-blue-900 rounded-xl md:rounded-[1.5rem] flex items-center justify-center overflow-hidden p-1.5 md:p-2 shadow-xl border-2 md:border-4 border-white">
+                 <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
               </div>
               <div>
-                 <h2 className="text-lg md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
+                 <h2 className="text-lg md:text-3xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">
                     Institutional <span className="text-amber-500">Identity</span>
                  </h2>
                  <p className="text-[7px] md:text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1 md:mt-2 italic">Legal Protocol Node 0.9-A</p>
@@ -159,12 +159,12 @@ const AdvocateProfile = () => {
            <div className="flex items-center gap-3 md:gap-8">
               <div className="hidden lg:flex flex-col items-end mr-2 text-right">
                  <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest italic mb-0.5 leading-none">Status</p>
-                 <p className="text-xs font-black text-emerald-500 italic uppercase tracking-tighter flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Authorized
+                 <p className="text-xs font-black text-amber-500 italic uppercase tracking-tighter flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span> Authorized
                  </p>
               </div>
-              <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-900 rounded-xl md:rounded-[1.5rem] flex items-center justify-center overflow-hidden p-1.5 md:p-2 border-2 md:border-4 border-amber-500/10 shadow-xl">
-                 <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 md:w-16 md:h-16 bg-blue-900 rounded-xl md:rounded-[1.5rem] flex items-center justify-center overflow-hidden p-1.5 md:p-2 border-2 md:border-4 border-amber-500/10 shadow-xl">
+                 <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
               </div>
            </div>
         </header>
@@ -173,10 +173,10 @@ const AdvocateProfile = () => {
            <div className="bg-white border-4 border-amber-50 rounded-[4rem] p-10 md:p-16 relative overflow-hidden shadow-2xl shadow-amber-500/5">
               <div className="absolute top-0 right-0 p-20 opacity-[0.03] rotate-12 pointer-events-none"><Crown size={400} /></div>
               <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-                 <div className="w-32 h-32 md:w-48 md:h-48 bg-slate-50 border-8 border-white rounded-[4rem] flex items-center justify-center text-5xl md:text-7xl font-black text-slate-900 italic shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">V</div>
+                 <div className="w-32 h-32 md:w-48 md:h-48 bg-slate-50 border-8 border-white rounded-[4rem] flex items-center justify-center text-5xl md:text-7xl font-black text-blue-900 italic shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">V</div>
                  <div className="text-center md:text-left space-y-4">
                     <div className="flex flex-col md:flex-row items-center gap-4">
-                       <h3 className="text-3xl md:text-5xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">{user?.name}</h3>
+                       <h3 className="text-3xl md:text-5xl font-black text-blue-900 uppercase italic tracking-tighter leading-none">{user?.name}</h3>
                        <span className="bg-amber-50 text-amber-600 px-5 py-2 rounded-full border border-amber-100 text-[10px] font-black uppercase italic">Lead Advocate</span>
                     </div>
                     <p className="text-sm md:text-xl text-slate-400 font-medium italic">Dedicated Legal Oversight • Vamanan Enterprises</p>
@@ -193,13 +193,13 @@ const AdvocateProfile = () => {
                     <button 
                       key={item.id}
                       onClick={() => setActiveSection(item.id)}
-                      className={`w-full p-8 rounded-[2.5rem] border-2 transition-all flex items-center gap-8 group ${activeSection === item.id ? 'bg-slate-900 border-slate-900 shadow-2xl shadow-slate-900/20' : 'bg-white border-amber-50 hover:border-amber-500 shadow-sm'}`}
+                      className={`w-full p-8 rounded-[2.5rem] border-2 transition-all flex items-center gap-8 group ${activeSection === item.id ? 'bg-blue-900 border-blue-900 shadow-2xl shadow-blue-900/20' : 'bg-white border-amber-50 hover:border-amber-500 shadow-sm'}`}
                     >
                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${activeSection === item.id ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-500 group-hover:scale-110'}`}>
                           <item.icon size={24} />
                        </div>
                        <div className="text-left">
-                          <p className={`text-sm font-black uppercase italic leading-none mb-2 ${activeSection === item.id ? 'text-white' : 'text-slate-900'}`}>{item.label}</p>
+                          <p className={`text-sm font-black uppercase italic leading-none mb-2 ${activeSection === item.id ? 'text-white' : 'text-blue-900'}`}>{item.label}</p>
                           <p className={`text-[10px] font-bold uppercase italic tracking-widest ${activeSection === item.id ? 'text-slate-400' : 'text-slate-300'}`}>{item.desc}</p>
                        </div>
                        <ChevronRight className={`ml-auto transition-transform ${activeSection === item.id ? 'text-amber-500 translate-x-2' : 'text-slate-100'}`} size={20} />
@@ -212,10 +212,10 @@ const AdvocateProfile = () => {
                     {activeSection === 'identity' && (
                        <motion.div key="identity" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="bg-white border-2 border-amber-50 rounded-[4rem] p-10 md:p-16 space-y-12 shadow-sm">
                           <div className="flex justify-between items-center">
-                             <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Identity Details</h4>
+                             <h4 className="text-2xl font-black text-blue-900 uppercase italic tracking-tighter">Identity Details</h4>
                              <button 
                                onClick={() => setIsEditing(!isEditing)} 
-                               className={`flex items-center gap-3 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest italic transition-all ${isEditing ? 'bg-rose-50 text-rose-500 border border-rose-100' : 'bg-amber-50 text-amber-500 border border-amber-100'}`}
+                               className={`flex items-center gap-3 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest italic transition-all ${isEditing ? 'bg-blue-50 text-blue-500 border border-blue-100' : 'bg-amber-50 text-amber-500 border border-amber-100'}`}
                              >
                                 {isEditing ? <><X size={14}/> Abort</> : <><Edit3 size={14}/> Edit Profile</>}
                              </button>
@@ -225,15 +225,15 @@ const AdvocateProfile = () => {
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                 <div className="space-y-4">
                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic ml-4">Full Name</label>
-                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-slate-900 uppercase italic border border-slate-100">{user?.name}</div>
+                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-blue-900 uppercase italic border border-slate-100">{user?.name}</div>
                                 </div>
                                 <div className="space-y-4">
                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic ml-4">Email Node</label>
-                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-slate-900 uppercase italic border border-slate-100">{user?.email}</div>
+                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-blue-900 uppercase italic border border-slate-100">{user?.email}</div>
                                 </div>
                                 <div className="space-y-4">
                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic ml-4">Phone Protocol</label>
-                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-slate-900 uppercase italic border border-slate-100">{user?.phone || 'NOT SET'}</div>
+                                   <div className="w-full bg-slate-50 p-6 rounded-3xl text-sm font-black text-blue-900 uppercase italic border border-slate-100">{user?.phone || 'NOT SET'}</div>
                                 </div>
                                 <div className="space-y-4 md:col-span-2">
                                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic ml-4">Professional Bio</label>
@@ -295,11 +295,11 @@ const AdvocateProfile = () => {
                                    <button 
                                      type="submit" 
                                      disabled={updateLoading}
-                                     className="flex-1 bg-slate-900 text-white py-6 rounded-[2rem] text-[11px] font-black uppercase italic tracking-[0.2em] hover:bg-amber-500 transition-all shadow-2xl flex items-center justify-center gap-4"
+                                     className="flex-1 bg-blue-900 text-white py-6 rounded-[2rem] text-[11px] font-black uppercase italic tracking-[0.2em] hover:bg-amber-500 transition-all shadow-2xl flex items-center justify-center gap-4"
                                    >
                                       {updateLoading ? <RefreshCw className="animate-spin" size={18}/> : <><Save size={18}/> Save Identity Node</>}
                                    </button>
-                                   <button type="button" onClick={() => setIsEditing(false)} className="px-10 py-6 bg-slate-50 text-slate-400 rounded-[2rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-rose-50 hover:text-rose-500 transition-all">Cancel</button>
+                                   <button type="button" onClick={() => setIsEditing(false)} className="px-10 py-6 bg-slate-50 text-slate-400 rounded-[2rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-blue-50 hover:text-blue-500 transition-all">Cancel</button>
                                 </div>
                              </form>
                           )}
@@ -309,8 +309,8 @@ const AdvocateProfile = () => {
                     {activeSection === 'security' && (
                        <motion.div key="security" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="bg-white border-2 border-amber-50 rounded-[4rem] p-10 md:p-16 space-y-12 shadow-sm">
                           <div className="flex justify-between items-center">
-                             <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Security Hub</h4>
-                             <ShieldCheck className="text-emerald-500" size={32} />
+                             <h4 className="text-2xl font-black text-blue-900 uppercase italic tracking-tighter">Security Hub</h4>
+                             <ShieldCheck className="text-amber-500" size={32} />
                           </div>
                           
                           <div className="space-y-8">
@@ -319,13 +319,13 @@ const AdvocateProfile = () => {
                                    <div className="flex items-center gap-8">
                                       <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 shadow-sm"><Lock size={24} /></div>
                                       <div>
-                                         <p className="text-sm font-black text-slate-900 uppercase italic mb-1">Institutional Access Node</p>
+                                         <p className="text-sm font-black text-blue-900 uppercase italic mb-1">Institutional Access Node</p>
                                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Update your encrypted protocol keys</p>
                                       </div>
                                    </div>
                                    <button 
                                      onClick={() => setShowPasswordForm(true)}
-                                     className="px-10 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase italic tracking-widest hover:bg-amber-500 transition-all shadow-xl"
+                                     className="px-10 py-5 bg-blue-900 text-white rounded-2xl text-[10px] font-black uppercase italic tracking-widest hover:bg-amber-500 transition-all shadow-xl"
                                    >
                                       Change Node
                                    </button>
@@ -338,10 +338,10 @@ const AdvocateProfile = () => {
                                   className="p-10 bg-white border-4 border-amber-50 rounded-[3.5rem] space-y-10 shadow-xl"
                                 >
                                    <div className="flex justify-between items-center">
-                                      <h5 className="text-lg font-black text-slate-900 uppercase italic tracking-tight flex items-center gap-4">
+                                      <h5 className="text-lg font-black text-blue-900 uppercase italic tracking-tight flex items-center gap-4">
                                          <Lock className="text-amber-500" size={24} /> Update Credentials
                                       </h5>
-                                      <button type="button" onClick={() => setShowPasswordForm(false)} className="text-slate-300 hover:text-rose-500"><X size={24}/></button>
+                                      <button type="button" onClick={() => setShowPasswordForm(false)} className="text-slate-300 hover:text-blue-500"><X size={24}/></button>
                                    </div>
                                    
                                    <div className="space-y-8">
@@ -383,11 +383,11 @@ const AdvocateProfile = () => {
                                       <button 
                                         type="submit" 
                                         disabled={secLoading}
-                                        className="flex-1 bg-slate-900 text-white py-6 rounded-[1.75rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-4"
+                                        className="flex-1 bg-blue-900 text-white py-6 rounded-[1.75rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-amber-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-4"
                                       >
                                          {secLoading ? <RefreshCw className="animate-spin" size={18}/> : 'Update Security Password'}
                                       </button>
-                                      <button type="button" onClick={() => setShowPasswordForm(false)} className="px-10 py-6 bg-slate-50 text-slate-400 rounded-[1.75rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-rose-50 hover:text-rose-500 transition-all">Abort</button>
+                                      <button type="button" onClick={() => setShowPasswordForm(false)} className="px-10 py-6 bg-slate-50 text-slate-400 rounded-[1.75rem] text-[11px] font-black uppercase italic tracking-widest hover:bg-blue-50 hover:text-blue-500 transition-all">Abort</button>
                                    </div>
                                 </motion.form>
                              )}

@@ -291,6 +291,36 @@ try {
         $pdo->exec("ALTER TABLE password_resets ADD COLUMN attempts INT DEFAULT 0 AFTER otp_hash");
     } catch (PDOException $e) {}
 
+    // 12. Feedback & Remarks Table (bidirectional: customer <-> admin/manager)
+    //  - direction 'customer_to_admin' : customer feedback/remark to the company
+    //  - direction 'admin_to_customer' : admin/manager feedback/remark to a client
+    $pdo->exec("CREATE TABLE IF NOT EXISTS feedbacks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        from_user_id INT NOT NULL,
+        to_user_id INT NULL,
+        from_role VARCHAR(20) DEFAULT 'customer',
+        direction ENUM('customer_to_admin','admin_to_customer') DEFAULT 'customer_to_admin',
+        subject VARCHAR(255) DEFAULT NULL,
+        message TEXT NOT NULL,
+        rating TINYINT DEFAULT NULL,
+        is_read TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // 13. Offers / Festival Banners Table (shown as a popup on login)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS offers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        message TEXT DEFAULT NULL,
+        image VARCHAR(255) DEFAULT NULL,
+        badge VARCHAR(50) DEFAULT 'OFFER',
+        color VARCHAR(20) DEFAULT 'blue',
+        is_active TINYINT(1) DEFAULT 1,
+        starts_at DATETIME DEFAULT NULL,
+        ends_at DATETIME DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
     // --- SEED INITIAL DATA ---
     $count = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
     if ($count == 0) {

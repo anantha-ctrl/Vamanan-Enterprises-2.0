@@ -115,7 +115,7 @@ const Withdrawals = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-blue-900 selection:bg-amber-100 selection:text-amber-900">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
@@ -133,7 +133,7 @@ const Withdrawals = () => {
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Disbursement Hub</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Withdrawals</h1>
+                <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Withdrawals</h1>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3 italic">Withdraw your earnings to your bank account</p>
              </div>
              <button onClick={() => navigate('/wallet')} className="bg-white border border-slate-200 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm flex items-center gap-3">
@@ -152,9 +152,9 @@ const Withdrawals = () => {
                
                <div className="relative z-10">
                   <div className="flex items-center gap-6 mb-12">
-                     <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><CreditCard size={24}/></div>
+                     <div className="w-14 h-14 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><CreditCard size={24}/></div>
                      <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic">Initialize Disbursement</h3>
+                        <h3 className="text-xl font-black text-blue-900 tracking-tighter uppercase italic">Initialize Disbursement</h3>
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Submit your liquidation request for processing</p>
                      </div>
                   </div>
@@ -165,12 +165,12 @@ const Withdrawals = () => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl mb-10 flex items-center gap-5"
+                        className="bg-amber-50 border border-amber-100 p-6 rounded-3xl mb-10 flex items-center gap-5"
                       >
-                         <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg"><CheckCircle2 size={20}/></div>
+                         <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg"><CheckCircle2 size={20}/></div>
                          <div>
-                            <p className="text-xs font-black text-emerald-900 uppercase italic">Disbursement Initialized!</p>
-                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Waiting for admin approval.</p>
+                            <p className="text-xs font-black text-amber-900 uppercase italic">Disbursement Initialized!</p>
+                            <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-1">Waiting for admin approval.</p>
                          </div>
                       </motion.div>
                     )}
@@ -188,12 +188,12 @@ const Withdrawals = () => {
                                 placeholder="0.00"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-6 pl-12 pr-8 text-2xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter italic"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-6 pl-12 pr-8 text-2xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter italic"
                               />
                            </div>
                            <div className="flex justify-between items-center px-4">
                               <span className="text-[9px] font-black text-slate-400 uppercase italic">Min: ₹100</span>
-                              <span className="text-[9px] font-black text-emerald-600 uppercase italic">Max: ₹{balance.toLocaleString()}</span>
+                              <span className="text-[9px] font-black text-amber-600 uppercase italic">Max: ₹{balance.toLocaleString()}</span>
                            </div>
                         </div>
                         
@@ -202,9 +202,9 @@ const Withdrawals = () => {
                            <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-between group hover:border-amber-600 transition-all cursor-pointer">
                               <div className="flex items-center gap-4">
                                  <Landmark size={20} className="text-slate-400 group-hover:text-amber-600" />
-                                 <span className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest">External Bank Transfer</span>
+                                 <span className="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">External Bank Transfer</span>
                               </div>
-                              <CheckCircle2 size={16} className="text-emerald-500" />
+                              <CheckCircle2 size={16} className="text-amber-500" />
                            </div>
                         </div>
                      </div>
@@ -256,7 +256,7 @@ const Withdrawals = () => {
                      <button 
                        type="submit" 
                        disabled={processing || balance < 100} 
-                       className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:hover:bg-slate-900"
+                       className="w-full bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:hover:bg-blue-900"
                      >
                         {processing ? <Loader2 className="animate-spin" /> : <><Send size={18}/> Submit Withdrawal Request</>}
                      </button>
@@ -269,7 +269,7 @@ const Withdrawals = () => {
                <motion.div 
                  initial={{ opacity: 0, x: 20 }}
                  animate={{ opacity: 1, x: 0 }}
-                 className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden group"
+                 className="bg-blue-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden group"
                >
                   <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><WalletIcon size={250}/></div>
                   <div className="relative z-10">
@@ -294,7 +294,7 @@ const Withdrawals = () => {
                >
                   <div className="flex items-center gap-4 mb-10">
                      <History size={20} className="text-amber-600" />
-                     <h4 className="text-sm font-black uppercase tracking-widest italic text-slate-900">Recent Disbursements</h4>
+                     <h4 className="text-sm font-black uppercase tracking-widest italic text-blue-900">Recent Disbursements</h4>
                   </div>
 
                   <div className="space-y-6">
@@ -302,15 +302,15 @@ const Withdrawals = () => {
                         withdrawals.slice(0, 4).map((w, idx) => (
                            <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-slate-100 transition-all group">
                               <div className="flex items-center gap-4">
-                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${w.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : w.status === 'rejected' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`}>
+                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${w.status === 'approved' ? 'bg-amber-50 text-amber-600' : w.status === 'rejected' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
                                     <Landmark size={18} />
                                  </div>
                                  <div>
-                                    <p className="text-[10px] font-black text-slate-900 uppercase italic">₹{parseFloat(w.amount).toLocaleString()}</p>
+                                    <p className="text-[10px] font-black text-blue-900 uppercase italic">₹{parseFloat(w.amount).toLocaleString()}</p>
                                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(w.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
                                  </div>
                               </div>
-                              <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${w.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                              <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${w.status === 'approved' ? 'bg-amber-50 text-amber-600 border-amber-100' : w.status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                                  {humanStatus(w.status)}
                               </span>
                            </div>

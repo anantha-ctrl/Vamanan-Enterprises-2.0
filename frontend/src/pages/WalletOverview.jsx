@@ -56,9 +56,9 @@ const WalletOverview = () => {
 
   const stats = [
     { label: 'Total Invested', value: `₹${data.investment_total.toLocaleString()}`, icon: Target, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: 'Cashback Earned', value: `₹${data.cashback_total.toLocaleString()}`, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: 'Cashback Earned', value: `₹${data.cashback_total.toLocaleString()}`, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
     { label: 'Referral Rewards', value: `₹${data.referral_total.toLocaleString()}`, icon: Award, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Pending Payouts', value: `₹${data.pending_withdrawal.toLocaleString()}`, icon: Clock, color: 'text-rose-500', bg: 'bg-rose-50' }
+    { label: 'Pending Payouts', value: `₹${data.pending_withdrawal.toLocaleString()}`, icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' }
   ];
 
   return (
@@ -80,7 +80,7 @@ const WalletOverview = () => {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             
             {/* Primary Balance Module */}
-            <div className="xl:col-span-2 bg-slate-900 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-slate-900/20 group">
+            <div className="xl:col-span-2 bg-blue-900 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-blue-900/20 group">
               <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-amber-500/20 transition-all duration-1000" />
               
               <div className="relative z-10 space-y-12">
@@ -105,7 +105,7 @@ const WalletOverview = () => {
                 <div className="flex flex-wrap gap-4 pt-4">
                   <button 
                     onClick={() => navigate('/withdrawals')}
-                    className="px-8 py-4 bg-amber-500 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3"
+                    className="px-8 py-4 bg-amber-500 text-blue-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-3"
                   >
                     <ArrowUpRight size={16} />
                     Withdraw Money
@@ -137,7 +137,7 @@ const WalletOverview = () => {
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{stat.label}</p>
-                      <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">{stat.value}</h3>
+                      <h3 className="text-xl font-black text-blue-900 italic tracking-tighter">{stat.value}</h3>
                     </div>
                   </div>
                 </motion.div>
@@ -148,8 +148,8 @@ const WalletOverview = () => {
           {/* Action Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Referral Link', icon: Share2, path: '/referrals', color: 'bg-indigo-50 text-indigo-600' },
-              { label: 'View Agreement', icon: ShieldCheck, path: '/agreement', color: 'bg-emerald-50 text-emerald-600' },
+              { label: 'Referral Link', icon: Share2, path: '/referrals', color: 'bg-blue-50 text-blue-600' },
+              { label: 'View Agreement', icon: ShieldCheck, path: '/agreement', color: 'bg-amber-50 text-amber-600' },
               { label: 'Buy Gold', icon: Globe, path: '/shop', color: 'bg-amber-50 text-amber-600' },
               { label: 'Transaction History', icon: History, path: '/wallet', color: 'bg-slate-100 text-slate-600' }
             ].map((item, i) => (
@@ -170,11 +170,11 @@ const WalletOverview = () => {
           <div className="bg-white rounded-[3rem] border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-8 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-900 text-amber-500 rounded-xl">
+                <div className="p-3 bg-blue-900 text-amber-500 rounded-xl">
                   <Activity size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Recent Transactions</h3>
+                  <h3 className="text-lg font-black text-blue-900 uppercase italic tracking-tighter">Recent Transactions</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Your latest activity</p>
                 </div>
               </div>
@@ -204,23 +204,23 @@ const WalletOverview = () => {
                       className="hover:bg-slate-50 transition-colors"
                     >
                       <td className="px-8 py-6">
-                        <span className="text-[10px] font-black text-slate-900 tracking-widest">#TXN-{t.id}</span>
+                        <span className="text-[10px] font-black text-blue-900 tracking-widest">#TXN-{t.id}</span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${t.type === 'credit' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                          <div className={`w-2 h-2 rounded-full ${t.type === 'credit' ? 'bg-amber-500' : 'bg-blue-500'}`} />
                           <span className="text-[10px] font-black text-slate-700 uppercase italic tracking-tighter">{t.category}</span>
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className={`text-sm font-black italic tracking-tighter ${t.type === 'credit' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                        <span className={`text-sm font-black italic tracking-tighter ${t.type === 'credit' ? 'text-amber-600' : 'text-blue-900'}`}>
                           {t.type === 'credit' ? '+' : '-'} ₹{parseFloat(t.amount).toLocaleString()}
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${
-                          t.status === 'completed' || t.status === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                          t.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                          t.status === 'completed' || t.status === 'success' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                          t.status === 'failed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
                           {humanStatus(t.status)}

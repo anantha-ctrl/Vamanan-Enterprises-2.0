@@ -84,14 +84,14 @@ const LandingPage = () => {
   };
 
   const faqs = [
-    { q: "Is Vamanan Gold safe?", a: "Yes, 100%. All gold is BIS Hallmarked and stored in insured, bank-grade vaults under institutional custody." },
+    { q: "Is Vamanan Enterprises V safe?", a: "Yes, 100%. All gold is BIS Hallmarked and stored in insured, bank-grade vaults under institutional custody." },
     { q: "How do I earn 1% daily?", a: "When you acquire gold through our terminal, it initiates an automated investment cycle that yields 1% diurnals for 100 cycles." },
     { q: "What is the referral hierarchy?", a: "We operate a 5-tier referral matrix: Level 1 (0.2%), Level 2 (0.1%), Level 3 (0.1%), Level 4 (0.05%), and Level 5 (0.05%) commissions." },
     { q: "Can I liquidate my earnings instantly?", a: "Yes, upon reaching the institutional threshold of ₹500, you can initialize a bridge transfer to your verified bank account." }
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 font-inter overflow-x-hidden relative selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-[#fafafa] text-blue-900 font-inter overflow-x-hidden relative selection:bg-amber-100 selection:text-amber-900">
       {/* Cinematic Background Gradient */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-amber-100/30 rounded-full blur-[150px] animate-pulse" />
@@ -122,7 +122,7 @@ const LandingPage = () => {
       </div>
 
       {/* Institutional Ticker */}
-      <div className="bg-slate-900 text-white py-3 md:py-4 overflow-hidden border-b border-white/5 relative z-[60] shadow-2xl">
+      <div className="bg-blue-900 text-white py-3 md:py-4 overflow-hidden border-b border-white/5 relative z-[60] shadow-2xl">
         <motion.div
           animate={{ x: [0, -2000] }}
           transition={{ repeat: Infinity, duration: 45, ease: "linear" }}
@@ -134,7 +134,7 @@ const LandingPage = () => {
               <span className="opacity-20 text-white">•</span>
               <span className="text-white">BIS HALLMARKED & INSURED ASSETS</span>
               <span className="opacity-20 text-white">•</span>
-              <span className="flex items-center gap-4 text-emerald-400"><Zap size={14} strokeWidth={3} /> 1% DIURNAL YIELD ACTIVE</span>
+              <span className="flex items-center gap-4 text-amber-400"><Zap size={14} strokeWidth={3} /> 1% DIURNAL YIELD ACTIVE</span>
               <span className="opacity-20 text-white">•</span>
               <span className="text-white">5-TIER MATRIX ENABLED</span>
             </span>
@@ -150,7 +150,7 @@ const LandingPage = () => {
           className="flex items-center gap-4 md:gap-8 group cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center p-3 md:p-4 bg-slate-900 rounded-[1.8rem] md:rounded-[2.5rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] transform group-hover:scale-105 group-hover:rotate-3 transition-all duration-700 relative overflow-hidden">
+          <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center p-3 md:p-4 bg-blue-900 rounded-[1.8rem] md:rounded-[2.5rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] transform group-hover:scale-105 group-hover:rotate-3 transition-all duration-700 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent"></div>
             <img
               src="/vamanan-logo.png"
@@ -159,9 +159,9 @@ const LandingPage = () => {
             />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none uppercase italic">Vamanan <span className="text-amber-600">Enterprises V</span></h1>
+            <h1 className="text-xl md:text-4xl font-black text-blue-900 tracking-tighter leading-none uppercase italic">Vamanan <span className="text-amber-600">Enterprises V</span></h1>
             <div className="flex items-center gap-3 mt-2">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+              <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
               <span className="text-[8px] md:text-[11px] font-black text-slate-400 tracking-[0.4em] md:tracking-[0.5em] uppercase italic">Institutional Gold Vault</span>
             </div>
           </div>
@@ -175,17 +175,17 @@ const LandingPage = () => {
             <a href="#faq" className="hover:text-amber-600 transition-all hover:-translate-y-0.5">Knowledge</a>
           </div>
           <div className="flex items-center gap-5">
-            <Link to="/login" className="bg-white text-slate-900 px-10 py-6 rounded-[1.5rem] font-black hover:bg-slate-900 hover:text-white transition-all active:scale-95 uppercase text-[10px] tracking-[0.2em] italic border border-slate-200 shadow-sm">
+            <Link to="/login" className="bg-white text-blue-900 px-10 py-6 rounded-[1.5rem] font-black hover:bg-blue-900 hover:text-white transition-all active:scale-95 uppercase text-[10px] tracking-[0.2em] italic border border-slate-200 shadow-sm">
               Login
             </Link>
-            <Link to="/register" className="bg-slate-900 text-white px-12 py-6 rounded-[1.5rem] font-black hover:bg-amber-600 transition-all shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] active:scale-95 uppercase text-[10px] tracking-[0.2em] italic relative overflow-hidden group">
+            <Link to="/register" className="bg-blue-600 text-white px-12 py-6 rounded-[1.5rem] font-black hover:bg-blue-700 transition-all shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] active:scale-95 uppercase text-[10px] tracking-[0.2em] italic relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
               Register
             </Link>
           </div>
         </div>
 
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-4 bg-white border border-slate-200 rounded-2xl text-slate-900 shadow-sm active:scale-95 transition-all">
+        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-4 bg-white border border-slate-200 rounded-2xl text-blue-900 shadow-sm active:scale-95 transition-all">
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </nav>
@@ -194,27 +194,27 @@ const LandingPage = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMenuOpen(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute right-0 top-0 bottom-0 w-[85%] bg-white shadow-2xl flex flex-col p-8">
-              <div className="flex justify-between items-center mb-12">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMenuOpen(false)} className="absolute inset-0 bg-blue-900/60 backdrop-blur-md" />
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute right-0 top-0 bottom-0 w-[85%] bg-white shadow-2xl flex flex-col p-6 overflow-y-auto">
+              <div className="flex justify-between items-center mb-6 shrink-0">
                 <span className="text-[10px] font-black text-amber-600 tracking-[0.4em] uppercase italic">System Menu</span>
                 <button onClick={() => setIsMenuOpen(false)} className="p-3 bg-slate-50 rounded-2xl border border-slate-100"><X size={20} /></button>
               </div>
-              <div className="flex flex-col gap-6 flex-1">
+              <div className="flex flex-col gap-3 flex-1">
                 {[
                   { name: "Operational Framework", href: "#how-it-works", icon: Activity },
                   { name: "Security Protocols", href: "#security", icon: ShieldCheck },
                   { name: "Knowledge Matrix", href: "#faq", icon: Award }
                 ].map((item, i) => (
-                  <a key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="flex items-center gap-5 p-6 bg-slate-50 rounded-[2rem] border border-slate-100 font-black uppercase text-[12px] tracking-widest italic text-slate-900 hover:bg-amber-50 hover:border-amber-100 transition-all">
-                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm"><item.icon size={18} className="text-amber-600" /></div>
+                  <a key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 font-black uppercase text-[12px] tracking-widest italic text-blue-900 hover:bg-amber-50 hover:border-amber-100 transition-all">
+                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0"><item.icon size={18} className="text-amber-600" /></div>
                     {item.name}
                   </a>
                 ))}
               </div>
-              <div className="space-y-4 pt-12 border-t border-slate-100">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full py-6 bg-white border border-slate-200 text-slate-900 rounded-[1.8rem] flex items-center justify-center font-black uppercase text-[11px] tracking-widest italic">Login</Link>
-                <Link to="/register" onClick={() => setIsMenuOpen(false)} className="w-full py-6 bg-slate-900 text-white rounded-[1.8rem] flex items-center justify-center font-black uppercase text-[11px] tracking-widest italic shadow-xl">Register</Link>
+              <div className="space-y-3 pt-6 mt-6 border-t border-slate-100 shrink-0">
+                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full py-4 bg-white border border-slate-200 text-blue-900 rounded-[1.5rem] flex items-center justify-center font-black uppercase text-[11px] tracking-widest italic">Login</Link>
+                <Link to="/register" onClick={() => setIsMenuOpen(false)} className="w-full py-4 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center font-black uppercase text-[11px] tracking-widest italic shadow-xl">Register</Link>
               </div>
             </motion.div>
           </div>
@@ -223,18 +223,18 @@ const LandingPage = () => {
 
       <main className="relative z-10">
         {/* Hero Section */}
-        <section className="container mx-auto px-6 pt-20 md:pt-40 pb-32 text-center">
+        <section className="container mx-auto px-6 pt-16 md:pt-40 pb-20 md:pb-32 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-4 px-8 py-4 bg-white border border-slate-200 rounded-full mb-16 shadow-[0_15px_30px_-5px_rgba(0,0,0,0.05)]"
+            className="inline-flex items-center gap-4 px-6 md:px-8 py-3 md:py-4 bg-white border border-slate-200 rounded-full mb-10 md:mb-16 shadow-[0_15px_30px_-5px_rgba(0,0,0,0.05)]"
           >
             <div className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
             <span className="text-[10px] md:text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Institutional Yield Protocol v4.0 Active</span>
           </motion.div>
 
           <motion.div style={{ scale }}>
-            <h2 className="text-[12vw] sm:text-[10vw] md:text-[9vw] lg:text-[8.5vw] font-black tracking-tighter leading-[0.8] uppercase italic text-slate-900 mb-12">
+            <h2 className="text-[12vw] sm:text-[10vw] md:text-[9vw] lg:text-[8.5vw] font-black tracking-tighter leading-[0.8] uppercase italic text-blue-900 mb-12">
               Wealth that <br />
               <span className="text-amber-600 relative inline-block">
                 Evolves.
@@ -247,30 +247,30 @@ const LandingPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-slate-400 text-base md:text-2xl lg:text-3xl max-w-5xl mx-auto mb-20 font-black leading-relaxed px-6 uppercase tracking-tight italic"
+            className="text-slate-400 text-base md:text-2xl lg:text-3xl max-w-5xl mx-auto mb-12 md:mb-20 font-black leading-relaxed px-2 md:px-6 uppercase tracking-tight italic"
           >
-            Secure your financial legacy with <span className="text-slate-900">Vamanan Enterprises V</span>. Every institutional asset generates <span className="text-amber-600 underline decoration-amber-500/20 underline-offset-[12px]">1% Diurnal Yields</span> within our military-grade vault infrastructure.
+            Secure your financial legacy with <span className="text-blue-900">Vamanan Enterprises V</span>. Every institutional asset generates <span className="text-amber-600 underline decoration-amber-500/20 underline-offset-[12px]">1% Diurnal Yields</span> within our military-grade vault infrastructure.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-40"
+            className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center mb-20 md:mb-40"
           >
-            <Link to="/register" className="w-full sm:w-auto px-16 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-xl hover:bg-amber-600 transition-all flex items-center justify-center gap-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] active:scale-95 uppercase tracking-widest italic group">
+            <Link to="/register" className="w-full sm:w-auto px-16 py-8 bg-blue-600 text-white rounded-[2.5rem] font-black text-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-5 shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)] active:scale-95 uppercase tracking-widest italic group">
               Register Now <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
             </Link>
-            <Link to="/login" className="w-full sm:w-auto px-16 py-8 bg-white border border-slate-200 text-slate-900 rounded-[2.5rem] font-black text-xl hover:border-amber-500 hover:shadow-xl transition-all flex items-center justify-center gap-5 active:scale-95 uppercase tracking-widest italic">
+            <Link to="/login" className="w-full sm:w-auto px-16 py-8 bg-white border border-slate-200 text-blue-900 rounded-[2.5rem] font-black text-xl hover:border-amber-500 hover:shadow-xl transition-all flex items-center justify-center gap-5 active:scale-95 uppercase tracking-widest italic">
               Login
             </Link>
           </motion.div>
 
           {/* Institutional Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 max-w-6xl mx-auto pt-32 border-t border-slate-200/60 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-24 max-w-6xl mx-auto pt-16 md:pt-32 border-t border-slate-200/60 relative">
             <div className="absolute -top-px left-1/2 -translate-x-1/2 w-32 h-1 bg-amber-500"></div>
             <div className="flex flex-col items-center">
-              <span className="text-6xl md:text-8xl font-black text-slate-900 italic mb-4 tracking-tighter">
+              <span className="text-6xl md:text-8xl font-black text-blue-900 italic mb-4 tracking-tighter">
                 <CountUp value={stats.investors} suffix="+" />
               </span>
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] italic">Institutional Partners</span>
@@ -278,7 +278,7 @@ const LandingPage = () => {
             <div className="flex flex-col items-center">
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl md:text-5xl font-black text-amber-600 italic tracking-tighter mb-4">₹</span>
-                <span className="text-6xl md:text-8xl font-black text-slate-900 italic mb-4 tracking-tighter">
+                <span className="text-6xl md:text-8xl font-black text-blue-900 italic mb-4 tracking-tighter">
                   <CountUp value={stats.goldValue} suffix="Cr+" />
                 </span>
               </div>
@@ -287,7 +287,7 @@ const LandingPage = () => {
             <div className="flex flex-col items-center">
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl md:text-5xl font-black text-amber-600 italic tracking-tighter mb-4">₹</span>
-                <span className="text-6xl md:text-8xl font-black text-slate-900 italic mb-4 tracking-tighter">
+                <span className="text-6xl md:text-8xl font-black text-blue-900 italic mb-4 tracking-tighter">
                   <CountUp value={stats.dailyPayouts} suffix="L+" />
                 </span>
               </div>
@@ -297,16 +297,16 @@ const LandingPage = () => {
         </section>
 
         {/* Framework Section */}
-        <section id="how-it-works" className="py-40 md:py-64 bg-white relative">
+        <section id="how-it-works" className="py-20 md:py-64 bg-white relative">
           <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-[#fafafa] to-transparent"></div>
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-32">
+            <div className="text-center mb-16 md:mb-32">
               <div className="inline-flex items-center gap-3 mb-6">
                 <div className="w-12 h-px bg-amber-500"></div>
                 <p className="text-amber-600 text-[10px] font-black uppercase tracking-[0.6em] italic">The Operational Framework</p>
                 <div className="w-12 h-px bg-amber-500"></div>
               </div>
-              <h3 className="text-5xl md:text-[7vw] font-black tracking-tighter uppercase italic text-slate-900 leading-[0.9]">
+              <h3 className="text-5xl md:text-[7vw] font-black tracking-tighter uppercase italic text-blue-900 leading-[0.9]">
                 Seamless <span className="text-amber-600">Acquisition</span>
               </h3>
             </div>
@@ -322,10 +322,10 @@ const LandingPage = () => {
                   className="bg-[#fafafa] p-12 md:p-16 rounded-[3.5rem] border border-slate-100 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700"
                 >
                   <div className="absolute top-0 right-0 p-10 text-[10rem] font-black text-slate-200/20 group-hover:text-amber-500/5 transition-all italic select-none leading-none">{item.step}</div>
-                  <div className="w-24 h-24 bg-slate-900 text-amber-500 rounded-[2rem] flex items-center justify-center mb-12 shadow-2xl relative z-10 group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                  <div className="w-24 h-24 bg-blue-900 text-amber-500 rounded-[2rem] flex items-center justify-center mb-12 shadow-2xl relative z-10 group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
                     <item.icon size={36} />
                   </div>
-                  <h4 className="text-3xl font-black mb-6 uppercase tracking-tighter italic text-slate-900 relative z-10">{item.title}</h4>
+                  <h4 className="text-3xl font-black mb-6 uppercase tracking-tighter italic text-blue-900 relative z-10">{item.title}</h4>
                   <p className="text-slate-400 text-sm md:text-base font-bold uppercase tracking-widest leading-relaxed italic relative z-10">{item.desc}</p>
                 </motion.div>
               ))}
@@ -334,7 +334,7 @@ const LandingPage = () => {
         </section>
 
         {/* Security Section */}
-        <section id="security" className="py-32 md:py-56 bg-slate-900 relative overflow-hidden">
+        <section id="security" className="py-20 md:py-56 bg-blue-900 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
           <div className="container mx-auto px-6">
             <div className="bg-white/5 backdrop-blur-3xl rounded-[4rem] md:rounded-[6rem] p-12 md:p-32 border border-white/10 flex flex-col lg:flex-row items-center gap-24 relative shadow-2xl">
@@ -380,8 +380,8 @@ const LandingPage = () => {
                     key={i}
                     className="p-10 md:p-14 bg-white/5 border border-white/10 rounded-[2.5rem] md:rounded-[4rem] backdrop-blur-xl flex flex-col items-center group hover:bg-amber-500 transition-all duration-500 cursor-crosshair shadow-2xl"
                   >
-                    <item.icon size={36} md:size={48} className="text-amber-500 mb-8 group-hover:text-slate-900 transition-colors" />
-                    <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] text-slate-300 group-hover:text-slate-900 italic transition-colors text-center">{item.label}</span>
+                    <item.icon size={36} md:size={48} className="text-amber-500 mb-8 group-hover:text-blue-900 transition-colors" />
+                    <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] text-slate-300 group-hover:text-blue-900 italic transition-colors text-center">{item.label}</span>
                   </motion.div>
                 ))}
               </div>
@@ -403,11 +403,11 @@ const LandingPage = () => {
         </section> */}
 
         {/* Knowledge Matrix Section */}
-        <section id="faq" className="container mx-auto px-6 py-40 md:py-64">
+        <section id="faq" className="container mx-auto px-6 py-20 md:py-64">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-32">
+            <div className="text-center mb-16 md:mb-32">
               <p className="text-amber-600 text-[10px] font-black uppercase tracking-[0.6em] mb-6 italic">Information Node</p>
-              <h3 className="text-5xl md:text-[7vw] font-black tracking-tighter uppercase italic text-slate-900 leading-none">Knowledge <span className="text-amber-600">Matrix</span></h3>
+              <h3 className="text-5xl md:text-[7vw] font-black tracking-tighter uppercase italic text-blue-900 leading-none">Knowledge <span className="text-amber-600">Matrix</span></h3>
             </div>
             <div className="space-y-6">
               {faqs.map((faq, index) => (
@@ -419,8 +419,8 @@ const LandingPage = () => {
                     onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                     className="w-full px-10 md:px-16 py-10 md:py-14 flex justify-between items-center text-left gap-10"
                   >
-                    <span className="text-lg md:text-2xl font-black uppercase tracking-tight italic text-slate-900 group-hover:text-amber-600 transition-colors leading-tight">{faq.q}</span>
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-[1.5rem] bg-slate-50 flex items-center justify-center shrink-0 transition-all duration-700 ${activeFaq === index ? 'bg-slate-900 text-amber-500 rotate-180' : 'text-slate-400 group-hover:bg-slate-900 group-hover:text-amber-500'}`}>
+                    <span className="text-lg md:text-2xl font-black uppercase tracking-tight italic text-blue-900 group-hover:text-amber-600 transition-colors leading-tight">{faq.q}</span>
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-[1.5rem] bg-slate-50 flex items-center justify-center shrink-0 transition-all duration-700 ${activeFaq === index ? 'bg-blue-900 text-amber-500 rotate-180' : 'text-slate-400 group-hover:bg-blue-900 group-hover:text-amber-500'}`}>
                       <ChevronDown size={24} />
                     </div>
                   </button>
@@ -445,10 +445,10 @@ const LandingPage = () => {
         </section>
 
         {/* Global Footer */}
-        <footer className="bg-slate-900 pt-40 md:pt-64 pb-16 md:pb-24 text-white overflow-hidden relative">
+        <footer className="bg-blue-900 pt-40 md:pt-64 pb-16 md:pb-24 text-white overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700"></div>
           <div className="container mx-auto px-6 max-w-7xl relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-24 mb-40">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 md:gap-24 mb-16 md:mb-40">
               <div className="lg:col-span-2 space-y-12">
                 <div className="flex items-center gap-8 group cursor-pointer">
                   <div className="w-20 h-20 md:w-28 md:h-28 bg-white p-5 rounded-[2rem] md:rounded-[3rem] flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl relative overflow-hidden">
@@ -493,11 +493,11 @@ const LandingPage = () => {
                 <h5 className="text-amber-500 font-black text-[11px] md:text-[12px] uppercase tracking-[0.6em] italic">Support Terminal</h5>
                 <div className="flex flex-col gap-8">
                   <div className="flex items-center gap-5 group">
-                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><Users size={20} /></div>
+                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-blue-900 transition-all"><Users size={20} /></div>
                     <span className="text-[11px] font-black uppercase tracking-widest italic text-slate-400 group-hover:text-white transition-colors">+91 96001 22373 | +91 96001 22613</span>
                   </div>
                   <div className="flex items-center gap-5 group">
-                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><Globe size={20} /></div>
+                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-blue-900 transition-all"><Globe size={20} /></div>
                     <span className="text-[11px] font-black uppercase tracking-widest italic text-slate-400 group-hover:text-white transition-colors">support@vamananenterprisesv.com</span>
                   </div>
                 </div>
@@ -507,14 +507,14 @@ const LandingPage = () => {
             <div className="pt-20 border-t border-white/5 flex flex-col lg:flex-row justify-between items-center gap-16">
               <div className="flex flex-col items-center lg:items-start gap-6">
                 <p className="text-[11px] md:text-[12px] font-black text-slate-500 uppercase tracking-widest italic text-center lg:text-left leading-loose">
-                  © {new Date().getFullYear()} Vamanan Enterprises V. <br className="md:hidden" /> All Institutional Rights Reserved. <span className="mx-6 text-slate-800 hidden md:inline">|</span> <a href="https://cloudhawk.in/" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-white transition-all duration-300 decoration-amber-500/20 underline underline-offset-[6px]">Architected by CloudHawk</a>
+                  © {new Date().getFullYear()} Vamanan Enterprises V. <br className="md:hidden" /> All Institutional Rights Reserved. <span className="mx-6 text-blue-800 hidden md:inline">|</span> <a href="https://cloudhawk.in/" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-white transition-all duration-300 decoration-amber-500/20 underline underline-offset-[6px]">Architected by CloudHawk</a>
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-8">
-                <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-amber-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest italic hover:bg-amber-500 hover:text-slate-900 transition-all cursor-none">
+                <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-amber-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest italic hover:bg-amber-500 hover:text-blue-900 transition-all cursor-none">
                   BIS Certified Terminal
                 </div>
-                <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-emerald-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest italic hover:bg-emerald-500 hover:text-slate-900 transition-all cursor-none">
+                <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-amber-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest italic hover:bg-amber-500 hover:text-blue-900 transition-all cursor-none">
                   SSL Secured Node
                 </div>
               </div>

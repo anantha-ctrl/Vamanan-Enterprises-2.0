@@ -6,6 +6,8 @@ import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import GenealogyTree from '../components/GenealogyTree';
+import AdminFeedback from '../components/AdminFeedback';
+import AdminOffers from '../components/AdminOffers';
 import API_BASE_URL from '../config';
 import { humanRole, humanStatus, humanize } from '../utils/humanLabels';
 import { hasPermission } from '../utils/accessControl';
@@ -572,7 +574,7 @@ const AdminDashboard = () => {
       </style></head><body>
       <div class="sheet">
         <div class="head">
-          <div><div class="brand">Vamanan <span>Gold</span></div><div class="sub">Cashback Application</div></div>
+          <div><div class="brand">Vamanan <span>Enterprises V</span></div><div class="sub">Cashback Application</div></div>
           <div class="meta">Application #${esc(a.id)}<br/>Status: <strong>${esc((a.status || 'pending').toUpperCase())}</strong><br/>${esc(a.application_date || a.created_at || '')}</div>
         </div>
         <div class="section"><h2>Applicant Details</h2><table>
@@ -853,7 +855,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-inter flex flex-col lg:flex-row overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-blue-900 font-inter flex flex-col lg:flex-row overflow-x-hidden">
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -895,7 +897,7 @@ const AdminDashboard = () => {
                }
              }}
              disabled={processing}
-             className="bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-xl active:scale-95 italic flex items-center gap-3 disabled:opacity-50"
+             className="bg-blue-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-xl active:scale-95 italic flex items-center gap-3 disabled:opacity-50"
            >
              {processing ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} className="text-amber-500" />}
              Process Daily Yield
@@ -907,48 +909,48 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="bg-white border border-slate-200 p-8 rounded-[3.5rem] relative overflow-hidden group hover:border-amber-600/50 transition-all duration-700 shadow-sm hover:shadow-2xl">
                 <div className="absolute -right-6 -top-6 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all duration-1000"></div>
-                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 transition-all duration-500">
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-900 transition-all duration-500">
                   <BarChart3 className="text-amber-600 group-hover:text-amber-500" size={24} />
                 </div>
                 <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase italic">Institutional Revenue</p>
                 <div className="flex items-end gap-3 mt-2">
-                  <h3 className="text-3xl font-black text-slate-900 italic tracking-tighter">₹ {parseFloat(stats.revenue || 0).toLocaleString()}</h3>
-                  <span className="text-emerald-600 text-[10px] font-black mb-1.5 flex items-center bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 shadow-sm"><TrendingUp size={10} className="mr-1"/> +12%</span>
+                  <h3 className="text-3xl font-black text-blue-900 italic tracking-tighter">₹ {parseFloat(stats.revenue || 0).toLocaleString()}</h3>
+                  <span className="text-amber-600 text-[10px] font-black mb-1.5 flex items-center bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 shadow-sm"><TrendingUp size={10} className="mr-1"/> +12%</span>
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 p-8 rounded-[3.5rem] relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-700 shadow-sm hover:shadow-2xl">
-                <div className="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000"></div>
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 transition-all duration-500">
-                  <Wallet className="text-emerald-600" size={24} />
+              <div className="bg-white border border-slate-200 p-8 rounded-[3.5rem] relative overflow-hidden group hover:border-amber-500/50 transition-all duration-700 shadow-sm hover:shadow-2xl">
+                <div className="absolute -right-6 -top-6 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all duration-1000"></div>
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-900 transition-all duration-500">
+                  <Wallet className="text-amber-600" size={24} />
                 </div>
                 <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase italic">Total Payouts</p>
                 <div className="flex items-end gap-3 mt-2">
-                  <h3 className="text-3xl font-black text-slate-900 italic tracking-tighter">₹ {parseFloat(stats.payouts || 0).toLocaleString()}</h3>
+                  <h3 className="text-3xl font-black text-blue-900 italic tracking-tighter">₹ {parseFloat(stats.payouts || 0).toLocaleString()}</h3>
                   <span className="text-slate-400 text-[10px] font-black mb-1.5 italic bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">MTD Yield</span>
                 </div>
               </div>
 
               <div className="bg-white border border-slate-200 p-8 rounded-[3.5rem] relative overflow-hidden group hover:border-blue-500/50 transition-all duration-700 shadow-sm hover:shadow-2xl">
                 <div className="absolute -right-6 -top-6 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-all duration-1000"></div>
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 transition-all duration-500">
+                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-900 transition-all duration-500">
                   <Users className="text-blue-500" size={24} />
                 </div>
                 <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase italic">Active Investors</p>
                 <div className="flex items-end gap-3 mt-2">
-                  <h3 className="text-3xl font-black text-slate-900 italic tracking-tighter">{stats.users}</h3>
+                  <h3 className="text-3xl font-black text-blue-900 italic tracking-tighter">{stats.users}</h3>
                   <span className="text-blue-500 text-[10px] font-black mb-1.5 flex items-center bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 shadow-sm"><UserPlus size={10} className="mr-1"/> +5 New</span>
                 </div>
               </div>
 
               <div className="bg-white border border-slate-200 p-8 rounded-[3.5rem] relative overflow-hidden group hover:border-amber-600/50 transition-all duration-700 shadow-sm hover:shadow-2xl">
                 <div className="absolute -right-6 -top-6 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all duration-1000"></div>
-                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 transition-all duration-500">
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-900 transition-all duration-500">
                   <ShoppingBag className="text-amber-600" size={24} />
                 </div>
                 <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase italic">Asset Inventory</p>
                 <div className="flex items-end gap-3 mt-2">
-                  <h3 className="text-3xl font-black text-slate-900 italic tracking-tighter">{parseFloat(stats.total_gold_weight || 0).toFixed(3)}g</h3>
+                  <h3 className="text-3xl font-black text-blue-900 italic tracking-tighter">{parseFloat(stats.total_gold_weight || 0).toFixed(3)}g</h3>
                   <span className="text-amber-600 text-[10px] font-black mb-1.5 italic bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 shadow-sm">22K Gold</span>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
@@ -964,15 +966,15 @@ const AdminDashboard = () => {
                <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm relative overflow-hidden group min-h-[450px]">
                   <div className="flex justify-between items-center mb-10">
                      <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase italic">Institutional Growth Analytics</h3>
+                        <h3 className="text-xl font-black text-blue-900 tracking-tight uppercase italic">Institutional Growth Analytics</h3>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1 italic">Rolling 7-Day Revenue Matrix</p>
                      </div>
                      <div className="flex items-center gap-3">
                         <div className="hidden sm:flex flex-col items-end">
-                           <span className="text-[14px] font-black italic text-slate-900">₹ {parseFloat(stats.revenue || 0).toLocaleString()}</span>
-                           <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest italic">Total Liquid Revenue</span>
+                           <span className="text-[14px] font-black italic text-blue-900">₹ {parseFloat(stats.revenue || 0).toLocaleString()}</span>
+                           <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest italic">Total Liquid Revenue</span>
                         </div>
-                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg border border-white/10"><TrendingUp size={20} /></div>
+                        <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg border border-white/10"><TrendingUp size={20} /></div>
                      </div>
                   </div>
                   
@@ -1055,15 +1057,15 @@ const AdminDashboard = () => {
                <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm relative overflow-hidden group min-h-[450px]">
                   <div className="flex justify-between items-center mb-10">
                      <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase italic">Investor Network Pulse</h3>
+                        <h3 className="text-xl font-black text-blue-900 tracking-tight uppercase italic">Investor Network Pulse</h3>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Rolling 7-Day Enrollment Matrix</p>
                      </div>
                      <div className="flex items-center gap-3">
                         <div className="hidden sm:flex flex-col items-end">
-                           <span className="text-[14px] font-black italic text-slate-900">{stats.users} Entities</span>
+                           <span className="text-[14px] font-black italic text-blue-900">{stats.users} Entities</span>
                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest italic animate-pulse">Live Synchronization</span>
                         </div>
-                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-blue-500 shadow-lg border border-white/10"><Activity size={20} /></div>
+                        <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-blue-500 shadow-lg border border-white/10"><Activity size={20} /></div>
                      </div>
                   </div>
 
@@ -1144,12 +1146,12 @@ const AdminDashboard = () => {
               <div className="lg:col-span-2 bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-sm relative overflow-hidden">
                  <div className="flex justify-between items-center mb-10 md:mb-14">
                     <div>
-                      <h3 className="text-xl md:text-2xl font-black text-slate-900 italic uppercase tracking-tight">Network Yield Matrix</h3>
+                      <h3 className="text-xl md:text-2xl font-black text-blue-900 italic uppercase tracking-tight">Network Yield Matrix</h3>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Institutional commission distribution by tier</p>
                     </div>
                     <div className="flex items-center gap-3">
-                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                       <span className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest">Live Flow</span>
+                       <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                       <span className="text-[10px] font-black text-blue-900 uppercase italic tracking-widest">Live Flow</span>
                     </div>
                  </div>
 
@@ -1158,7 +1160,7 @@ const AdminDashboard = () => {
                        const amount = stats.level_distribution?.[lvl] || 0;
                        const max = Math.max(...Object.values(stats.level_distribution || { L1: 1 })) || 1;
                        const percentage = (amount / max) * 100;
-                       const colors = { L1: 'bg-amber-500', L2: 'bg-emerald-500', L3: 'bg-blue-500', L4: 'bg-indigo-500', L5: 'bg-rose-500' };
+                       const colors = { L1: 'bg-amber-500', L2: 'bg-blue-500', L3: 'bg-blue-800', L4: 'bg-amber-600', L5: 'bg-blue-400' };
                        const labels = { L1: 'Primary Nodes', L2: 'Secondary Vectors', L3: 'Tertiary Links', L4: 'Quaternary Nodes', L5: 'Terminal Nodes' };
                        
                        return (
@@ -1166,9 +1168,9 @@ const AdminDashboard = () => {
                              <div className="flex justify-between items-end mb-3 md:mb-4 px-2">
                                 <div>
                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${colors[lvl]} text-white italic mr-4 shadow-sm`}>{lvl} Matrix</span>
-                                   <span className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest group-hover:text-slate-900 transition-colors">{labels[lvl]}</span>
+                                   <span className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest group-hover:text-blue-900 transition-colors">{labels[lvl]}</span>
                                 </div>
-                                <span className="text-sm md:text-base font-black text-slate-900 italic tracking-tighter">₹ {amount.toLocaleString()}</span>
+                                <span className="text-sm md:text-base font-black text-blue-900 italic tracking-tighter">₹ {amount.toLocaleString()}</span>
                              </div>
                              <div className="w-full bg-slate-50 h-3 md:h-4 rounded-full overflow-hidden border border-slate-100 shadow-inner p-0.5">
                                 <motion.div 
@@ -1187,18 +1189,18 @@ const AdminDashboard = () => {
 
                  <div className="mt-12 md:mt-16 pt-8 md:pt-10 border-t border-slate-100 flex flex-wrap gap-6 md:gap-10">
                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-inner"><TrendingUp size={18} /></div>
-                       <div><p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">Avg Growth</p><p className="text-sm font-black text-slate-900 italic">+18.4%</p></div>
+                       <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 border border-amber-100 shadow-inner"><TrendingUp size={18} /></div>
+                       <div><p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">Avg Growth</p><p className="text-sm font-black text-blue-900 italic">+18.4%</p></div>
                     </div>
                     <div className="flex items-center gap-4">
                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 border border-amber-100 shadow-inner"><Users size={18} /></div>
-                       <div><p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">Active Links</p><p className="text-sm font-black text-slate-900 italic">2,481 Units</p></div>
+                       <div><p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">Active Links</p><p className="text-sm font-black text-blue-900 italic">2,481 Units</p></div>
                     </div>
                  </div>
               </div>
 
               {/* Top Performer Leaderboard */}
-              <div className="bg-slate-900 text-white p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] shadow-2xl relative overflow-hidden group border border-white/5">
+              <div className="bg-blue-900 text-white p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] shadow-2xl relative overflow-hidden group border border-white/5">
                  <div className="absolute -right-20 -bottom-20 opacity-5 group-hover:scale-125 transition-transform duration-1000 rotate-12"><Trophy size={400} className="text-amber-500" /></div>
                  
                  <div className="relative z-10">
@@ -1210,10 +1212,10 @@ const AdminDashboard = () => {
                     <div className="space-y-6 md:space-y-8">
                        {(stats.top_referrers || []).length > 0 ? stats.top_referrers.map((ref, i) => (
                           <div key={i} className="flex items-center justify-between p-4 md:p-5 bg-white/5 border border-white/5 rounded-[2rem] hover:bg-white/10 transition-all group/node relative">
-                             {i === 0 && <div className="absolute -top-3 -right-3 bg-amber-500 text-slate-900 text-[8px] font-black px-2 py-1 rounded-lg uppercase italic shadow-lg z-20">Network Alpha</div>}
+                             {i === 0 && <div className="absolute -top-3 -right-3 bg-amber-500 text-blue-900 text-[8px] font-black px-2 py-1 rounded-lg uppercase italic shadow-lg z-20">Network Alpha</div>}
                              <div className="flex items-center gap-4 md:gap-5">
                                 <div className="relative">
-                                   <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-lg md:text-xl font-black italic border ${i === 0 ? 'bg-amber-500 text-slate-900 border-amber-400' : 'bg-white/5 text-white border-white/10'}`}>
+                                   <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-lg md:text-xl font-black italic border ${i === 0 ? 'bg-amber-500 text-blue-900 border-amber-400' : 'bg-white/5 text-white border-white/10'}`}>
                                       {i + 1}
                                    </div>
                                    {i < 3 && <Trophy size={14} className={`absolute -bottom-1 -right-1 ${i === 0 ? 'text-white' : i === 1 ? 'text-slate-300' : 'text-amber-700'}`} />}
@@ -1224,7 +1226,7 @@ const AdminDashboard = () => {
                                 </div>
                              </div>
                              <div className="text-right">
-                                <p className="text-sm md:text-base font-black italic text-emerald-500">₹ {parseFloat(ref.earnings || 0).toLocaleString()}</p>
+                                <p className="text-sm md:text-base font-black italic text-amber-500">₹ {parseFloat(ref.earnings || 0).toLocaleString()}</p>
                                 <p className="text-[9px] text-white/40 font-black uppercase tracking-widest mt-0.5">{ref.referrals} Directs</p>
                              </div>
                           </div>
@@ -1239,7 +1241,7 @@ const AdminDashboard = () => {
                              <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] italic mb-1">Neural Goal</p>
                              <p className="text-lg font-black italic uppercase tracking-tighter text-white">Scale Matrix 2.0</p>
                           </div>
-                          <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-slate-900 shadow-[0_0_15px_#d97706] group-hover/card:scale-110 transition-transform"><Target size={20} /></div>
+                          <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-blue-900 shadow-[0_0_15px_#d97706] group-hover/card:scale-110 transition-transform"><Target size={20} /></div>
                        </div>
                        <div className="mt-6 w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
                           <motion.div initial={{ width: 0 }} animate={{ width: '74%' }} className="h-full bg-amber-500 shadow-[0_0_10px_#d97706]"></motion.div>
@@ -1255,12 +1257,12 @@ const AdminDashboard = () => {
                <div className="absolute -right-20 -top-20 opacity-5 pointer-events-none rotate-12"><History size={400} /></div>
                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 relative z-10">
                   <div>
-                     <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Recent Investment Protocol</h3>
+                     <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Recent Investment Protocol</h3>
                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Last 5 processed institutional acquisitions</p>
                   </div>
                   <button 
                     onClick={() => setActiveTab('investment_history')}
-                    className="group bg-slate-50 hover:bg-slate-900 text-slate-400 hover:text-white px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200 shadow-sm flex items-center gap-3 italic"
+                    className="group bg-slate-50 hover:bg-blue-900 text-slate-400 hover:text-white px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200 shadow-sm flex items-center gap-3 italic"
                   >
                     View Full Audit Log <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -1281,24 +1283,24 @@ const AdminDashboard = () => {
                            {investmentHistory.slice(0, 5).map(inv => (
                               <tr key={inv.cycle_id} className="hover:bg-slate-50/70 transition group">
                                  <td className="py-7 px-10">
-                                    <div className="text-xs font-black text-slate-900 italic">{new Date(inv.processed_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                    <div className="text-xs font-black text-blue-900 italic">{new Date(inv.processed_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                                     <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1.5 italic">{new Date(inv.processed_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
                                  </td>
                                  <td className="py-7 px-10">
-                                    <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{inv.user_name}</div>
+                                    <div className="text-sm font-black text-blue-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{inv.user_name}</div>
                                     <div className="text-[10px] text-slate-500 font-bold mt-1.5 truncate max-w-[200px]">{inv.user_email}</div>
                                  </td>
                                  <td className="py-7 px-10">
-                                    <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</div>
-                                    <div className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1.5 italic">Yield: ₹{inv.daily_payout}/Day</div>
+                                    <div className="text-xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</div>
+                                    <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1.5 italic">Yield: ₹{inv.daily_payout}/Day</div>
                                  </td>
                                  <td className="py-7 px-10 text-right">
                                     <span className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm italic ${
-                                       inv.cycle_status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
-                                       inv.cycle_status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                       inv.cycle_status === 'active' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                       inv.cycle_status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                        'bg-amber-50 text-amber-600 border-amber-100'
                                     }`}>
-                                       <div className={`w-1.5 h-1.5 rounded-full ${inv.cycle_status === 'active' ? 'bg-emerald-500' : inv.cycle_status === 'rejected' ? 'bg-rose-500' : 'bg-amber-500'} animate-pulse`}></div>
+                                       <div className={`w-1.5 h-1.5 rounded-full ${inv.cycle_status === 'active' ? 'bg-amber-500' : inv.cycle_status === 'rejected' ? 'bg-blue-500' : 'bg-amber-500'} animate-pulse`}></div>
                                        {humanStatus(inv.cycle_status)}
                                     </span>
                                  </td>
@@ -1323,7 +1325,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-100 p-8 md:p-12 rounded-[3rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Pending Gold Requests</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Pending Gold Requests</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Review and approve customer investment submissions</p>
                </div>
                <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm">
@@ -1347,9 +1349,9 @@ const AdminDashboard = () => {
                            <div className="lg:col-span-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Investor Identity</p>
                               <div className="flex items-center gap-5">
-                                 <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/10 shadow-lg">{inv.user_name[0]}</div>
+                                 <div className="w-14 h-14 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/10 shadow-lg">{inv.user_name[0]}</div>
                                  <div className="min-w-0">
-                                    <h4 className="text-sm font-black text-slate-900 uppercase italic leading-none truncate">{inv.user_name}</h4>
+                                    <h4 className="text-sm font-black text-blue-900 uppercase italic leading-none truncate">{inv.user_name}</h4>
                                     <p className="text-[10px] text-slate-400 font-bold mt-1.5 truncate max-w-[140px]">{inv.user_email}</p>
                                  </div>
                               </div>
@@ -1357,7 +1359,7 @@ const AdminDashboard = () => {
 
                            <div className="lg:col-span-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Digital Asset</p>
-                              <h4 className="text-sm font-black text-slate-900 uppercase italic leading-none">
+                              <h4 className="text-sm font-black text-blue-900 uppercase italic leading-none">
                                 {inv.asset_type === 'product'
                                   ? (inv.product_name || 'Product Purchase')
                                   : inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
@@ -1370,8 +1372,8 @@ const AdminDashboard = () => {
                            <div className="lg:col-span-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Financial Matrix</p>
                               <div className="flex flex-col">
-                                 <span className="text-2xl font-black text-slate-900 leading-none italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</span>
-                                 <span className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mt-2 flex items-center gap-2"><TrendingUp size={10}/> Yield: ₹{inv.daily_payout}/Day</span>
+                                 <span className="text-2xl font-black text-blue-900 leading-none italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</span>
+                                 <span className="text-[10px] text-amber-600 font-black uppercase tracking-widest mt-2 flex items-center gap-2"><TrendingUp size={10}/> Yield: ₹{inv.daily_payout}/Day</span>
                               </div>
                            </div>
 
@@ -1379,7 +1381,7 @@ const AdminDashboard = () => {
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Payment Node</p>
                               <div className="flex flex-col gap-2">
                                  <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic">{inv.payment_method || 'Bank Transfer'}</span>
-                                 <span className="text-[10px] font-black text-slate-900 uppercase italic truncate">ID: {inv.transaction_id || 'N/A'}</span>
+                                 <span className="text-[10px] font-black text-blue-900 uppercase italic truncate">ID: {inv.transaction_id || 'N/A'}</span>
                                  {inv.payment_screenshot ? (
                                     <a 
                                       href={`${API_BASE_URL.replace('/api', '')}/${inv.payment_screenshot}`} 
@@ -1390,7 +1392,7 @@ const AdminDashboard = () => {
                                        <ExternalLink size={14} /> <span className="text-[9px] font-black uppercase tracking-widest underline italic">Verify Receipt</span>
                                     </a>
                                  ) : (
-                                    <span className="text-[9px] text-rose-500 font-black uppercase tracking-widest italic">No Screenshot Found</span>
+                                    <span className="text-[9px] text-blue-500 font-black uppercase tracking-widest italic">No Screenshot Found</span>
                                  )}
                               </div>
                            </div>
@@ -1399,14 +1401,14 @@ const AdminDashboard = () => {
                               <button 
                                 onClick={() => handleApproveInvestment(inv.cycle_id, 'active')}
                                 disabled={processing}
-                                className="flex-1 lg:w-full bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition shadow-xl shadow-slate-200 active:scale-95"
+                                className="flex-1 lg:w-full bg-blue-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition shadow-xl shadow-slate-200 active:scale-95"
                               >
                                  Authorize Activation
                               </button>
                               <button 
                                 onClick={() => handleApproveInvestment(inv.cycle_id, 'rejected')}
                                 disabled={processing}
-                                className="flex-1 lg:w-full bg-white border border-slate-200 text-slate-400 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition active:scale-95"
+                                className="flex-1 lg:w-full bg-white border border-slate-200 text-slate-400 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-50 hover:text-blue-500 hover:border-blue-100 transition active:scale-95"
                               >
                                  Reject Asset Request
                               </button>
@@ -1439,7 +1441,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-100 p-8 md:p-12 rounded-[3rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Investment Audit History</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Investment Audit History</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Institutional log of all processed gold asset acquisitions</p>
                </div>
                <div className="bg-slate-50 text-slate-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200 shadow-sm">
@@ -1465,15 +1467,15 @@ const AdminDashboard = () => {
                       {investmentHistory.map(inv => (
                         <tr key={inv.cycle_id} className="hover:bg-slate-50/70 transition group">
                           <td className="py-6 px-8">
-                            <div className="text-xs font-black text-slate-900 italic">{new Date(inv.processed_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                            <div className="text-xs font-black text-blue-900 italic">{new Date(inv.processed_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                             <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">{new Date(inv.processed_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
                           </td>
                           <td className="py-6 px-8">
-                            <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{inv.user_name}</div>
+                            <div className="text-sm font-black text-blue-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{inv.user_name}</div>
                             <div className="text-[10px] text-slate-500 font-bold mt-1.5 truncate max-w-[150px]">{inv.user_email}</div>
                           </td>
                           <td className="py-6 px-8">
-                            <div className="text-xs font-black text-slate-900 uppercase italic">
+                            <div className="text-xs font-black text-blue-900 uppercase italic">
                               {inv.asset_type === 'product'
                                 ? (inv.product_name || 'Product Purchase')
                                 : inv.asset_type === 'silver' ? 'Pure Silver Asset' : '22K Gold Asset'}
@@ -1483,12 +1485,12 @@ const AdminDashboard = () => {
                             </div>
                           </td>
                           <td className="py-6 px-8">
-                            <div className="text-base font-black text-slate-900 italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</div>
-                            <div className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1 italic">Daily: ₹{inv.daily_payout}</div>
+                            <div className="text-base font-black text-blue-900 italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</div>
+                            <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">Daily: ₹{inv.daily_payout}</div>
                           </td>
                             <td className="py-6 px-8">
                               <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mb-1 italic">{inv.payment_method || 'Bank Transfer'}</div>
-                              <div className="text-xs font-black text-slate-900 uppercase italic truncate max-w-[120px]">{inv.transaction_id || 'N/A'}</div>
+                              <div className="text-xs font-black text-blue-900 uppercase italic truncate max-w-[120px]">{inv.transaction_id || 'N/A'}</div>
                               {inv.payment_screenshot && (
                                 <a 
                                   href={`${API_BASE_URL.replace('/api', '')}/${inv.payment_screenshot}`} 
@@ -1502,8 +1504,8 @@ const AdminDashboard = () => {
                             </td>
                           <td className="py-6 px-8 text-right">
                             <span className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
-                              inv.cycle_status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm' : 
-                              inv.cycle_status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100 shadow-sm' :
+                              inv.cycle_status === 'active' ? 'bg-amber-50 text-amber-600 border-amber-100 shadow-sm' : 
+                              inv.cycle_status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100 shadow-sm' :
                               inv.cycle_status === 'cancelled' ? 'bg-slate-50 text-slate-400 border-slate-200 shadow-sm' :
                               'bg-amber-50 text-amber-600 border-amber-100 shadow-sm'
                             }`}>
@@ -1514,7 +1516,7 @@ const AdminDashboard = () => {
                           <td className="py-6 px-8 text-right">
                             <button onClick={() => handleDeleteInvestment(inv.cycle_id)} disabled={processing}
                               title="Delete record"
-                              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-600 hover:text-white transition-all active:scale-95 disabled:opacity-40">
+                              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-500 hover:bg-blue-600 hover:text-white transition-all active:scale-95 disabled:opacity-40">
                               <Trash2 size={15} />
                             </button>
                           </td>
@@ -1538,7 +1540,7 @@ const AdminDashboard = () => {
             <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Genealogy Explorer</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Genealogy Explorer</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Audit the hierarchical referral matrix (Up to 5 Levels)</p>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
@@ -1555,7 +1557,7 @@ const AdminDashboard = () => {
                    {genealogySelectedUser && (
                      <button 
                        onClick={() => fetchGenealogy()}
-                       className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-amber-600 transition-all active:scale-95 shadow-lg"
+                       className="bg-blue-900 text-white p-4 rounded-2xl hover:bg-amber-600 transition-all active:scale-95 shadow-lg"
                      >
                         <ArrowLeft size={16} />
                      </button>
@@ -1577,9 +1579,9 @@ const AdminDashboard = () => {
                     >
                       <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><Network size={100} /></div>
                       <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-lg">{u.name[0]}</div>
+                        <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-lg">{u.name[0]}</div>
                         <div className="min-w-0">
-                          <h4 className="text-sm font-black text-slate-900 uppercase italic truncate">{u.name}</h4>
+                          <h4 className="text-sm font-black text-blue-900 uppercase italic truncate">{u.name}</h4>
                           <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">{u.referral_code}</p>
                         </div>
                       </div>
@@ -1596,10 +1598,10 @@ const AdminDashboard = () => {
                 <div className="space-y-8">
                   <div className="bg-amber-50 border border-amber-100 p-8 rounded-[3rem] flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                       <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5 italic font-black text-2xl">{genealogySelectedUser.name[0]}</div>
+                       <div className="w-16 h-16 bg-blue-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5 italic font-black text-2xl">{genealogySelectedUser.name[0]}</div>
                        <div>
                           <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1 italic">Selected Root Node</p>
-                          <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">{genealogySelectedUser.name}</h4>
+                          <h4 className="text-2xl font-black text-blue-900 uppercase italic tracking-tighter">{genealogySelectedUser.name}</h4>
                           <div className="flex gap-4 mt-1">
                              <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">{genealogySelectedUser.email}</span>
                              <span className="text-[9px] text-amber-600 font-black uppercase tracking-widest italic font-bold">● {genealogySelectedUser.referral_code}</span>
@@ -1608,7 +1610,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="text-right">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Network Depth</p>
-                       <p className="text-2xl font-black text-slate-900 italic tracking-tighter">5 Levels Active</p>
+                       <p className="text-2xl font-black text-blue-900 italic tracking-tighter">5 Levels Active</p>
                     </div>
                   </div>
                   <GenealogyTree data={genealogyData} loading={genealogyLoading} />
@@ -1617,11 +1619,11 @@ const AdminDashboard = () => {
             </div>
 
             {/* Anti-Fraud Intelligence Insights */}
-            <div className="bg-slate-900 text-white p-12 rounded-[4rem] shadow-2xl relative overflow-hidden group border border-white/5">
+            <div className="bg-blue-900 text-white p-12 rounded-[4rem] shadow-2xl relative overflow-hidden group border border-white/5">
                <div className="absolute -right-20 -top-20 opacity-5 group-hover:scale-110 transition-transform duration-1000"><ShieldAlert size={400} /></div>
                <div className="relative z-10">
                   <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4 flex items-center gap-3">
-                    <div className="w-2 h-8 bg-rose-500 rounded-full"></div> Fraud Detection Intelligence
+                    <div className="w-2 h-8 bg-blue-500 rounded-full"></div> Fraud Detection Intelligence
                   </h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mb-10 italic">Neural monitoring for circular referral patterns and multiple account abuse</p>
                   
@@ -1632,16 +1634,16 @@ const AdminDashboard = () => {
                          value: (stats.circular_links || 0) + ' Detected', 
                          status: (stats.circular_links > 0 ? 'Risk Found' : 'Secure'), 
                          icon: RefreshCw, 
-                         color: (stats.circular_links > 0 ? 'text-rose-500' : 'text-emerald-500'),
-                         bgStatus: (stats.circular_links > 0 ? 'bg-rose-500' : 'bg-emerald-500')
+                         color: (stats.circular_links > 0 ? 'text-blue-500' : 'text-amber-500'),
+                         bgStatus: (stats.circular_links > 0 ? 'bg-blue-500' : 'bg-amber-500')
                        },
                        { 
                          label: 'IP Clusters', 
                          value: (stats.ip_clusters || 0) + ' Flagged', 
                          status: (stats.ip_clusters > 0 ? 'Review Needed' : 'Stable'), 
                          icon: Globe, 
-                         color: (stats.ip_clusters > 0 ? 'text-amber-500' : 'text-emerald-500'),
-                         bgStatus: (stats.ip_clusters > 0 ? 'bg-amber-500' : 'bg-emerald-500')
+                         color: (stats.ip_clusters > 0 ? 'text-amber-500' : 'text-amber-500'),
+                         bgStatus: (stats.ip_clusters > 0 ? 'bg-amber-500' : 'bg-amber-500')
                        },
                        { 
                          label: 'Node Velocity', 
@@ -1649,7 +1651,7 @@ const AdminDashboard = () => {
                          status: 'Healthy', 
                          icon: Activity, 
                          color: 'text-blue-500',
-                         bgStatus: 'bg-emerald-500'
+                         bgStatus: 'bg-amber-500'
                        },
                      ].map((item, i) => (
                        <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] hover:bg-white/10 transition-all shadow-xl">
@@ -1657,7 +1659,7 @@ const AdminDashboard = () => {
                           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 italic">{item.label}</p>
                           <h4 className="text-xl font-black italic tracking-tight mb-2">{item.value}</h4>
                           <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${item.bgStatus} shadow-[0_0_8px_rgba(16,185,129,0.8)]`}></div>
+                             <div className={`w-1.5 h-1.5 rounded-full ${item.bgStatus} shadow-[0_0_8px_rgba(245,158,11,0.8)]`}></div>
                              <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.color} italic`}>{item.status}</span>
                           </div>
                        </div>
@@ -1672,10 +1674,10 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Wallets Ledger</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Institutional Wallets Ledger</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Real-time fiscal monitoring of all investor account balances</p>
                </div>
-               <div className="bg-slate-900 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg italic">
+               <div className="bg-blue-900 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg italic">
                   Total Active: {walletsData.length} Portfolios
                </div>
             </div>
@@ -1697,24 +1699,24 @@ const AdminDashboard = () => {
                         <tr key={w.wallet_id} className="hover:bg-slate-50/70 transition group">
                           <td className="py-7 px-8">
                             <div className="flex items-center gap-6">
-                              <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/5 shadow-xl">{w.user_name[0]}</div>
+                              <div className="w-14 h-14 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/5 shadow-xl">{w.user_name[0]}</div>
                               <div>
-                                <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{w.user_name}</div>
+                                <div className="text-sm font-black text-blue-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{w.user_name}</div>
                                 <div className="text-[10px] text-slate-400 font-bold mt-1.5 truncate max-w-[200px]">{w.user_email}</div>
                               </div>
                             </div>
                           </td>
                           <td className="py-7 px-8 text-right">
-                            <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(w.balance).toLocaleString()}</div>
+                            <div className="text-xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(w.balance).toLocaleString()}</div>
                             <div className="text-[9px] text-amber-600 font-black uppercase tracking-[0.2em] mt-1 italic">Liquid Reserve</div>
                           </td>
                           <td className="py-7 px-8 text-right">
-                            <div className="text-sm font-black text-emerald-600 italic tracking-tight">₹{parseFloat(w.total_earned).toLocaleString()}</div>
-                            <div className="text-[9px] text-emerald-600/50 font-black uppercase tracking-[0.2em] mt-1 italic">Gross Profits</div>
+                            <div className="text-sm font-black text-amber-600 italic tracking-tight">₹{parseFloat(w.total_earned).toLocaleString()}</div>
+                            <div className="text-[9px] text-amber-600/50 font-black uppercase tracking-[0.2em] mt-1 italic">Gross Profits</div>
                           </td>
                           <td className="py-7 px-8 text-right">
-                            <div className="text-sm font-black text-rose-500 italic tracking-tight">₹{parseFloat(w.total_withdrawn).toLocaleString()}</div>
-                            <div className="text-[9px] text-rose-500/50 font-black uppercase tracking-[0.2em] mt-1 italic">Total Outflow</div>
+                            <div className="text-sm font-black text-blue-500 italic tracking-tight">₹{parseFloat(w.total_withdrawn).toLocaleString()}</div>
+                            <div className="text-[9px] text-blue-500/50 font-black uppercase tracking-[0.2em] mt-1 italic">Total Outflow</div>
                           </td>
                           <td className="py-7 px-8 text-right">
                             <button 
@@ -1727,7 +1729,7 @@ const AdminDashboard = () => {
                                   alert("System: Investor profile node not found in current cache.");
                                 }
                               }}
-                              className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-900 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all active:scale-95 shadow-sm"
+                              className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 text-blue-900 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-900 hover:text-white transition-all active:scale-95 shadow-sm"
                             >
                               <UserCircle size={14} className="text-amber-500" /> View Profile
                             </button>
@@ -1751,9 +1753,9 @@ const AdminDashboard = () => {
         {activeTab === 'wallet_adj' && (
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto bg-white border border-slate-200 p-8 md:p-14 rounded-[3.5rem] shadow-sm">
             <div className="flex items-center gap-6 mb-12">
-               <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><CreditCard size={32}/></div>
+               <div className="w-16 h-16 bg-blue-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><CreditCard size={32}/></div>
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Capital Correction Protocol</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Capital Correction Protocol</h3>
                   <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Manual intervention layer for investor wallet adjustment</p>
                </div>
             </div>
@@ -1807,20 +1809,20 @@ const AdminDashboard = () => {
                     <div className="absolute -right-4 -bottom-4 text-amber-100/50 rotate-12"><TrendingUp size={80} /></div>
                     <div className="text-center relative z-10">
                       <p className="text-[8px] font-black text-amber-600 uppercase tracking-[0.3em] mb-1.5 italic">Daily Payout</p>
-                      <p className="text-2xl font-black text-slate-900 italic tracking-tighter">₹{selectedUserPayout.total_daily_payout.toLocaleString()}</p>
+                      <p className="text-2xl font-black text-blue-900 italic tracking-tighter">₹{selectedUserPayout.total_daily_payout.toLocaleString()}</p>
                       <div className="flex items-center justify-center gap-1 mt-1">
                         <span className="w-1 h-1 bg-amber-500 rounded-full animate-pulse"></span>
                         <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">1% Institutional Yield</p>
                       </div>
                     </div>
                     <div className="text-center border-x border-amber-100 relative z-10">
-                      <p className="text-[8px] font-black text-rose-600 uppercase tracking-[0.3em] mb-1.5 italic">Remaining Capital</p>
-                      <p className="text-2xl font-black text-rose-600 italic tracking-tighter">₹{selectedUserPayout.remaining_value.toLocaleString()}</p>
+                      <p className="text-[8px] font-black text-blue-600 uppercase tracking-[0.3em] mb-1.5 italic">Remaining Capital</p>
+                      <p className="text-2xl font-black text-blue-600 italic tracking-tighter">₹{selectedUserPayout.remaining_value.toLocaleString()}</p>
                       <p className="text-[8px] text-slate-400 font-black uppercase mt-1 italic">{selectedUserPayout.cashback_percentage}% Progress</p>
                     </div>
                     <div className="text-center relative z-10">
                       <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1.5 italic">Total Invested</p>
-                      <p className="text-2xl font-black text-slate-900 italic tracking-tighter">₹{selectedUserPayout.total_invested.toLocaleString()}</p>
+                      <p className="text-2xl font-black text-blue-900 italic tracking-tighter">₹{selectedUserPayout.total_invested.toLocaleString()}</p>
                       <p className="text-[8px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">
                         {selectedUserPayout.cycles?.[0]?.asset_type === 'silver' ? 'Pure Silver' : '22K Gold'} Asset
                       </p>
@@ -1829,16 +1831,16 @@ const AdminDashboard = () => {
                   {/* Row 2 — 3 secondary figures */}
                   <div className="grid grid-cols-3 gap-4 p-5 bg-slate-50/80 border border-slate-100 rounded-[2.5rem] shadow-sm">
                     <div className="text-center">
-                      <p className="text-[8px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-1 italic">Wallet Balance</p>
-                      <p className="text-xl font-black text-emerald-600 italic tracking-tighter">₹{selectedUserPayout.wallet_balance.toLocaleString()}</p>
+                      <p className="text-[8px] font-black text-amber-600 uppercase tracking-[0.3em] mb-1 italic">Wallet Balance</p>
+                      <p className="text-xl font-black text-amber-600 italic tracking-tighter">₹{selectedUserPayout.wallet_balance.toLocaleString()}</p>
                     </div>
                     <div className="text-center border-x border-slate-100">
                       <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1 italic">Total Earned</p>
-                      <p className="text-xl font-black text-slate-900 italic tracking-tighter">₹{selectedUserPayout.total_earned.toLocaleString()}</p>
+                      <p className="text-xl font-black text-blue-900 italic tracking-tighter">₹{selectedUserPayout.total_earned.toLocaleString()}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-[8px] font-black text-blue-600 uppercase tracking-[0.3em] mb-1 italic">Cycle Progress</p>
-                      <p className="text-xl font-black text-slate-900 italic tracking-tighter">
+                      <p className="text-xl font-black text-blue-900 italic tracking-tighter">
                         {selectedUserPayout.days_completed} <span className="text-slate-300 text-sm">/ 100</span>
                       </p>
                     </div>
@@ -1854,19 +1856,19 @@ const AdminDashboard = () => {
               )}
 
               {selectedUserPayout && selectedUserPayout.active_cycles > 0 && (
-                <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[2.5rem] mb-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+                <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2.5rem] mb-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
                   <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200"><Zap size={32} /></div>
+                    <div className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-200"><Zap size={32} /></div>
                     <div>
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-1 italic">Daily Payout Detected</p>
-                      <h4 className="text-3xl font-black text-slate-900 italic tracking-tighter">₹{selectedUserPayout.total_daily_payout.toLocaleString()}</h4>
+                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] mb-1 italic">Daily Payout Detected</p>
+                      <h4 className="text-3xl font-black text-blue-900 italic tracking-tighter">₹{selectedUserPayout.total_daily_payout.toLocaleString()}</h4>
                       <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic">Across {selectedUserPayout.active_cycles} Active Cycles</p>
                     </div>
                   </div>
                   <button 
                     type="button"
                     onClick={() => setAdjForm({ ...adjForm, amount: selectedUserPayout.total_daily_payout.toString(), reason: 'Daily Cashback Payout', type: 'credit', category: 'cashback' })}
-                    className="w-full md:w-auto bg-emerald-600 text-white px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-emerald-700 transition-all shadow-xl hover:shadow-emerald-500/20 active:scale-95 italic flex items-center justify-center gap-3"
+                    className="w-full md:w-auto bg-amber-600 text-white px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-amber-700 transition-all shadow-xl hover:shadow-amber-500/20 active:scale-95 italic flex items-center justify-center gap-3"
                   >
                     <CheckCircle2 size={18} /> Apply 1% Daily Payout
                   </button>
@@ -1878,7 +1880,7 @@ const AdminDashboard = () => {
                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Injection Quantity (₹)</label>
                    <div className="relative group">
                       <span className="absolute left-10 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">₹</span>
-                      <input type="number" placeholder="0.00" required value={adjForm.amount} onChange={e => setAdjForm({...adjForm, amount: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2.5rem] py-8 pl-20 pr-10 text-4xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter" />
+                      <input type="number" placeholder="0.00" required value={adjForm.amount} onChange={e => setAdjForm({...adjForm, amount: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2.5rem] py-8 pl-20 pr-10 text-4xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter" />
                    </div>
                 </div>
                 <div className="space-y-3">
@@ -1890,7 +1892,7 @@ const AdminDashboard = () => {
                 type="button" 
                 onClick={handleAdjustWallet}
                 disabled={processing} 
-                className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]"
+                className="w-full bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]"
               >
                  {processing ? <Loader2 className="animate-spin" /> : <><CheckCircle size={20}/> Pay Out</>}
               </button>
@@ -1901,14 +1903,14 @@ const AdminDashboard = () => {
         {activeTab === 'tickets' && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
              {/* Dispatch Controller */}
-             <div className="bg-slate-900 text-white p-10 md:p-14 rounded-[4rem] shadow-2xl relative overflow-hidden group">
+             <div className="bg-blue-900 text-white p-10 md:p-14 rounded-[4rem] shadow-2xl relative overflow-hidden group">
                 <div className="absolute -right-20 -bottom-20 opacity-5 group-hover:scale-110 transition-transform duration-1000">
                    <Megaphone size={400} />
                 </div>
                 
                 <div className="relative z-10">
                    <div className="flex items-center gap-5 mb-10">
-                      <div className="w-16 h-16 bg-amber-500 rounded-[2rem] flex items-center justify-center text-slate-900 shadow-xl border border-white/10">
+                      <div className="w-16 h-16 bg-amber-500 rounded-[2rem] flex items-center justify-center text-blue-900 shadow-xl border border-white/10">
                          <Megaphone size={32} />
                       </div>
                       <div>
@@ -1922,7 +1924,7 @@ const AdminDashboard = () => {
                          {notifEditId && (
                             <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex justify-between items-center">
                                <span className="text-[10px] font-black text-amber-600 uppercase italic">Editing Mode Active (ID: #{notifEditId})</span>
-                               <button type="button" onClick={() => { setNotifEditId(null); setNotifForm({ user_id: '', title: '', message: '', type: 'info' }); }} className="text-rose-500 hover:text-rose-700 transition-colors"><X size={16} /></button>
+                               <button type="button" onClick={() => { setNotifEditId(null); setNotifForm({ user_id: '', title: '', message: '', type: 'info' }); }} className="text-blue-500 hover:text-blue-700 transition-colors"><X size={16} /></button>
                             </div>
                          )}
                          <div className="space-y-3">
@@ -1932,9 +1934,9 @@ const AdminDashboard = () => {
                                onChange={e => setNotifForm({...notifForm, user_id: e.target.value})}
                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-black text-white outline-none focus:border-amber-500 focus:bg-white/10 transition-all italic"
                             >
-                               <option value="" className="bg-slate-900">GLOBAL BROADCAST (ALL INVESTORS)</option>
+                               <option value="" className="bg-blue-900">GLOBAL BROADCAST (ALL INVESTORS)</option>
                                {users.map(u => (
-                                  <option key={u.id} value={u.id} className="bg-slate-900 text-white uppercase italic">{u.name} (ID: {u.id})</option>
+                                  <option key={u.id} value={u.id} className="bg-blue-900 text-white uppercase italic">{u.name} (ID: {u.id})</option>
                                ))}
                             </select>
                          </div>
@@ -1974,7 +1976,7 @@ const AdminDashboard = () => {
                                     onClick={() => setNotifForm(prev => ({...prev, type: t}))}
                                     className={`py-5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${
                                        notifForm.type === t 
-                                       ? 'bg-amber-500 text-slate-900 border-amber-600 shadow-lg' 
+                                       ? 'bg-amber-500 text-blue-900 border-amber-600 shadow-lg' 
                                        : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10'
                                     }`}
                                   >
@@ -1994,7 +1996,7 @@ const AdminDashboard = () => {
                            type="button" 
                            onClick={handleSendNotification}
                            disabled={processing}
-                           className="w-full bg-amber-500 text-slate-900 py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                           className="w-full bg-amber-500 text-blue-900 py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                          >
                             {processing ? (
                                <div className="flex items-center gap-3">
@@ -2017,7 +2019,7 @@ const AdminDashboard = () => {
              <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[4rem] shadow-sm">
                 <div className="flex justify-between items-center mb-10">
                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Neural Logs</h3>
+                      <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Neural Logs</h3>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Historical audit of institutional communications</p>
                    </div>
                    <div className="bg-slate-50 text-slate-400 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200">
@@ -2036,18 +2038,18 @@ const AdminDashboard = () => {
                          <div key={n.id} className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm hover:border-slate-300 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group">
                             <div className="flex gap-6 items-start">
                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-inner ${
-                                  n.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                  n.type === 'warning' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                  n.type === 'success' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                  n.type === 'warning' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                   'bg-blue-50 text-blue-600 border-blue-100'
                                }`}>
                                   <Activity size={20} />
                                </div>
                                <div>
                                   <div className="flex items-center gap-3 mb-1">
-                                     <h4 className="font-black text-sm text-slate-900 uppercase italic tracking-tight">{n.title}</h4>
+                                     <h4 className="font-black text-sm text-blue-900 uppercase italic tracking-tight">{n.title}</h4>
                                      <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase ${
-                                        n.type === 'success' ? 'bg-emerald-500 text-white' :
-                                        n.type === 'warning' ? 'bg-rose-500 text-white' :
+                                        n.type === 'success' ? 'bg-amber-500 text-white' :
+                                        n.type === 'warning' ? 'bg-blue-500 text-white' :
                                         'bg-blue-500 text-white'
                                      }`}>{humanize(n.type)}</span>
                                   </div>
@@ -2072,7 +2074,7 @@ const AdminDashboard = () => {
                                   </button>
                                   <button 
                                     onClick={() => handleDeleteNotification(n.id)}
-                                    className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-rose-100 group-hover:shadow-md"
+                                    className="p-3 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100 group-hover:shadow-md"
                                   >
                                      <Trash2 size={16} />
                                   </button>
@@ -2110,18 +2112,18 @@ const AdminDashboard = () => {
              {/* Header */}
              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                 <div>
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Investor Directory</h3>
+                   <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Investor Directory</h3>
                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Universal registry of all platform participants</p>
                 </div>
                 <div className="flex w-full md:w-auto gap-3 items-center flex-wrap">
                    {/* Bulk Add Users */}
                    <button onClick={() => setShowBulkUsers(true)}
-                     className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-900 text-amber-400 border-2 border-slate-900 hover:bg-amber-600 hover:text-white transition-all shadow-lg">
+                     className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-blue-900 text-amber-400 border-2 border-blue-900 hover:bg-amber-600 hover:text-white transition-all shadow-lg">
                      <UserPlus size={13} /> Bulk Add Users
                    </button>
                    {/* Select All toggle */}
                    <button onClick={toggleAll}
-                     className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic border-2 transition-all ${allFilteredSelected ? 'bg-slate-900 text-amber-400 border-slate-900' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400'}`}>
+                     className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic border-2 transition-all ${allFilteredSelected ? 'bg-blue-900 text-amber-400 border-blue-900' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400'}`}>
                      <input type="checkbox" readOnly checked={allFilteredSelected} className="w-3.5 h-3.5 accent-amber-500 pointer-events-none" />
                      {allFilteredSelected ? 'Deselect All' : 'Select All'}
                    </button>
@@ -2129,7 +2131,7 @@ const AdminDashboard = () => {
                    {/* Bulk Delete button — visible when ≥1 selected */}
                    {selectedUserIds.size > 0 && (
                      <button onClick={() => setShowBulkDeleteConfirm(true)}
-                       className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-rose-600 text-white border-2 border-rose-600 hover:bg-rose-700 transition-all shadow-lg">
+                       className="flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-blue-600 text-white border-2 border-blue-600 hover:bg-blue-700 transition-all shadow-lg">
                        <Trash2 size={13} /> Delete ({selectedUserIds.size})
                      </button>
                    )}
@@ -2154,25 +2156,26 @@ const AdminDashboard = () => {
                    return (
                    <div key={u.id}
                      onClick={() => toggleUser(u.id)}
-                     className={`relative p-8 bg-white border-2 rounded-[3rem] transition-all cursor-pointer group shadow-sm select-none ${isSelected ? 'border-rose-400 shadow-rose-100 shadow-lg bg-rose-50/30' : 'border-slate-100 hover:border-amber-400/60'}`}>
+                     className={`relative p-8 bg-white border-2 rounded-[3rem] transition-all cursor-pointer group shadow-sm select-none ${isSelected ? 'border-blue-400 shadow-blue-100 shadow-lg bg-blue-50/30' : 'border-slate-100 hover:border-amber-400/60'}`}>
 
                      {/* Checkbox top-right */}
-                     <div className={`absolute top-5 right-5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-rose-500 border-rose-500' : 'border-slate-200 bg-white'}`}>
+                     <div className={`absolute top-5 right-5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-200 bg-white'}`}>
                        {isSelected && <CheckCircle2 size={14} className="text-white" strokeWidth={3} />}
                      </div>
 
                       <div className="flex items-center gap-5 mb-8">
-                         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center font-black uppercase text-2xl shadow-xl border border-white/10 transition-colors ${isSelected ? 'bg-rose-600 text-white' : 'bg-slate-900 text-amber-500'}`}>{u.name[0]}</div>
+                         <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center font-black uppercase text-2xl shadow-xl border border-white/10 transition-colors ${isSelected ? 'bg-blue-600 text-white' : 'bg-blue-900 text-amber-500'}`}>{u.name[0]}</div>
                          <div className="min-w-0 pr-8">
-                            <h4 className="text-sm font-black text-slate-900 uppercase italic leading-none truncate">{u.name}</h4>
-                            <p className="text-[10px] text-slate-400 font-bold mt-1.5 truncate uppercase tracking-widest">Joined {new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
+                            <h4 className="text-sm font-black text-blue-900 uppercase italic leading-none truncate">{u.name}</h4>
+                            <p className="text-[9px] text-amber-600 font-black mt-1.5 truncate uppercase tracking-widest italic">{u.customer_id || u.referral_code || `#${u.id}`}</p>
+                            <p className="text-[9px] text-slate-400 font-bold mt-1 truncate uppercase tracking-widest">Joined {new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
                          </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="grid grid-cols-2 gap-4 mb-4">
                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Wallet</p>
-                            <p className="text-sm font-black text-slate-900 italic">₹{parseFloat(u.balance || 0).toLocaleString()}</p>
+                            <p className="text-sm font-black text-blue-900 italic">₹{parseFloat(u.balance || 0).toLocaleString()}</p>
                          </div>
                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Role</p>
@@ -2180,15 +2183,30 @@ const AdminDashboard = () => {
                          </div>
                       </div>
 
+                      {/* Referred By (upline) */}
+                      <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 mb-8 flex items-center gap-3">
+                         <div className="w-9 h-9 rounded-xl bg-blue-900 text-amber-500 flex items-center justify-center shrink-0"><Network size={15} /></div>
+                         <div className="min-w-0">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Referred By</p>
+                            {u.referrer_id ? (
+                               <p className="text-[11px] font-black text-blue-900 uppercase italic truncate leading-tight">
+                                  {u.referrer_name || 'Member'} <span className="text-amber-600">· {u.referrer_customer_id || u.referrer_referral_code || `#${u.referrer_id}`}</span>
+                               </p>
+                            ) : (
+                               <p className="text-[11px] font-black text-slate-400 uppercase italic">Direct — No Referrer</p>
+                            )}
+                         </div>
+                      </div>
+
                       <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                          <div className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-sm border ${
-                            u.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : u.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                            u.status === 'active' ? 'bg-amber-50 text-amber-600 border-amber-100' : u.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                          }`}>
                             {humanStatus(u.status)}
                          </div>
                          <button
                            onClick={e => { e.stopPropagation(); setSelectedUser(u); setShowUserModal(true); }}
-                           className="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl flex items-center justify-center transition-all shadow-sm border border-slate-200 active:scale-95"
+                           className="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-blue-900 hover:text-white rounded-xl flex items-center justify-center transition-all shadow-sm border border-slate-200 active:scale-95"
                          >
                             <Settings size={18} />
                          </button>
@@ -2201,25 +2219,25 @@ const AdminDashboard = () => {
              {/* Bulk Add Users Modal */}
              <AnimatePresence>
                {showBulkUsers && (
-                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
+                 <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                      className="bg-white rounded-[2.5rem] p-8 md:p-10 w-full max-w-3xl shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
                      <div className="flex items-center justify-between mb-6">
                        <div className="flex items-center gap-3">
-                         <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500"><UserPlus size={20} /></div>
+                         <div className="w-11 h-11 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500"><UserPlus size={20} /></div>
                          <div>
-                           <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Bulk Add Users</h3>
+                           <h3 className="text-xl font-black text-blue-900 uppercase italic tracking-tighter">Bulk Add Users</h3>
                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic mt-0.5">Add multiple customers at once · auto VEV id + wallet</p>
                          </div>
                        </div>
-                       <button onClick={() => setShowBulkUsers(false)} className="text-slate-400 hover:text-slate-900"><X size={20} /></button>
+                       <button onClick={() => setShowBulkUsers(false)} className="text-slate-400 hover:text-blue-900"><X size={20} /></button>
                      </div>
 
                      {/* CSV import */}
                      <div className="flex flex-wrap items-center gap-3 mb-5 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Import CSV</span>
                        <input type="file" accept=".csv" onChange={(e) => importBulkUsersCsv(e.target.files?.[0])}
-                         className="text-[10px] font-bold text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-slate-900 file:text-white file:text-[9px] file:font-black file:uppercase file:tracking-widest file:cursor-pointer" />
+                         className="text-[10px] font-bold text-slate-600 file:mr-3 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-blue-900 file:text-white file:text-[9px] file:font-black file:uppercase file:tracking-widest file:cursor-pointer" />
                        <button onClick={downloadUserTemplate} type="button"
                          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest italic hover:border-amber-400 hover:text-amber-600 transition-all">
                          <FileText size={13} /> Download Template
@@ -2250,7 +2268,7 @@ const AdminDashboard = () => {
                              <option value="advocate">Advocate</option>
                            </select>
                            <button onClick={() => removeBulkUserRow(i)} disabled={bulkUserRows.length === 1}
-                             className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all disabled:opacity-30 shrink-0"><Trash2 size={15} /></button>
+                             className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all disabled:opacity-30 shrink-0"><Trash2 size={15} /></button>
                          </div>
                        ))}
                      </div>
@@ -2264,7 +2282,7 @@ const AdminDashboard = () => {
                        <button onClick={() => setShowBulkUsers(false)} disabled={bulkUserSaving}
                          className="px-7 py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-50 text-slate-400 border border-slate-200 hover:bg-slate-100">Cancel</button>
                        <button onClick={submitBulkUsers} disabled={bulkUserSaving}
-                         className="px-8 py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-slate-900 text-white hover:bg-amber-600 transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50">
+                         className="px-8 py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic bg-blue-900 text-white hover:bg-amber-600 transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50">
                          {bulkUserSaving ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} className="text-amber-500" />} Add {bulkUserRows.filter(r => r.name && r.email && r.phone).length || ''} Users
                        </button>
                      </div>
@@ -2276,17 +2294,17 @@ const AdminDashboard = () => {
              {/* Bulk Delete Confirm Modal */}
              <AnimatePresence>
                {showBulkDeleteConfirm && (
-                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
+                 <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[300] flex items-center justify-center p-6">
                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                      className="bg-white rounded-[3rem] p-10 md:p-14 w-full max-w-lg shadow-2xl border border-slate-100 text-center">
-                     <div className="w-20 h-20 bg-rose-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
-                       <Trash2 size={36} className="text-rose-600" strokeWidth={2} />
+                     <div className="w-20 h-20 bg-blue-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                       <Trash2 size={36} className="text-blue-600" strokeWidth={2} />
                      </div>
-                     <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-3">Confirm Bulk Delete</h3>
+                     <h3 className="text-2xl font-black text-blue-900 uppercase italic tracking-tighter mb-3">Confirm Bulk Delete</h3>
                      <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">
                        You are about to permanently delete
                      </p>
-                     <p className="text-4xl font-black text-rose-600 italic mb-2">{selectedUserIds.size}</p>
+                     <p className="text-4xl font-black text-blue-600 italic mb-2">{selectedUserIds.size}</p>
                      <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-10">
                        user account{selectedUserIds.size > 1 ? 's' : ''} and all their records. This cannot be undone.
                      </p>
@@ -2296,7 +2314,7 @@ const AdminDashboard = () => {
                          Cancel
                        </button>
                        <button onClick={handleBulkDeleteUsers} disabled={bulkDeleting}
-                         className="flex-1 py-5 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl active:scale-95 italic flex items-center justify-center gap-2">
+                         className="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl active:scale-95 italic flex items-center justify-center gap-2">
                          {bulkDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                          {bulkDeleting ? 'Deleting...' : 'Delete All'}
                        </button>
@@ -2314,7 +2332,7 @@ const AdminDashboard = () => {
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm mt-8">
              <div className="flex justify-between items-center mb-12">
                 <div>
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional KYC Registry</h3>
+                   <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Institutional KYC Registry</h3>
                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Identity verification protocol for high-net-worth individuals</p>
                 </div>
                 <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm">
@@ -2338,15 +2356,15 @@ const AdminDashboard = () => {
                         <tr key={u.id} className="hover:bg-slate-50/70 transition group">
                           <td className="py-8 px-10">
                             <div className="flex items-center gap-6">
-                              <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/5 shadow-xl">{u.name[0]}</div>
+                              <div className="w-14 h-14 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-xl border border-white/5 shadow-xl">{u.name[0]}</div>
                               <div>
-                                <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{u.name}</div>
+                                <div className="text-sm font-black text-blue-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{u.name}</div>
                                 <div className="text-[10px] text-slate-400 font-bold mt-1.5 truncate max-w-[200px]">{u.email}</div>
                               </div>
                             </div>
                           </td>
                           <td className="py-8 px-10">
-                            <div className="text-xs font-black text-slate-900 italic">{new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                            <div className="text-xs font-black text-blue-900 italic">{new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                             <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">Pending Review</div>
                           </td>
                           <td className="py-8 px-10">
@@ -2355,7 +2373,7 @@ const AdminDashboard = () => {
                                  href={u.kyc_document.startsWith('http') ? u.kyc_document : `${API_BASE_URL.replace('/api', '')}/${u.kyc_document}`} 
                                  target="_blank" 
                                  rel="noreferrer"
-                                 className="inline-flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl border border-white/10 hover:bg-amber-600 transition-all text-[9px] font-black uppercase tracking-widest shadow-lg italic"
+                                 className="inline-flex items-center gap-3 bg-blue-900 text-white px-6 py-3 rounded-2xl border border-white/10 hover:bg-amber-600 transition-all text-[9px] font-black uppercase tracking-widest shadow-lg italic"
                                >
                                   <ExternalLink size={14} /> Analyze Document
                                </a>
@@ -2367,13 +2385,13 @@ const AdminDashboard = () => {
                             <div className="flex justify-end gap-3">
                                <button 
                                  onClick={() => handleUpdateUser({ id: u.id, kyc_status: 'verified' })}
-                                 className="px-6 py-3 bg-emerald-50 text-emerald-600 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm italic"
+                                 className="px-6 py-3 bg-amber-50 text-amber-600 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 hover:text-white transition-all border border-amber-100 shadow-sm italic"
                                >
                                   Approve
                                </button>
                                <button 
                                  onClick={() => handleUpdateUser({ id: u.id, kyc_status: 'rejected' })}
-                                 className="px-6 py-3 bg-rose-50 text-rose-600 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100 shadow-sm italic"
+                                 className="px-6 py-3 bg-blue-50 text-blue-600 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-blue-100 shadow-sm italic"
                                >
                                   Reject
                                </button>
@@ -2398,9 +2416,9 @@ const AdminDashboard = () => {
         {activeTab === 'broadcast' && (
            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto bg-white border border-slate-200 p-8 md:p-14 rounded-[3.5rem] shadow-sm">
              <div className="flex items-center gap-6 mb-16">
-                <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><Megaphone size={32}/></div>
+                <div className="w-16 h-16 bg-blue-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><Megaphone size={32}/></div>
                 <div>
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Universal Broadcast</h3>
+                   <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Universal Broadcast</h3>
                    <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Push high-priority notifications to all active investor portals</p>
                 </div>
              </div>
@@ -2414,7 +2432,7 @@ const AdminDashboard = () => {
                      placeholder="URGENT: SYSTEM UPDATE..."
                      value={broadcastForm.title}
                      onChange={(e) => setBroadcastForm({...broadcastForm, title: e.target.value})}
-                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tight italic uppercase"
+                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tight italic uppercase"
                    />
                 </div>
                 
@@ -2455,7 +2473,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="flex gap-6 pt-4">
-                   <button type="submit" disabled={processing} className="flex-1 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
+                   <button type="submit" disabled={processing} className="flex-1 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
                       {processing ? <Loader2 className="animate-spin" /> : <><Globe size={20}/> Execute Universal Transmission</>}
                    </button>
                    <button type="button" onClick={() => setActiveTab('overview')} className="px-12 bg-slate-50 text-slate-400 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition border border-slate-200 italic">Discard</button>
@@ -2467,9 +2485,9 @@ const AdminDashboard = () => {
         {activeTab === 'recruitment' && (
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-12 pb-20">
              <div className="flex items-center gap-6 mb-16">
-                <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><UserPlus size={32}/></div>
+                <div className="w-16 h-16 bg-blue-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><UserPlus size={32}/></div>
                 <div>
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Personnel Recruitment</h3>
+                   <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Personnel Recruitment</h3>
                    <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Administrative interface for onboarding elite platform management staff</p>
                 </div>
              </div>
@@ -2491,7 +2509,7 @@ const AdminDashboard = () => {
                            required
                            value={staffForm.role}
                            onChange={e => setStaffForm({ ...staffForm, role: e.target.value })}
-                           className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-8 pr-16 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner text-slate-900 cursor-pointer"
+                           className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-8 pr-16 text-sm font-black uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner text-blue-900 cursor-pointer"
                          >
                            <option value="staff">Staff</option>
                            <option value="manager">Manager</option>
@@ -2533,7 +2551,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="flex gap-6 pt-6">
-                   <button type="submit" disabled={processing} className="flex-1 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
+                   <button type="submit" disabled={processing} className="flex-1 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
                       {processing ? <Loader2 className="animate-spin" /> : <><CheckCircle size={20}/> Finalize Onboarding</>}
                    </button>
                    <button type="button" onClick={() => setActiveTab('overview')} className="px-12 bg-slate-50 text-slate-400 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition border border-slate-200 italic">Cancel</button>
@@ -2546,7 +2564,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Product Requests</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Product Requests</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Customer-submitted product requests awaiting review</p>
                </div>
                <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-2">
@@ -2574,16 +2592,16 @@ const AdminDashboard = () => {
                            <tr key={r.id} className="hover:bg-slate-50/70 transition group align-top">
                               <td className="py-8 px-10">
                                  <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(r.user_name || r.customer_name || '?')[0]}</div>
+                                    <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(r.user_name || r.customer_name || '?')[0]}</div>
                                     <div className="flex flex-col">
-                                       <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{r.user_name || r.customer_name}</span>
+                                       <span className="font-black text-sm text-blue-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{r.user_name || r.customer_name}</span>
                                        <span className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">{r.user_customer_id || r.customer_code}</span>
                                        <span className="text-[10px] text-slate-400 font-bold mt-1 truncate max-w-[160px]">{r.user_email || r.customer_email}</span>
                                     </div>
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-sm font-black text-slate-900 uppercase italic tracking-tight">{r.product_name}</div>
+                                 <div className="text-sm font-black text-blue-900 uppercase italic tracking-tight">{r.product_name}</div>
                                  {r.model && <div className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">Model: {r.model}</div>}
                                  <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">{r.category}</div>
                                  {r.description && (
@@ -2591,7 +2609,7 @@ const AdminDashboard = () => {
                                  )}
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">Qty {r.quantity}</div>
+                                 <div className="text-[10px] text-blue-900 font-black uppercase tracking-widest">Qty {r.quantity}</div>
                                  {Number(r.weight) > 0 && <div className="text-[9px] text-slate-400 font-bold mt-1.5">{parseFloat(r.weight).toFixed(3)} g</div>}
                                  <div className="text-[9px] text-slate-300 font-black uppercase tracking-widest mt-2 italic flex items-center gap-1">
                                     <Clock size={10} /> {r.created_at ? new Date(r.created_at.replace(' ', 'T')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : ''}
@@ -2599,8 +2617,8 @@ const AdminDashboard = () => {
                               </td>
                               <td className="py-8 px-10">
                                  <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
-                                    (r.status === 'approved' || r.status === 'fulfilled') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                    r.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                    (r.status === 'approved' || r.status === 'fulfilled') ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                    r.status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                     'bg-amber-50 text-amber-600 border-amber-100'
                                  }`}>
                                     {humanStatus(r.status)}
@@ -2611,13 +2629,13 @@ const AdminDashboard = () => {
                                     <div className="flex justify-end gap-3">
                                        <button
                                          onClick={() => handleProcessProductRequest(r.id, 'approved')}
-                                         className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                         className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
                                        >
                                           <CheckCircle2 size={12} className="text-amber-500" /> Approve
                                        </button>
                                        <button
                                          onClick={() => handleProcessProductRequest(r.id, 'rejected')}
-                                         className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                         className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
                                        >
                                           <XCircle size={12} /> Reject
                                        </button>
@@ -2627,7 +2645,7 @@ const AdminDashboard = () => {
                                        {r.status === 'approved' && (
                                           <button
                                             onClick={() => handleProcessProductRequest(r.id, 'fulfilled')}
-                                            className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                            className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
                                           >
                                              <Package size={12} className="text-amber-500" /> Mark Fulfilled
                                           </button>
@@ -2650,7 +2668,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Cashback Applications</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Cashback Applications</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Customer-submitted cashback claim applications</p>
                </div>
                <div className="bg-amber-50 text-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-2">
@@ -2678,9 +2696,9 @@ const AdminDashboard = () => {
                            <tr key={a.id} className="hover:bg-slate-50/70 transition group align-top">
                               <td className="py-8 px-10">
                                  <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(a.customer_name || '?')[0]}</div>
+                                    <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{(a.customer_name || '?')[0]}</div>
                                     <div className="flex flex-col">
-                                       <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{a.customer_name}</span>
+                                       <span className="font-black text-sm text-blue-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{a.customer_name}</span>
                                        <span className="text-[9px] text-amber-600 font-black uppercase tracking-widest mt-1 italic">{a.customer_code}</span>
                                        <span className="text-[10px] text-slate-400 font-bold mt-1 truncate max-w-[160px]">{a.customer_email}</span>
                                        <span className="text-[10px] text-slate-400 font-bold">{a.phone}</span>
@@ -2688,23 +2706,23 @@ const AdminDashboard = () => {
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(a.purchase_amount || 0).toLocaleString('en-IN')}</div>
-                                 {a.purchased_product && <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest mt-1">{a.purchased_product}</div>}
+                                 <div className="text-xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(a.purchase_amount || 0).toLocaleString('en-IN')}</div>
+                                 {a.purchased_product && <div className="text-[10px] text-blue-900 font-black uppercase tracking-widest mt-1">{a.purchased_product}</div>}
                                  {a.product_details && <div className="text-[10px] text-slate-500 font-bold mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 max-w-[240px] break-words">{a.product_details}</div>}
                                  <div className="text-[9px] text-slate-300 font-black uppercase tracking-widest mt-2 italic flex items-center gap-1">
                                     <Clock size={10} /> {a.purchase_date || (a.created_at ? new Date(a.created_at.replace(' ', 'T')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '')}
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">{a.bank_name || '—'}</div>
+                                 <div className="text-[10px] text-blue-900 font-black uppercase tracking-widest">{a.bank_name || '—'}</div>
                                  <div className="text-[9px] text-slate-400 font-bold mt-1.5 bg-slate-100 p-3 rounded-xl border border-slate-200 max-w-[220px] break-words">
                                     A/C {a.account_no || '—'}<br/>IFSC {a.ifsc_code || '—'}{a.bank_branch ? <><br/>{a.bank_branch}</> : ''}
                                  </div>
                               </td>
                               <td className="py-8 px-10">
                                  <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
-                                    a.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                    a.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                    a.status === 'approved' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                    a.status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                     'bg-amber-50 text-amber-600 border-amber-100'
                                  }`}>
                                     {humanStatus(a.status)}
@@ -2714,7 +2732,7 @@ const AdminDashboard = () => {
                                  <div className="flex justify-end items-center gap-3 flex-wrap">
                                     <button
                                       onClick={() => setSelectedCashbackApp(a)}
-                                      className="bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                      className="bg-white text-slate-600 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-900 hover:text-white transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
                                     >
                                        <Eye size={12} /> View
                                     </button>
@@ -2722,13 +2740,13 @@ const AdminDashboard = () => {
                                        <>
                                           <button
                                             onClick={() => handleProcessCashbackApp(a.id, 'approved')}
-                                            className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                            className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
                                           >
                                              <CheckCircle2 size={12} className="text-amber-500" /> Approve
                                           </button>
                                           <button
                                             onClick={() => handleProcessCashbackApp(a.id, 'rejected')}
-                                            className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                            className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
                                           >
                                              <XCircle size={12} /> Reject
                                           </button>
@@ -2754,7 +2772,7 @@ const AdminDashboard = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelectedCashbackApp(null)}
-              className="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+              className="fixed inset-0 z-[300] bg-blue-900/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
@@ -2766,7 +2784,7 @@ const AdminDashboard = () => {
                   const Row = ({ label, value }) => (
                     <div className="flex flex-col gap-1 py-3 border-b border-slate-100">
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">{label}</span>
-                      <span className="text-sm font-black text-slate-900 italic break-words">{value || '—'}</span>
+                      <span className="text-sm font-black text-blue-900 italic break-words">{value || '—'}</span>
                     </div>
                   );
                   const Group = ({ title, children }) => (
@@ -2777,7 +2795,7 @@ const AdminDashboard = () => {
                   );
                   return (
                     <>
-                      <div className="sticky top-0 bg-slate-900 text-white px-8 md:px-10 py-6 flex items-center justify-between rounded-t-[2.5rem] z-10">
+                      <div className="sticky top-0 bg-blue-900 text-white px-8 md:px-10 py-6 flex items-center justify-between rounded-t-[2.5rem] z-10">
                         <div>
                           <h3 className="text-xl font-black uppercase italic tracking-tighter">{a.customer_name}</h3>
                           <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mt-1">Application #{a.id} · {a.customer_code || '—'}</p>
@@ -2820,8 +2838,8 @@ const AdminDashboard = () => {
                       <div className="sticky bottom-0 bg-white border-t border-slate-100 px-8 md:px-10 py-5 flex flex-wrap items-center justify-end gap-3 rounded-b-[2.5rem]">
                         {a.status === 'pending' && (
                           <>
-                            <button onClick={() => { handleProcessCashbackApp(a.id, 'approved'); setSelectedCashbackApp(null); }} className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-500" /> Approve</button>
-                            <button onClick={() => { handleProcessCashbackApp(a.id, 'rejected'); setSelectedCashbackApp(null); }} className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"><XCircle size={12} /> Reject</button>
+                            <button onClick={() => { handleProcessCashbackApp(a.id, 'approved'); setSelectedCashbackApp(null); }} className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-500" /> Approve</button>
+                            <button onClick={() => { handleProcessCashbackApp(a.id, 'rejected'); setSelectedCashbackApp(null); }} className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"><XCircle size={12} /> Reject</button>
                           </>
                         )}
                         <button onClick={() => printCashbackApp(a)} className="bg-amber-600 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"><Printer size={12} /> Print</button>
@@ -2845,9 +2863,9 @@ const AdminDashboard = () => {
               <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><Receipt size={22} /></div>
+                    <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg"><Receipt size={22} /></div>
                     <div>
-                      <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">GST Filing</h3>
+                      <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">GST Filing</h3>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Real-time CGST / SGST collected · Period: {gf?.period || '—'}</p>
                     </div>
                   </div>
@@ -2858,7 +2876,7 @@ const AdminDashboard = () => {
                       {(gf?.months || []).map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                     <button onClick={() => fetchGstFiling(gstMonth)} className="bg-white border border-slate-200 px-5 py-4 rounded-2xl text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"><RefreshCw size={16} /></button>
-                    <button onClick={downloadGstCsv} className="bg-slate-900 text-white px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl active:scale-95 italic flex items-center gap-2"><FileText size={14} /> Export CSV</button>
+                    <button onClick={downloadGstCsv} className="bg-blue-900 text-white px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl active:scale-95 italic flex items-center gap-2"><FileText size={14} /> Export CSV</button>
                   </div>
                 </div>
               </div>
@@ -2872,9 +2890,9 @@ const AdminDashboard = () => {
                   { label: 'Total GST', value: fmt(s.total_gst), sub: 'CGST + SGST', dark: true },
                   { label: 'Invoice Total', value: fmt(s.total_invoice), sub: 'Incl. GST', dark: false },
                 ].map((c, i) => (
-                  <div key={i} className={`p-5 sm:p-7 rounded-[2rem] border shadow-sm ${c.dark ? 'bg-slate-900 border-slate-900' : 'bg-white border-slate-200/60'}`}>
+                  <div key={i} className={`p-5 sm:p-7 rounded-[2rem] border shadow-sm ${c.dark ? 'bg-blue-900 border-blue-900' : 'bg-white border-slate-200/60'}`}>
                     <p className={`text-[8px] font-black uppercase tracking-widest mb-2 italic ${c.dark ? 'text-amber-500/70' : 'text-slate-400'}`}>{c.label}</p>
-                    <h3 className={`text-lg md:text-xl font-black tracking-tighter italic ${c.dark ? 'text-white' : 'text-slate-900'}`}>{c.value}</h3>
+                    <h3 className={`text-lg md:text-xl font-black tracking-tighter italic ${c.dark ? 'text-white' : 'text-blue-900'}`}>{c.value}</h3>
                     <p className={`text-[8px] font-black uppercase tracking-widest mt-2 italic ${c.dark ? 'text-slate-400' : 'text-slate-300'}`}>{c.sub}</p>
                   </div>
                 ))}
@@ -2882,7 +2900,7 @@ const AdminDashboard = () => {
 
               {/* Slab-wise summary (GSTR-1 style) */}
               <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
-                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest italic mb-6">Rate-wise Summary</h4>
+                <h4 className="text-sm font-black text-blue-900 uppercase tracking-widest italic mb-6">Rate-wise Summary</h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
@@ -2897,11 +2915,11 @@ const AdminDashboard = () => {
                         <tr><td colSpan={6} className="py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest italic">No GST data for this period</td></tr>
                       ) : gf.slabs.map((sl, i) => (
                         <tr key={i} className="text-xs font-black text-slate-700 italic border-b border-slate-50">
-                          <td className="py-4 pr-4 text-slate-900">{sl.rate}% <span className="text-slate-300">(CGST {sl.rate / 2}% + SGST {sl.rate / 2}%)</span></td>
+                          <td className="py-4 pr-4 text-blue-900">{sl.rate}% <span className="text-slate-300">(CGST {sl.rate / 2}% + SGST {sl.rate / 2}%)</span></td>
                           <td className="py-4 px-4 text-right">{fmt(sl.taxable)}</td>
-                          <td className="py-4 px-4 text-right text-emerald-600">{fmt(sl.cgst)}</td>
-                          <td className="py-4 px-4 text-right text-emerald-600">{fmt(sl.sgst)}</td>
-                          <td className="py-4 px-4 text-right text-slate-900">{fmt(sl.gst)}</td>
+                          <td className="py-4 px-4 text-right text-amber-600">{fmt(sl.cgst)}</td>
+                          <td className="py-4 px-4 text-right text-amber-600">{fmt(sl.sgst)}</td>
+                          <td className="py-4 px-4 text-right text-blue-900">{fmt(sl.gst)}</td>
                           <td className="py-4 pl-4 text-right">{sl.orders}</td>
                         </tr>
                       ))}
@@ -2912,7 +2930,7 @@ const AdminDashboard = () => {
 
               {/* Per-order breakdown */}
               <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
-                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest italic mb-6">Invoice-wise Breakdown</h4>
+                <h4 className="text-sm font-black text-blue-900 uppercase tracking-widest italic mb-6">Invoice-wise Breakdown</h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
@@ -2929,13 +2947,13 @@ const AdminDashboard = () => {
                         <tr key={o.id} className="text-[11px] font-black text-slate-700 italic border-b border-slate-50 hover:bg-slate-50/50">
                           <td className="py-3.5 pr-4 text-amber-600">{o.invoice_no}</td>
                           <td className="py-3.5 px-4 text-slate-400">{new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</td>
-                          <td className="py-3.5 px-4 text-slate-900 truncate max-w-[140px]">{o.customer_name || '—'}</td>
+                          <td className="py-3.5 px-4 text-blue-900 truncate max-w-[140px]">{o.customer_name || '—'}</td>
                           <td className="py-3.5 px-4 truncate max-w-[160px]">{o.product_name}</td>
                           <td className="py-3.5 px-4 text-right">{fmt(o.taxable)}</td>
                           <td className="py-3.5 px-4 text-center">{o.rate}%</td>
-                          <td className="py-3.5 px-4 text-right text-emerald-600">{fmt(o.cgst)}</td>
-                          <td className="py-3.5 px-4 text-right text-emerald-600">{fmt(o.sgst)}</td>
-                          <td className="py-3.5 pl-4 text-right text-slate-900">{fmt(o.total)}</td>
+                          <td className="py-3.5 px-4 text-right text-amber-600">{fmt(o.cgst)}</td>
+                          <td className="py-3.5 px-4 text-right text-amber-600">{fmt(o.sgst)}</td>
+                          <td className="py-3.5 pl-4 text-right text-blue-900">{fmt(o.total)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -2953,11 +2971,11 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Payout List</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Payout List</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Authorized liquidation of investor capital reserves</p>
                </div>
-               <div className="bg-rose-50 text-rose-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-rose-100 shadow-sm flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div> {withdrawals.filter(w => w.status === 'pending').length} Awaiting Liquidation
+               <div className="bg-blue-50 text-blue-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div> {withdrawals.filter(w => w.status === 'pending').length} Awaiting Liquidation
                </div>
             </div>
             
@@ -2981,27 +2999,27 @@ const AdminDashboard = () => {
                            <tr key={w.id} className="hover:bg-slate-50/70 transition group">
                               <td className="py-8 px-10">
                                  <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{w.user_name[0]}</div>
+                                    <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black italic text-lg border border-white/5 shadow-xl">{w.user_name[0]}</div>
                                     <div className="flex flex-col">
-                                       <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{w.user_name}</span>
+                                       <span className="font-black text-sm text-blue-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{w.user_name}</span>
                                        <span className="text-[10px] text-slate-400 font-bold mt-1.5 truncate max-w-[150px]">{w.user_email}</span>
                                     </div>
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-[10px] text-slate-900 font-black uppercase tracking-widest">{w.payment_method || 'Bank Transfer'}</div>
+                                 <div className="text-[10px] text-blue-900 font-black uppercase tracking-widest">{w.payment_method || 'Bank Transfer'}</div>
                                  <div className="text-[9px] text-slate-400 font-bold mt-2 bg-slate-100 p-3 rounded-xl border border-slate-200 shadow-inner max-w-[200px] break-words">
                                     {w.bank_details || 'NODE: NO CREDENTIALS PROVIDED'}
                                  </div>
                               </td>
                               <td className="py-8 px-10">
-                                 <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(w.amount).toLocaleString()}</div>
-                                 <div className="text-[9px] text-rose-500 font-black uppercase tracking-[0.2em] mt-1 italic">Capital Liquidation</div>
+                                 <div className="text-xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(w.amount).toLocaleString()}</div>
+                                 <div className="text-[9px] text-blue-500 font-black uppercase tracking-[0.2em] mt-1 italic">Capital Liquidation</div>
                               </td>
                               <td className="py-8 px-10">
                                  <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
-                                    w.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
-                                    w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                                    w.status === 'approved' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                    w.status === 'rejected' ? 'bg-blue-50 text-blue-600 border-blue-100' : 
                                     'bg-amber-50 text-amber-600 border-amber-100'
                                  }`}>
                                     {humanStatus(w.status)}
@@ -3012,13 +3030,13 @@ const AdminDashboard = () => {
                                     <div className="flex justify-end gap-3">
                                        <button 
                                          onClick={() => handleProcessWithdrawal(w.id, 'approved')}
-                                         className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
+                                         className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-95 italic flex items-center gap-2"
                                        >
                                           <CheckCircle2 size={12} className="text-amber-500" /> Authorize
                                        </button>
                                        <button 
                                          onClick={() => handleProcessWithdrawal(w.id, 'rejected')}
-                                         className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
+                                         className="bg-white text-slate-400 px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 active:scale-95 italic flex items-center gap-2"
                                        >
                                           <XCircle size={12} /> Reject
                                        </button>
@@ -3044,7 +3062,7 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Gold Inventory</h3>
+                  <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Gold Inventory</h3>
                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Registry of physical assets and digital investment instruments</p>
                </div>
                <button
@@ -3056,7 +3074,7 @@ const AdminDashboard = () => {
                    setShowCategoryDropdown(false);
                    setShowProductModal(true);
                  }}
-                 className="w-full md:w-auto bg-slate-900 text-white px-10 py-5 rounded-3xl font-black text-xs flex items-center justify-center gap-3 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest"
+                 className="w-full md:w-auto bg-blue-900 text-white px-10 py-5 rounded-3xl font-black text-xs flex items-center justify-center gap-3 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest"
                >
                  <Plus size={18}/> Provision Asset
                </button>
@@ -3092,20 +3110,20 @@ const AdminDashboard = () => {
                                      <Package className="text-slate-200" size={20} />
                                   )}
                                </div>
-                             <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{p.name}</span>
+                             <span className="font-black text-sm text-blue-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors">{p.name}</span>
                             </div>
                           </td>
 
                           <td className="py-8 px-10">
-                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">{p.category || 'Gold'}</div>
+                             <div className="text-[10px] font-black text-blue-900 uppercase tracking-widest italic">{p.category || 'Gold'}</div>
                              <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Asset Type</div>
                           </td>
 
-                          <td className="py-8 px-10 font-black text-xs text-slate-900 italic tracking-tighter uppercase">{p.weight} Grams • {p.purity}</td>
-                          <td className="py-8 px-10 font-black text-xl text-slate-900 italic tracking-tighter">₹{parseFloat(p.price).toLocaleString()}</td>
+                          <td className="py-8 px-10 font-black text-xs text-blue-900 italic tracking-tighter uppercase">{p.weight} Grams • {p.purity}</td>
+                          <td className="py-8 px-10 font-black text-xl text-blue-900 italic tracking-tighter">₹{parseFloat(p.price).toLocaleString()}</td>
                           <td className="py-8 px-10">
                             <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
-                              p.is_active == 1 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                              p.is_active == 1 ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                                {p.is_active == 1 ? 'Active' : 'Inactive'}
                             </span>
                           </td>
@@ -3130,13 +3148,13 @@ const AdminDashboard = () => {
                                     setShowCategoryDropdown(false);
                                     setShowProductModal(true);
                                   }}
-                                  className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-lg active:scale-95"
+                                  className="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-lg active:scale-95"
                                 >
                                   <Settings size={18}/>
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteProduct(p.id)}
-                                  className="w-10 h-10 bg-white text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-slate-200 active:scale-95"
+                                  className="w-10 h-10 bg-white text-blue-500 rounded-xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all border border-slate-200 active:scale-95"
                                 >
                                   <Trash2 size={18}/>
                                 </button>
@@ -3152,12 +3170,12 @@ const AdminDashboard = () => {
             {/* Product Provisioning Modal */}
             <AnimatePresence>
                {showProductModal && (
-                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[250] flex items-center justify-center p-6">
+                 <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[250] flex items-center justify-center p-6">
                     <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white border border-slate-100 p-10 md:p-16 rounded-[4rem] w-full max-w-5xl relative overflow-y-auto max-h-[90vh] shadow-2xl">
-                       <button onClick={() => setShowProductModal(false)} className="absolute top-10 right-10 text-slate-400 hover:text-slate-900 p-2 bg-slate-50 rounded-full transition-colors"><XCircle size={28}/></button>
+                       <button onClick={() => setShowProductModal(false)} className="absolute top-10 right-10 text-slate-400 hover:text-blue-900 p-2 bg-slate-50 rounded-full transition-colors"><XCircle size={28}/></button>
                        
                        <div className="mb-10">
-                          <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">{productForm.id ? 'Calibrate Asset' : 'Provision New Asset'}</h3>
+                          <h3 className="text-3xl font-black text-blue-900 tracking-tighter uppercase italic">{productForm.id ? 'Calibrate Asset' : 'Provision New Asset'}</h3>
                           <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">
                             {productType === 'precious_metal' ? 'Gold, silver & jewellery inventory' : 'Electronics, accessories & general products'}
                           </p>
@@ -3167,12 +3185,12 @@ const AdminDashboard = () => {
                        <div className="flex gap-3 mb-2">
                          <button type="button"
                            onClick={() => { setProductType('precious_metal'); setProductForm(f => ({...f, purity: '24K', weight: f.weight || ''})); }}
-                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'precious_metal' ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
+                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'precious_metal' ? 'bg-blue-900 text-amber-400 border-blue-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
                            <Zap size={15} /> Precious Metal
                          </button>
                          <button type="button"
                            onClick={() => { setProductType('general'); setProductForm(f => ({...f, purity: '', weight: ''})); }}
-                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'general' ? 'bg-slate-900 text-emerald-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-emerald-300'}`}>
+                           className={`flex-1 py-5 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'general' ? 'bg-blue-900 text-amber-400 border-blue-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
                            <Package size={15} /> General Product
                          </button>
                        </div>
@@ -3334,12 +3352,12 @@ const AdminDashboard = () => {
                           </div>
 
                           <div className="flex items-center gap-5 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-200 shadow-inner">
-                             <input type="checkbox" id="asset-active" checked={productForm.is_active == 1} onChange={e => setProductForm({...productForm, is_active: e.target.checked ? 1 : 0})} className="w-6 h-6 accent-slate-900 rounded-lg" />
-                             <label htmlFor="asset-active" className="text-[11px] font-black text-slate-900 uppercase tracking-widest cursor-pointer italic">Enable public node visibility for this asset</label>
+                             <input type="checkbox" id="asset-active" checked={productForm.is_active == 1} onChange={e => setProductForm({...productForm, is_active: e.target.checked ? 1 : 0})} className="w-6 h-6 accent-blue-900 rounded-lg" />
+                             <label htmlFor="asset-active" className="text-[11px] font-black text-blue-900 uppercase tracking-widest cursor-pointer italic">Enable public node visibility for this asset</label>
                           </div>
 
                           <div className="flex gap-6 pt-6">
-                             <button type="submit" disabled={processing} className="flex-1 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-emerald-600 transition shadow-2xl active:scale-[0.98]">
+                             <button type="submit" disabled={processing} className="flex-1 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
                                 {processing ? <Loader2 className="animate-spin" /> : <><CheckCircle size={20}/> {productForm.id ? 'Synchronize Asset' : 'Commit Asset Provisioning'}</>}
                              </button>
                              <button type="button" onClick={() => setShowProductModal(false)} className="px-12 bg-slate-50 text-slate-400 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition border border-slate-200 italic">Discard</button>
@@ -3355,9 +3373,9 @@ const AdminDashboard = () => {
            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl mx-auto space-y-6 md:space-y-10">
              <div className="bg-white border border-slate-200 p-6 md:p-14 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm">
                 <div className="flex items-center gap-4 md:gap-6 mb-10 md:mb-16">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><TrendingUp size={24} className="md:w-8 md:h-8"/></div>
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-900 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><TrendingUp size={24} className="md:w-8 md:h-8"/></div>
                     <div>
-                      <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">Market Rate Control</h3>
+                      <h3 className="text-xl md:text-2xl font-black text-blue-900 tracking-tighter uppercase italic leading-tight">Market Rate Control</h3>
                       <p className="text-slate-400 font-black uppercase tracking-widest text-[8px] md:text-[10px] mt-1 italic">Real-time asset valuation adjustments</p>
                     </div>
                 </div>
@@ -3378,7 +3396,7 @@ const AdminDashboard = () => {
                                type="number" 
                                value={platformSettings.gold_base_price}
                                onChange={(e) => setPlatformSettings({...platformSettings, gold_base_price: e.target.value})}
-                               className="w-full bg-white border border-slate-100 rounded-2xl py-5 md:py-6 pl-12 md:pl-16 pr-20 md:pr-24 text-2xl md:text-3xl font-black text-slate-900 outline-none focus:border-amber-600 transition-all shadow-sm tracking-tighter italic"
+                               className="w-full bg-white border border-slate-100 rounded-2xl py-5 md:py-6 pl-12 md:pl-16 pr-20 md:pr-24 text-2xl md:text-3xl font-black text-blue-900 outline-none focus:border-amber-600 transition-all shadow-sm tracking-tighter italic"
                              />
                              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic">/ Gram</span>
                           </div>
@@ -3395,12 +3413,12 @@ const AdminDashboard = () => {
                        <div className="space-y-4">
                           <label className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Asset Base Value</label>
                           <div className="relative group/input">
-                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-lg md:text-2xl font-black text-slate-300 group-focus-within/input:text-slate-900 transition-colors italic">₹</span>
+                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-lg md:text-2xl font-black text-slate-300 group-focus-within/input:text-blue-900 transition-colors italic">₹</span>
                              <input 
                                type="number" 
                                value={platformSettings.silver_base_price}
                                onChange={(e) => setPlatformSettings({...platformSettings, silver_base_price: e.target.value})}
-                               className="w-full bg-white border border-slate-100 rounded-2xl py-5 md:py-6 pl-12 md:pl-16 pr-20 md:pr-24 text-2xl md:text-3xl font-black text-slate-900 outline-none focus:border-slate-400 transition-all shadow-sm tracking-tighter italic"
+                               className="w-full bg-white border border-slate-100 rounded-2xl py-5 md:py-6 pl-12 md:pl-16 pr-20 md:pr-24 text-2xl md:text-3xl font-black text-blue-900 outline-none focus:border-slate-400 transition-all shadow-sm tracking-tighter italic"
                              />
                              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest italic">/ Gram</span>
                           </div>
@@ -3411,7 +3429,7 @@ const AdminDashboard = () => {
                 <button 
                   onClick={handleUpdateSettings}
                   disabled={processing}
-                  className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] italic"
+                  className="w-full bg-blue-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] italic"
                 >
                    {processing ? <Loader2 className="animate-spin" /> : <><ShieldCheck size={20} className="md:w-6 md:h-6"/> Finalize Rate Synchronization</>}
                 </button>
@@ -3428,14 +3446,14 @@ const AdminDashboard = () => {
 
         {activeTab === 'payout_reports' && (
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-              <div className="bg-slate-900 rounded-[4rem] p-10 md:p-16 text-white relative overflow-hidden group">
+              <div className="bg-blue-900 rounded-[4rem] p-10 md:p-16 text-white relative overflow-hidden group">
                  <div className="absolute -right-20 -top-20 opacity-10 group-hover:scale-110 transition-transform duration-1000 rotate-12">
                     <BarChart3 size={400} />
                  </div>
                  
                  <div className="relative z-10">
                     <div className="flex items-center gap-6 mb-12">
-                       <div className="w-20 h-20 bg-amber-500 rounded-[2.5rem] flex items-center justify-center text-slate-900 shadow-2xl border-4 border-white/10">
+                       <div className="w-20 h-20 bg-amber-500 rounded-[2.5rem] flex items-center justify-center text-blue-900 shadow-2xl border-4 border-white/10">
                           <BarChart3 size={40} />
                        </div>
                        <div>
@@ -3447,9 +3465,9 @@ const AdminDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                        {[
                           { label: 'Total Platform Liquidity', value: `₹${(stats.revenue || 0).toLocaleString()}`, icon: Wallet, color: 'text-amber-500' },
-                          { label: 'Yield Dispersal Today', value: `₹${(stats.payouts || 0).toLocaleString()}`, icon: Zap, color: 'text-emerald-400' },
+                          { label: 'Yield Dispersal Today', value: `₹${(stats.payouts || 0).toLocaleString()}`, icon: Zap, color: 'text-amber-400' },
                           { label: 'Investor Count', value: stats.users || 0, icon: Users, color: 'text-blue-400' },
-                          { label: 'Active Assets', value: products.length, icon: ShoppingBag, color: 'text-rose-400' }
+                          { label: 'Active Assets', value: products.length, icon: ShoppingBag, color: 'text-blue-400' }
                        ].map((item, i) => (
                           <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-sm group/card hover:bg-white/10 transition-all">
                              <div className="flex items-center justify-between mb-6">
@@ -3470,12 +3488,12 @@ const AdminDashboard = () => {
               <div className="bg-white border border-slate-200 p-10 md:p-14 rounded-[4rem] shadow-sm">
                  <div className="flex justify-between items-center mb-12">
                     <div>
-                       <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Yield Audit Stream</h3>
+                       <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Yield Audit Stream</h3>
                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">Historical ledger of all institutional payouts and commissions</p>
                     </div>
                     <button 
                       onClick={() => window.print()}
-                      className="bg-slate-50 text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-slate-200 hover:bg-slate-900 hover:text-white transition shadow-sm flex items-center gap-3 italic"
+                      className="bg-slate-50 text-blue-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-slate-200 hover:bg-blue-900 hover:text-white transition shadow-sm flex items-center gap-3 italic"
                     >
                        <FileText size={16} /> Generate Hardcopy
                     </button>
@@ -3496,22 +3514,22 @@ const AdminDashboard = () => {
                              {activityLogs.filter(log => log.action_type === 'payout' || log.action_type === 'commission').slice(0, 50).map((log, i) => (
                                 <tr key={i} className="hover:bg-slate-50/50 transition group">
                                    <td className="py-8 px-10">
-                                      <div className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{new Date(log.created_at).toLocaleString()}</div>
+                                      <div className="text-[10px] font-black text-blue-900 uppercase tracking-tight">{new Date(log.created_at).toLocaleString()}</div>
                                       <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">ISO Standardized</div>
                                    </td>
                                    <td className="py-8 px-10">
-                                      <div className="text-sm font-black text-slate-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{log.user_id}</div>
+                                      <div className="text-sm font-black text-blue-900 italic uppercase tracking-tight group-hover:text-amber-600 transition-colors">{log.user_id}</div>
                                       <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Entity ID Verified</div>
                                    </td>
                                    <td className="py-8 px-10">
                                       <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest italic border ${
-                                         log.action_type === 'payout' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'
+                                         log.action_type === 'payout' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                                       }`}>
                                          {log.action_type}
                                       </span>
                                    </td>
                                    <td className="py-8 px-10 text-right">
-                                      <div className="text-xl font-black text-slate-900 italic tracking-tighter">₹{parseFloat(log.amount || 0).toLocaleString()}</div>
+                                      <div className="text-xl font-black text-blue-900 italic tracking-tighter">₹{parseFloat(log.amount || 0).toLocaleString()}</div>
                                       <div className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Institutional Settlement</div>
                                    </td>
                                 </tr>
@@ -3532,22 +3550,34 @@ const AdminDashboard = () => {
            </motion.div>
         )}
 
+        {activeTab === 'feedback' && (
+           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="pb-20">
+              <AdminFeedback />
+           </motion.div>
+        )}
+
+        {activeTab === 'offers' && (
+           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="pb-20">
+              <AdminOffers />
+           </motion.div>
+        )}
+
         {activeTab === 'settings' && (
            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-6xl mx-auto space-y-12 pb-20">
               {/* Settings Header & Sub-nav */}
-              <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[3.5rem] shadow-sm">
-                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
-                    <div className="flex items-center gap-6">
-                       <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5"><Settings size={32}/></div>
-                       <div>
-                          <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">System Calibration</h3>
-                          <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Authorized modification of platform operational parameters</p>
+              <div className="bg-white border border-slate-200 p-5 sm:p-8 md:p-12 rounded-[2rem] md:rounded-[3.5rem] shadow-sm">
+                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 mb-8 md:mb-12">
+                    <div className="flex items-center gap-4 md:gap-6">
+                       <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-900 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl border border-white/5 shrink-0"><Settings size={24}/></div>
+                       <div className="min-w-0">
+                          <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">System Calibration</h3>
+                          <p className="text-slate-400 font-black uppercase tracking-widest text-[9px] md:text-[10px] mt-1.5 italic">Authorized modification of platform operational parameters</p>
                        </div>
                     </div>
                  </div>
 
                  {/* Sub-navigation Matrix */}
-                 <div className="flex flex-wrap gap-4 p-2 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                 <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 p-2 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100">
                     {[
                        { id: 'profile', label: 'Admin Profile', icon: UserCircle },
                        { id: 'company', label: 'Company Node', icon: Globe },
@@ -3556,12 +3586,12 @@ const AdminDashboard = () => {
                        { id: 'payment', label: 'Payment Gateway', icon: CreditCard },
                        { id: 'access', label: 'Access Control', icon: ShieldAlert }
                     ].map((tab) => (
-                       <button 
+                       <button
                          key={tab.id}
                          onClick={() => setSettingsSubTab(tab.id)}
-                         className={`flex items-center gap-3 px-8 py-4 rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all italic ${settingsSubTab === tab.id ? 'bg-slate-900 text-white shadow-xl scale-105' : 'text-slate-400 hover:text-slate-900 hover:bg-white'}`}
+                         className={`flex items-center justify-center sm:justify-start gap-3 w-full sm:w-auto px-6 md:px-8 py-3.5 md:py-4 rounded-[1.25rem] md:rounded-[1.8rem] text-[10px] font-black uppercase tracking-widest transition-all italic ${settingsSubTab === tab.id ? 'bg-blue-900 text-white shadow-xl sm:scale-105' : 'text-slate-400 hover:text-blue-900 hover:bg-white'}`}
                        >
-                          <tab.icon size={16} /> {tab.label}
+                          <tab.icon size={16} className="shrink-0" /> {tab.label}
                        </button>
                     ))}
                  </div>
@@ -3574,19 +3604,19 @@ const AdminDashboard = () => {
                    initial={{ opacity: 0, y: 20 }}
                    animate={{ opacity: 1, y: 0 }}
                    exit={{ opacity: 0, y: -20 }}
-                   className="bg-white border border-slate-200 p-8 md:p-16 rounded-[4rem] shadow-sm"
+                   className="bg-white border border-slate-200 p-5 sm:p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-sm"
                  >
                     {settingsSubTab === 'profile' && (
-                       <div className="space-y-12">
-                          <div className="flex flex-col md:flex-row items-center gap-12 p-10 bg-slate-900 rounded-[3rem] text-white relative overflow-hidden group">
-                             <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><UserCircle size={200} /></div>
-                             <div className="w-40 h-40 bg-white rounded-[3rem] flex items-center justify-center text-slate-900 font-black text-6xl italic border-8 border-white/10 shadow-2xl relative z-10">{adminData.name[0]}</div>
-                             <div className="text-center md:text-left relative z-10">
-                                <h4 className="text-4xl font-black uppercase italic tracking-tighter mb-2">{adminData.name}</h4>
-                                <p className="text-amber-500 text-[11px] font-black uppercase tracking-[0.5em] mb-6 italic">{humanRole(adminData.role)} Account</p>
+                       <div className="space-y-8 md:space-y-12">
+                          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-12 p-6 md:p-10 bg-blue-900 rounded-[2rem] md:rounded-[3rem] text-white relative overflow-hidden group">
+                             <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000 pointer-events-none"><UserCircle size={200} /></div>
+                             <div className="w-28 h-28 md:w-40 md:h-40 bg-white rounded-[2rem] md:rounded-[3rem] flex items-center justify-center text-blue-900 font-black text-4xl md:text-6xl italic border-4 md:border-8 border-white/10 shadow-2xl relative z-10 shrink-0">{adminData.name[0]}</div>
+                             <div className="text-center md:text-left relative z-10 min-w-0">
+                                <h4 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter mb-2 truncate">{adminData.name}</h4>
+                                <p className="text-amber-500 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.5em] mb-4 md:mb-6 italic">{humanRole(adminData.role)} Account</p>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                                   <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest italic">{adminData.email}</span>
-                                   <span className="px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-widest italic text-emerald-400">Authenticated Session</span>
+                                   <span className="px-5 md:px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest italic break-all">{adminData.email}</span>
+                                   <span className="px-6 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] font-bold uppercase tracking-widest italic text-amber-400">Authenticated Session</span>
                                 </div>
                              </div>
                           </div>
@@ -3607,7 +3637,7 @@ const AdminDashboard = () => {
                                 </div>
                              </div>
                              <div className="flex justify-end">
-                                <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                                <button type="submit" disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                                    {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Synchronize Profile</>}
                                 </button>
                              </div>
@@ -3620,7 +3650,7 @@ const AdminDashboard = () => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                              <div className="space-y-3 md:col-span-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Institutional Nomenclature (Company Name)</label>
-                                <input type="text" required value={platformSettings.company_name} onChange={e => setPlatformSettings({...platformSettings, company_name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] py-6 px-10 text-2xl font-black text-slate-900 uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                                <input type="text" required value={platformSettings.company_name} onChange={e => setPlatformSettings({...platformSettings, company_name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] py-6 px-10 text-2xl font-black text-blue-900 uppercase italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
                              </div>
                              <div className="space-y-3 md:col-span-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Headquarters Location Address</label>
@@ -3642,7 +3672,7 @@ const AdminDashboard = () => {
                              </div>
                           </div>
                           <div className="flex justify-end">
-                             <button disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                             <button disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                                 {processing ? <Loader2 className="animate-spin" /> : <><Globe size={20}/> Synchronize Node Info</>}
                              </button>
                           </div>
@@ -3651,9 +3681,9 @@ const AdminDashboard = () => {
 
                     {settingsSubTab === 'security' && (
                        <div className="space-y-12">
-                          <div className="bg-rose-50 border border-rose-100 p-10 rounded-[3rem] relative overflow-hidden group">
-                             <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><ShieldAlert size={150} className="text-rose-600" /></div>
-                             <h4 className="text-xl font-black text-rose-600 uppercase tracking-tighter italic mb-4 flex items-center gap-3">
+                          <div className="bg-blue-50 border border-blue-100 p-10 rounded-[3rem] relative overflow-hidden group">
+                             <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><ShieldAlert size={150} className="text-blue-600" /></div>
+                             <h4 className="text-xl font-black text-blue-600 uppercase tracking-tighter italic mb-4 flex items-center gap-3">
                                 <ShieldAlert size={24} /> Platform State Override
                              </h4>
                              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-10 italic max-w-2xl leading-relaxed">Emergency protocol to restrict node access globally. Use only during maintenance or security breach mitigation.</p>
@@ -3667,7 +3697,7 @@ const AdminDashboard = () => {
                                        handleUpdateSettings();
                                     }
                                   }}
-                                  className={`flex-1 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all border shadow-lg italic ${platformSettings.maintenance_mode === '1' ? 'bg-rose-600 text-white border-rose-700 shadow-rose-200 scale-105' : 'bg-white text-rose-600 border-rose-100 hover:bg-rose-100'}`}
+                                  className={`flex-1 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all border shadow-lg italic ${platformSettings.maintenance_mode === '1' ? 'bg-blue-600 text-white border-blue-700 shadow-blue-200 scale-105' : 'bg-white text-blue-600 border-blue-100 hover:bg-blue-100'}`}
                                 >
                                    PROTOCOL OFFLINE
                                 </button>
@@ -3677,7 +3707,7 @@ const AdminDashboard = () => {
                                     setPlatformSettings({...platformSettings, maintenance_mode: '0'});
                                     handleUpdateSettings();
                                   }}
-                                  className={`flex-1 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all border shadow-lg italic ${platformSettings.maintenance_mode === '0' ? 'bg-emerald-600 text-white border-emerald-700 shadow-emerald-200 scale-105' : 'bg-white text-emerald-600 border-emerald-100 hover:bg-emerald-100'}`}
+                                  className={`flex-1 py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all border shadow-lg italic ${platformSettings.maintenance_mode === '0' ? 'bg-amber-600 text-white border-amber-700 shadow-amber-200 scale-105' : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-100'}`}
                                 >
                                    SYSTEM OPERATIONAL
                                 </button>
@@ -3692,15 +3722,15 @@ const AdminDashboard = () => {
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                                 <div className="p-6 bg-white rounded-2xl border border-amber-100 shadow-sm">
                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Encryption</p>
-                                   <p className="text-sm font-black text-slate-900 uppercase italic">AES-256 ACTIVE</p>
+                                   <p className="text-sm font-black text-blue-900 uppercase italic">AES-256 ACTIVE</p>
                                 </div>
                                 <div className="p-6 bg-white rounded-2xl border border-amber-100 shadow-sm">
                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Access Logs</p>
-                                   <p className="text-sm font-black text-slate-900 uppercase italic">MONITORED</p>
+                                   <p className="text-sm font-black text-blue-900 uppercase italic">MONITORED</p>
                                 </div>
                                 <div className="p-6 bg-white rounded-2xl border border-amber-100 shadow-sm">
                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Node Isolation</p>
-                                   <p className="text-sm font-black text-slate-900 uppercase italic">ENABLED</p>
+                                   <p className="text-sm font-black text-blue-900 uppercase italic">ENABLED</p>
                                 </div>
                              </div>
                           </div>
@@ -3734,7 +3764,7 @@ const AdminDashboard = () => {
                                         step={field.step}
                                         value={platformSettings[field.name]}
                                         onChange={(e) => setPlatformSettings({...platformSettings, [field.name]: e.target.value})}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-16 pr-8 text-lg font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tight italic"
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-16 pr-8 text-lg font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tight italic"
                                       />
                                    </div>
                                 </div>
@@ -3742,7 +3772,7 @@ const AdminDashboard = () => {
                           </div>
 
                           <div className="pt-8 border-t border-slate-100 flex justify-end">
-                             <button disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                             <button disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                                 {processing ? <Loader2 className="animate-spin" /> : <><ShieldAlert size={20}/> Synchronize Protocol</>}
                              </button>
                           </div>
@@ -3751,7 +3781,7 @@ const AdminDashboard = () => {
 
                     {settingsSubTab === 'payment' && (
                        <div className="space-y-12">
-                          <div className="bg-slate-900 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden group">
+                          <div className="bg-blue-900 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden group">
                              <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><CreditCard size={150} /></div>
                              <div className="relative z-10">
                                 <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-4">Payment Node Configuration</h4>
@@ -3867,7 +3897,7 @@ const AdminDashboard = () => {
                                    </div>
 
                                    <div className="pt-6">
-                                      <button type="submit" disabled={processing} className="w-full bg-amber-500 text-slate-900 py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-white transition shadow-2xl active:scale-95">
+                                      <button type="submit" disabled={processing} className="w-full bg-amber-500 text-blue-900 py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-white transition shadow-2xl active:scale-95">
                                          {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Deploy Payment Node</>}
                                       </button>
                                    </div>
@@ -3882,9 +3912,9 @@ const AdminDashboard = () => {
                        return (
                           <div className="space-y-10">
                              <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl"><ShieldAlert size={30} /></div>
+                                <div className="w-16 h-16 bg-blue-900 rounded-[2rem] flex items-center justify-center text-amber-500 shadow-xl"><ShieldAlert size={30} /></div>
                                 <div>
-                                   <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Access Control</h3>
+                                   <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Access Control</h3>
                                    <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Manually assign permission-based access to staff members</p>
                                 </div>
                              </div>
@@ -3922,7 +3952,7 @@ const AdminDashboard = () => {
                                             <button key={perm.id} type="button" onClick={() => toggleAccessPerm(perm.id)}
                                               className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
                                                  accessPerms.includes(perm.id)
-                                                 ? 'bg-slate-900 border-slate-900 text-white shadow-lg'
+                                                 ? 'bg-blue-900 border-blue-900 text-white shadow-lg'
                                                  : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-amber-500/50 hover:bg-white'
                                               }`}>
                                                <perm.icon size={20} className={accessPerms.includes(perm.id) ? 'text-amber-500' : 'group-hover:text-amber-600'} />
@@ -3932,7 +3962,7 @@ const AdminDashboard = () => {
                                       </div>
                                    </div>
                                    <button onClick={saveAccessPerms} disabled={accessSaving}
-                                     className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50">
+                                     className="w-full bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98] disabled:opacity-50">
                                       {accessSaving ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save Access Permissions</>}
                                    </button>
                                 </>
@@ -3953,46 +3983,46 @@ const AdminDashboard = () => {
              <motion.div 
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                onClick={() => setShowAdminModal(false)}
-               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+               className="absolute inset-0 bg-blue-900/60 backdrop-blur-md"
              />
-             <motion.div 
+             <motion.div
                initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-               className="relative w-full max-w-2xl bg-white rounded-[4rem] p-10 md:p-16 shadow-2xl overflow-hidden border border-slate-100"
+               className="relative w-full max-w-2xl bg-white rounded-[2rem] md:rounded-[4rem] p-6 sm:p-8 md:p-16 shadow-2xl overflow-y-auto max-h-[90vh] border border-slate-100"
              >
-                <div className="absolute top-0 right-0 p-12 opacity-5"><ShieldCheck size={250} /></div>
-                
-                <div className="flex justify-between items-start mb-12 relative z-10">
-                   <div>
-                      <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Profile</h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Superuser Credential Management</p>
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none"><ShieldCheck size={250} /></div>
+
+                <div className="flex justify-between items-start gap-4 mb-8 md:mb-12 relative z-10">
+                   <div className="min-w-0">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Institutional Profile</h3>
+                      <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 italic">Superuser Credential Management</p>
                    </div>
-                   <button onClick={() => setShowAdminModal(false)} className="p-4 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-3xl transition-colors border border-slate-100 active:scale-95"><XCircle size={24} /></button>
+                   <button onClick={() => setShowAdminModal(false)} className="p-3 md:p-4 bg-slate-50 text-slate-400 hover:text-blue-900 rounded-2xl md:rounded-3xl transition-colors border border-slate-100 active:scale-95 shrink-0"><XCircle size={22} /></button>
                 </div>
 
-                <div className="space-y-10 relative z-10">
-                   <div className="flex flex-col md:flex-row items-center gap-10 p-10 bg-slate-50 border border-slate-100 rounded-[3rem] shadow-inner">
-                      <div className="w-32 h-32 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-amber-500 font-black text-5xl italic border-4 border-white shadow-2xl">{adminData.name[0]}</div>
-                      <div className="text-center md:text-left">
-                         <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tight">{adminData.name}</h4>
+                <div className="space-y-6 md:space-y-10 relative z-10">
+                   <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 p-6 md:p-10 bg-slate-50 border border-slate-100 rounded-[2rem] md:rounded-[3rem] shadow-inner">
+                      <div className="w-24 h-24 md:w-32 md:h-32 bg-blue-900 rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center text-amber-500 font-black text-4xl md:text-5xl italic border-4 border-white shadow-2xl shrink-0">{adminData.name[0]}</div>
+                      <div className="text-center md:text-left min-w-0">
+                         <h4 className="text-xl md:text-2xl font-black text-blue-900 uppercase italic tracking-tight truncate">{adminData.name}</h4>
                          <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em] mt-2 italic">{humanRole(adminData.role)}</p>
-                         <div className="flex items-center justify-center md:justify-start gap-2 mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
-                            <CreditCard size={14} /> {adminData.email}
+                         <div className="flex items-center justify-center md:justify-start gap-2 mt-4 text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest italic break-all">
+                            <CreditCard size={14} className="shrink-0" /> {adminData.email}
                          </div>
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-1 gap-6">
-                      <button 
+                   <div className="grid grid-cols-1 gap-4 md:gap-6">
+                      <button
                         onClick={() => {
                           setEditAdminMode(true);
                           setAdminForm({ name: adminData.name, email: adminData.email, password: '' });
                         }}
-                        className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.25em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-xl active:scale-95"
+                        className="w-full bg-blue-900 text-white py-5 md:py-6 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition shadow-xl active:scale-95"
                       >
-                         <Settings size={20} /> CALIBRATE CREDENTIALS
+                         <Settings size={18} /> CALIBRATE CREDENTIALS
                       </button>
-                      <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="w-full bg-rose-50 text-rose-600 py-6 rounded-[2rem] font-black uppercase tracking-[0.25em] text-xs flex items-center justify-center gap-4 hover:bg-rose-500 hover:text-white transition shadow-sm border border-rose-100 active:scale-95">
-                         <LogOut size={20} /> TERMINATE COMMAND SESSION
+                      <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="w-full bg-red-50 text-red-600 py-5 md:py-6 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-red-600 hover:text-white transition shadow-sm border border-red-100 active:scale-95">
+                         <LogOut size={18} /> TERMINATE COMMAND SESSION
                       </button>
                    </div>
                 </div>
@@ -4000,20 +4030,20 @@ const AdminDashboard = () => {
                 {/* Edit Overlay */}
                 <AnimatePresence>
                    {editAdminMode && (
-                      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} className="absolute inset-0 bg-white p-10 md:p-16 z-50 overflow-y-auto">
-                         <div className="flex items-center gap-6 mb-12">
-                            <button onClick={() => setEditAdminMode(false)} className="p-4 bg-slate-50 text-slate-900 rounded-3xl border border-slate-100 active:scale-95"><ArrowLeft size={24}/></button>
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Calibrate Identity</h3>
+                      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} className="absolute inset-0 bg-white p-6 sm:p-8 md:p-16 z-50 overflow-y-auto rounded-[2rem] md:rounded-[4rem]">
+                         <div className="flex items-center gap-4 md:gap-6 mb-8 md:mb-12">
+                            <button onClick={() => setEditAdminMode(false)} className="p-3 md:p-4 bg-slate-50 text-blue-900 rounded-2xl md:rounded-3xl border border-slate-100 active:scale-95 shrink-0"><ArrowLeft size={22}/></button>
+                            <h3 className="text-xl md:text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Calibrate Identity</h3>
                          </div>
 
-                         <form onSubmit={handleUpdateAdminProfile} className="space-y-10">
+                         <form onSubmit={handleUpdateAdminProfile} className="space-y-6 md:space-y-10">
                             <div className="space-y-3">
                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Superuser Name</label>
-                               <input type="text" required value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner uppercase italic" />
+                               <input type="text" required value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner uppercase italic" />
                             </div>
                             <div className="space-y-3">
                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Email</label>
-                               <input type="email" required value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner italic" />
+                               <input type="email" required value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner italic" />
                             </div>
                             <div className="space-y-3">
                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Security Override Key</label>
@@ -4023,14 +4053,14 @@ const AdminDashboard = () => {
                                     placeholder="••••••••"
                                     value={adminForm.password}
                                     onChange={e => setAdminForm({...adminForm, password: e.target.value})}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-widest"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8 text-xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-widest"
                                   />
                                   <button type="button" onClick={() => setShowStaffPassword(!showStaffPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-600 transition-colors p-2">{showStaffPassword ? <EyeOff size={24} /> : <Eye size={24}/>}</button>
                                </div>
                                <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-2 ml-4 italic">Leave blank to maintain current encryption</p>
                             </div>
 
-                            <button disabled={processing} className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-emerald-600 transition shadow-2xl active:scale-[0.98]">
+                            <button disabled={processing} className="w-full bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-[0.98]">
                                {processing ? <Loader2 className="animate-spin" /> : <><ShieldCheck size={20}/> Synchronize Identity</>}
                             </button>
                          </form>
@@ -4049,7 +4079,7 @@ const AdminDashboard = () => {
              <motion.div 
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                onClick={() => setShowUserModal(false)}
-               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+               className="absolute inset-0 bg-blue-900/60 backdrop-blur-md"
              />
              <motion.div 
                initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -4057,17 +4087,17 @@ const AdminDashboard = () => {
              >
                 <div className="flex justify-between items-start mb-10 relative z-10">
                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Investor Calibration</h3>
+                      <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Investor Calibration</h3>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Protocol adjustments for User #{selectedUser.id}</p>
                    </div>
-                   <button onClick={() => setShowUserModal(false)} className="p-4 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-3xl transition-colors border border-slate-100 active:scale-95"><XCircle size={24} /></button>
+                   <button onClick={() => setShowUserModal(false)} className="p-4 bg-slate-50 text-slate-400 hover:text-blue-900 rounded-3xl transition-colors border border-slate-100 active:scale-95"><XCircle size={24} /></button>
                 </div>
 
                 <div className="space-y-10 relative z-10">
                    <div className="flex items-center gap-8 p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] shadow-inner">
-                      <div className="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 font-black text-3xl italic border-2 border-white shadow-lg">{selectedUser.name[0]}</div>
+                      <div className="w-20 h-20 bg-blue-900 rounded-2xl flex items-center justify-center text-amber-500 font-black text-3xl italic border-2 border-white shadow-lg">{selectedUser.name[0]}</div>
                       <div>
-                         <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">{selectedUser.name}</h4>
+                         <h4 className="text-xl font-black text-blue-900 uppercase italic tracking-tight">{selectedUser.name}</h4>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">{selectedUser.email}</p>
                       </div>
                    </div>
@@ -4078,13 +4108,13 @@ const AdminDashboard = () => {
                          <div className="flex gap-4">
                             <button 
                               onClick={() => handleUpdateUser({ id: selectedUser.id, status: 'active' })}
-                              className={`flex-1 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all border shadow-sm ${selectedUser.status === 'active' ? 'bg-emerald-500 text-white border-emerald-600 shadow-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                              className={`flex-1 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all border shadow-sm ${selectedUser.status === 'active' ? 'bg-amber-500 text-white border-amber-600 shadow-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
                             >
                                Grant Access
                             </button>
                             <button 
                               onClick={() => handleUpdateUser({ id: selectedUser.id, status: 'suspended' })}
-                              className={`flex-1 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all border shadow-sm ${selectedUser.status === 'suspended' ? 'bg-rose-500 text-white border-rose-600 shadow-rose-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                              className={`flex-1 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all border shadow-sm ${selectedUser.status === 'suspended' ? 'bg-blue-500 text-white border-blue-600 shadow-blue-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
                             >
                                Suspend ID
                             </button>
@@ -4100,7 +4130,7 @@ const AdminDashboard = () => {
                                  handleUpdateUser({ id: selectedUser.id, password: newPassword });
                               }
                            }}
-                           className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] flex items-center justify-center gap-3 hover:bg-amber-600 transition shadow-lg active:scale-95"
+                           className="w-full bg-blue-900 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[9px] flex items-center justify-center gap-3 hover:bg-amber-600 transition shadow-lg active:scale-95"
                          >
                             <XCircle size={16}/> RESET CREDENTIALS
                          </button>
@@ -4112,13 +4142,13 @@ const AdminDashboard = () => {
                         onClick={() => {
                            alert(`Customer Details: ${selectedUser.name}\n\nEmail: ${selectedUser.email}\nRole: ${humanRole(selectedUser.role)}\nStatus: ${humanStatus(selectedUser.status)}\nJoined: ${new Date(selectedUser.created_at).toLocaleDateString()}\nWallet Balance: ₹${parseFloat(selectedUser.balance || 0).toLocaleString()}`);
                         }}
-                        className="flex-1 bg-slate-50 text-slate-900 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-900 hover:text-white transition shadow-sm border border-slate-200 active:scale-95"
+                        className="flex-1 bg-slate-50 text-blue-900 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-blue-900 hover:text-white transition shadow-sm border border-slate-200 active:scale-95"
                       >
                          View Profile Details
                       </button>
                       <button 
                         onClick={() => handleDeleteUser(selectedUser.id)}
-                        className="flex-1 bg-rose-50 text-rose-600 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-rose-600 hover:text-white transition shadow-sm border border-rose-100 active:scale-95"
+                        className="flex-1 bg-blue-50 text-blue-600 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-blue-600 hover:text-white transition shadow-sm border border-blue-100 active:scale-95"
                       >
                          Delete Profile
                       </button>
@@ -4137,9 +4167,9 @@ const AdminDashboard = () => {
             animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
             exit={{ opacity: 0, y: 20, scale: 0.9, x: '-50%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-4 bg-slate-900/90 text-white px-8 py-5 rounded-[2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-md min-w-[320px] max-w-[90%]"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-4 bg-blue-900/90 text-white px-8 py-5 rounded-[2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-md min-w-[320px] max-w-[90%]"
           >
-            <div className={`p-2 rounded-full ${toast.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : toast.type === 'error' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}`}>
+            <div className={`p-2 rounded-full ${toast.type === 'success' ? 'bg-amber-500/20 text-amber-400' : toast.type === 'error' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400'}`}>
               {toast.type === 'success' ? <CheckCircle size={20} /> : toast.type === 'error' ? <XCircle size={20} /> : <AlertTriangle size={20} />}
             </div>
             <div className="flex-1">

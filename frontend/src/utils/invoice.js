@@ -78,7 +78,7 @@ export function generateInvoice(invoiceNo, items, customer = {}) {
     <div class="sheet">
       <div class="head">
         <div>
-          <div class="brand">${esc(customer.companyName || 'Vamanan')} <span>Gold</span></div>
+          <div class="brand">Vamanan <span>Enterprises V</span></div>
           <div class="sub">${esc(customer.companyAddress || 'Krishnagiri, Tamil Nadu')}</div>
         </div>
         <div class="title">
@@ -110,7 +110,7 @@ export function generateInvoice(invoiceNo, items, customer = {}) {
         Cashback is calculated only on the taxable product value (${money(totalTaxable)}); GST (CGST + SGST) is excluded from all cashback, referral and commission calculations.<br/>
         This is a computer-generated tax invoice.
       </div>
-      <div class="sign"><div>Customer Signature</div><div>For ${esc(customer.companyName || 'Vamanan Gold')}</div></div>
+      <div class="sign"><div>Customer Signature</div><div>For ${esc(customer.companyName || 'Vamanan Enterprises V')}</div></div>
     </div>
     </body></html>`);
   win.document.close();

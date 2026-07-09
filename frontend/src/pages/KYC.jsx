@@ -145,7 +145,7 @@ const KYC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
       <Sidebar 
         showMobileMenu={showMobileMenu} 
         setShowMobileMenu={setShowMobileMenu} 
@@ -166,7 +166,7 @@ const KYC = () => {
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Verification</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">KYC Verification</h1>
+                <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">KYC Verification</h1>
                 <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Verify your identity to unlock withdrawals and rewards</p>
              </div>
           </motion.div>
@@ -177,13 +177,13 @@ const KYC = () => {
                animate={{ opacity: 1, scale: 1 }}
                className={`p-8 md:p-20 rounded-[2.5rem] md:rounded-[3.5rem] border shadow-2xl flex flex-col items-center justify-center text-center relative overflow-hidden ${
                 kycStatus === 'verified' 
-                ? 'bg-white border-emerald-100 shadow-emerald-500/5' 
+                ? 'bg-white border-amber-100 shadow-amber-500/5' 
                 : 'bg-white border-amber-100 shadow-amber-500/5'
              }`}>
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-20"></div>
                 
                 {kycStatus === 'verified' ? (
-                   <ShieldCheck size={80} md:size={100} className="text-emerald-500 mb-6 md:mb-8 drop-shadow-xl" strokeWidth={1.5} />
+                   <ShieldCheck size={80} md:size={100} className="text-amber-500 mb-6 md:mb-8 drop-shadow-xl" strokeWidth={1.5} />
                 ) : (
                    <div className="relative mb-6 md:mb-8">
                       <Clock size={80} md:size={100} className="text-amber-500 animate-pulse" strokeWidth={1.5} />
@@ -193,7 +193,7 @@ const KYC = () => {
                    </div>
                 )}
                 
-                <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 tracking-tighter uppercase italic leading-tight">
+                <h2 className="text-2xl md:text-3xl font-black text-blue-900 mb-4 tracking-tighter uppercase italic leading-tight">
                    {kycStatus === 'verified' ? 'Verified' : 'Under Review'}
                 </h2>
                 <p className="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest max-w-sm md:max-w-md mx-auto mb-10 md:mb-12 italic leading-relaxed">
@@ -207,15 +207,15 @@ const KYC = () => {
                    <div className="space-y-4">
                       <div className="flex justify-between items-center gap-4">
                          <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic">Phone</span>
-                         <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.phone || 'NOT_FOUND'}</span>
+                         <span className="text-xs md:text-sm font-black text-blue-900 italic tracking-tight text-right">{formData.phone || 'NOT_FOUND'}</span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                          <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic whitespace-nowrap">Aadhaar No</span>
-                         <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.aadhar_no ? 'XXXX ' + formData.aadhar_no.slice(-4) : 'NOT_FOUND'}</span>
+                         <span className="text-xs md:text-sm font-black text-blue-900 italic tracking-tight text-right">{formData.aadhar_no ? 'XXXX ' + formData.aadhar_no.slice(-4) : 'NOT_FOUND'}</span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                          <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase italic">PAN No</span>
-                         <span className="text-xs md:text-sm font-black text-slate-900 italic tracking-tight text-right">{formData.pan_no ? 'XXXX' + formData.pan_no.slice(-4) : 'NOT_FOUND'}</span>
+                         <span className="text-xs md:text-sm font-black text-blue-900 italic tracking-tight text-right">{formData.pan_no ? 'XXXX' + formData.pan_no.slice(-4) : 'NOT_FOUND'}</span>
                       </div>
                    </div>
                 </div>
@@ -229,7 +229,7 @@ const KYC = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`p-5 md:p-6 rounded-2xl md:rounded-[2rem] flex items-center gap-4 md:gap-6 border shadow-xl ${
-                      status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'
+                      status.type === 'success' ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-blue-50 border-blue-100 text-blue-600'
                     }`}
                   >
                     {status.type === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
@@ -241,19 +241,19 @@ const KYC = () => {
                     initial={{ opacity: 0, scale: 0.95 }} 
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="p-6 md:p-8 rounded-2xl md:rounded-[2rem] flex items-center justify-between gap-4 md:gap-6 border bg-rose-500/5 border-rose-500/20 text-rose-600 shadow-xl relative overflow-hidden group"
+                    className="p-6 md:p-8 rounded-2xl md:rounded-[2rem] flex items-center justify-between gap-4 md:gap-6 border bg-blue-500/5 border-blue-500/20 text-blue-600 shadow-xl relative overflow-hidden group"
                   >
                     <div className="flex items-center gap-4 md:gap-6">
                        <ShieldAlert size={28} md:size={32} className="shrink-0" strokeWidth={1.5} />
                        <div>
                           <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1 italic">Validation Failure Detected</p>
-                          <p className="text-[8px] md:text-[10px] font-bold text-rose-400 uppercase tracking-tight italic opacity-80">Previous submission failed compliance checks. Re-submit high-resolution documentation.</p>
+                          <p className="text-[8px] md:text-[10px] font-bold text-blue-400 uppercase tracking-tight italic opacity-80">Previous submission failed compliance checks. Re-submit high-resolution documentation.</p>
                        </div>
                     </div>
                     <button 
                       type="button"
                       onClick={() => setDismissedRejected(true)}
-                      className="p-2 hover:bg-rose-500/10 rounded-xl transition-all text-rose-400 hover:text-rose-600 active:scale-90"
+                      className="p-2 hover:bg-blue-500/10 rounded-xl transition-all text-blue-400 hover:text-blue-600 active:scale-90"
                     >
                        <X size={18} md:size={20} />
                     </button>
@@ -269,8 +269,8 @@ const KYC = () => {
                    className="bg-white border border-slate-200/60 p-8 md:p-14 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm space-y-10 md:space-y-12"
                 >
                   <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><User size={20} /></div>
-                    <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Personal Details</h3>
+                    <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><User size={20} /></div>
+                    <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">Personal Details</h3>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
@@ -285,7 +285,7 @@ const KYC = () => {
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="+91 00000 00000" 
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                         />
                       </div>
                     </div>
@@ -300,7 +300,7 @@ const KYC = () => {
                           value={formData.address}
                           onChange={handleInputChange}
                           placeholder="Your full address"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                         />
                       </div>
                     </div>
@@ -315,7 +315,7 @@ const KYC = () => {
                           value={formData.aadhar_no}
                           onChange={handleInputChange}
                           placeholder="0000 0000 0000" 
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                         />
                       </div>
                     </div>
@@ -330,7 +330,7 @@ const KYC = () => {
                           value={formData.pan_no}
                           onChange={handleInputChange}
                           placeholder="ABCDE1234F" 
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all uppercase font-black italic tracking-tight" 
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all uppercase font-black italic tracking-tight" 
                         />
                       </div>
                     </div>
@@ -345,8 +345,8 @@ const KYC = () => {
                    className="bg-white border border-slate-200/60 p-8 md:p-14 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm space-y-10 md:space-y-12"
                 >
                    <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-                      <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Building2 size={20} /></div>
-                      <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Bank Details</h3>
+                      <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg"><Building2 size={20} /></div>
+                      <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">Bank Details</h3>
                    </div>
 
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
@@ -361,7 +361,7 @@ const KYC = () => {
                               value={formData.bank_name}
                               onChange={handleInputChange}
                               placeholder="E.G. STATE BANK OF INDIA" 
-                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                             />
                          </div>
                       </div>
@@ -377,7 +377,7 @@ const KYC = () => {
                               value={formData.account_no}
                               onChange={handleInputChange}
                               placeholder="00000000000" 
-                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                             />
                          </div>
                       </div>
@@ -393,7 +393,7 @@ const KYC = () => {
                               value={formData.ifsc_code}
                               onChange={handleInputChange}
                               placeholder="SBIN0000000" 
-                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight uppercase" 
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight uppercase" 
                             />
                          </div>
                       </div>
@@ -409,7 +409,7 @@ const KYC = () => {
                               value={formData.branch_name}
                               onChange={handleInputChange}
                               placeholder="E.G. CHENNAI MAIN" 
-                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight" 
                             />
                          </div>
                       </div>
@@ -426,7 +426,7 @@ const KYC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 pb-6 mb-8 md:mb-12">
                     <div className="flex items-center gap-4">
                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-amber-500 shadow-sm border border-slate-100"><FileText size={20} /></div>
-                       <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">Upload Documents</h3>
+                       <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">Upload Documents</h3>
                     </div>
                     <div className="flex gap-2">
                        <div className="px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20 text-[7px] md:text-[8px] font-black text-amber-600 uppercase italic tracking-widest">Required: 03</div>
@@ -437,21 +437,21 @@ const KYC = () => {
                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
                         <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm text-slate-400 font-black italic text-[10px]">01</div>
                         <div>
-                           <p className="text-[9px] font-black text-slate-900 uppercase tracking-tighter italic leading-none mb-1">Aadhar Card</p>
+                           <p className="text-[9px] font-black text-blue-900 uppercase tracking-tighter italic leading-none mb-1">Aadhar Card</p>
                            <p className="text-[7px] font-bold text-slate-400 uppercase italic">Front & Back View</p>
                         </div>
                      </div>
                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
                         <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm text-slate-400 font-black italic text-[10px]">02</div>
                         <div>
-                           <p className="text-[9px] font-black text-slate-900 uppercase tracking-tighter italic leading-none mb-1">PAN Card</p>
+                           <p className="text-[9px] font-black text-blue-900 uppercase tracking-tighter italic leading-none mb-1">PAN Card</p>
                            <p className="text-[7px] font-bold text-slate-400 uppercase italic">Full Scanned View</p>
                         </div>
                      </div>
                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
                         <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm text-slate-400 font-black italic text-[10px]">03</div>
                         <div>
-                           <p className="text-[9px] font-black text-slate-900 uppercase tracking-tighter italic leading-none mb-1">Bank Proof</p>
+                           <p className="text-[9px] font-black text-blue-900 uppercase tracking-tighter italic leading-none mb-1">Bank Proof</p>
                            <p className="text-[7px] font-bold text-slate-400 uppercase italic">Passbook / Cheque</p>
                         </div>
                      </div>
@@ -465,24 +465,24 @@ const KYC = () => {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                     />
                     <div className="border-[3px] border-dashed border-slate-100 rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-20 text-center group-hover:border-amber-500/50 group-hover:bg-amber-50 transition-all duration-500 relative overflow-hidden">
-                      <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 md:mb-8 group-hover:scale-110 group-hover:bg-slate-900 group-hover:text-amber-500 transition-all duration-500 border border-slate-100 shadow-sm">
-                        <Upload className={file ? "text-emerald-500" : "text-slate-400"} size={24} md:size={32} strokeWidth={2} />
+                      <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 md:mb-8 group-hover:scale-110 group-hover:bg-blue-900 group-hover:text-amber-500 transition-all duration-500 border border-slate-100 shadow-sm">
+                        <Upload className={file ? "text-amber-500" : "text-slate-400"} size={24} md:size={32} strokeWidth={2} />
                       </div>
                       {file ? (
                         <div>
-                          <p className="text-emerald-600 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-2 italic">File Selected</p>
-                          <p className="text-xs md:text-sm font-black text-slate-900 italic opacity-60 truncate max-w-[200px] md:max-w-xs mx-auto">{file.name}</p>
+                          <p className="text-amber-600 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-2 italic">File Selected</p>
+                          <p className="text-xs md:text-sm font-black text-blue-900 italic opacity-60 truncate max-w-[200px] md:max-w-xs mx-auto">{file.name}</p>
                         </div>
                       ) : (
                         <>
-                          <p className="text-sm font-black text-slate-900 mb-2 uppercase italic tracking-tighter leading-none">Click to Upload</p>
+                          <p className="text-sm font-black text-blue-900 mb-2 uppercase italic tracking-tighter leading-none">Click to Upload</p>
                           <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] italic opacity-60">PDF / Images containing all docs (Max: 5MB)</p>
                         </>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-8 md:mt-12 flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-slate-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
+                  <div className="mt-8 md:mt-12 flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-blue-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
                     <Shield className="text-amber-500 shrink-0 mt-1" size={20} md:size={24} strokeWidth={2.5} />
                     <p className="text-[8px] md:text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider italic">
                       Your documents are stored securely. Verification usually takes 24-48 hours.
@@ -494,7 +494,7 @@ const KYC = () => {
               <button 
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
+                className="w-full bg-blue-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
               >
                 {submitting ? <Loader2 className="animate-spin" size={20} md:size={24} /> : (
                   <>Execute Validation <ArrowRight size={18} md:size={20} className="group-hover:translate-x-2 transition-transform" /></>

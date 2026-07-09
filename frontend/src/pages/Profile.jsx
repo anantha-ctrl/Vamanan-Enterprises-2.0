@@ -13,6 +13,7 @@ import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
 import API_BASE_URL from '../config';
 import { humanKycStatus } from '../utils/humanLabels';
+import FeedbackWidget from '../components/FeedbackWidget';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -163,7 +164,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-blue-900 selection:bg-blue-600 selection:text-white">
       <Sidebar 
         showMobileMenu={showMobileMenu} 
         setShowMobileMenu={setShowMobileMenu} 
@@ -184,75 +185,84 @@ const Profile = () => {
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">My Account</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">My Profile</h1>
+                <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">My Profile</h1>
                 <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Manage your account details and password</p>
              </div>
           </motion.div>
 
-          {/* Hero Section */}
-          <div className="relative mb-32 sm:mb-20">
-            <div className="h-48 md:h-96 bg-slate-900 rounded-[2rem] md:rounded-[4rem] overflow-hidden relative shadow-2xl border border-white/5">
+          {/* Hero Section — banner on top, identity card on white below (name always readable) */}
+          <div className="mb-10 md:mb-14">
+            {/* Blue banner */}
+            <div className="h-36 md:h-56 bg-blue-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden relative shadow-2xl border border-white/5">
                <div className="absolute inset-0 opacity-20">
                   <div className="absolute top-0 right-0 w-64 md:w-[600px] h-64 md:h-[600px] bg-amber-500 blur-[100px] md:blur-[180px] -translate-y-1/2 translate-x-1/2"></div>
-                  <div className="absolute bottom-0 left-0 w-40 md:w-96 h-40 md:h-96 bg-blue-500 blur-[80px] md:blur-[150px] translate-y-1/2 -translate-x-1/2"></div>
+                  <div className="absolute bottom-0 left-0 w-40 md:w-96 h-40 md:h-96 bg-blue-600 blur-[80px] md:blur-[150px] translate-y-1/2 -translate-x-1/2"></div>
                </div>
-               <div className="absolute bottom-0 right-0 p-10 md:p-20 opacity-5">
-                  <Shield size={loading ? 100 : 250} className="text-white" />
+               <div className="absolute bottom-0 right-0 p-8 md:p-14 opacity-10">
+                  <Shield size={160} className="text-white" />
                </div>
             </div>
 
-            {/* Avatar and Name */}
-            <div className="absolute -bottom-24 sm:-bottom-20 left-0 sm:left-12 right-0 sm:right-auto flex flex-col sm:flex-row items-center sm:items-end gap-6 md:gap-10 px-4 sm:px-0">
-               <motion.div 
-                 initial={{ scale: 0.9, opacity: 0 }}
-                 animate={{ scale: 1, opacity: 1 }}
-                 transition={{ delay: 0.1 }}
-                 className="relative group"
-               >
-                  <div className="w-40 h-40 md:w-64 md:h-64 bg-white p-3 md:p-5 rounded-[3rem] md:rounded-[5rem] shadow-[0_25px_60px_rgba(0,0,0,0.15)] border-4 border-white relative z-20">
-                     <div className="w-full h-full bg-slate-100 rounded-[1.8rem] md:rounded-[3.5rem] flex items-center justify-center text-slate-400 overflow-hidden relative group border border-slate-200">
-                        {profileData?.user?.avatar ? (
-                           <img src={`${API_BASE_URL}/../${profileData.user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="flex flex-col items-center">
-                               <span className="text-5xl md:text-8xl font-black text-slate-300 italic leading-none">{(profileData?.user?.name || 'U')[0]}</span>
-                               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2 italic">No Photo</p>
-                            </div>
-                        )}
-                        <label className="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 text-white cursor-pointer backdrop-blur-md">
-                           {uploading ? <Loader2 className="animate-spin" size={24} /> : <Camera size={32} />}
-                           <p className="text-[9px] font-black uppercase mt-3 tracking-widest text-center px-4 text-amber-500 italic">Change Photo</p>
-                           <input type="file" className="hidden" onChange={handlePhotoUpload} accept="image/*" />
-                        </label>
+            {/* Identity card (white) */}
+            <div className="bg-white border border-slate-200/60 rounded-[2rem] md:rounded-[3rem] shadow-sm px-6 md:px-12 pb-8 md:pb-10 -mt-14 md:-mt-20 relative z-10">
+               <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 md:gap-8">
+                  {/* Avatar (overlaps the banner) */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="relative group -mt-16 sm:-mt-24 shrink-0"
+                  >
+                     <div className="w-32 h-32 md:w-44 md:h-44 bg-white p-2 md:p-3 rounded-[2rem] md:rounded-[3rem] shadow-[0_25px_60px_rgba(0,0,0,0.15)] border-4 border-white relative z-20">
+                        <div className="w-full h-full bg-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-center text-slate-400 overflow-hidden relative group border border-slate-200">
+                           {profileData?.user?.avatar ? (
+                              <img src={`${API_BASE_URL}/../${profileData.user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                           ) : (
+                               <div className="flex flex-col items-center">
+                                  <span className="text-4xl md:text-6xl font-black text-blue-900/30 italic leading-none">{(profileData?.user?.name || 'U')[0]}</span>
+                                  <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1 italic">No Photo</p>
+                               </div>
+                           )}
+                           <label className="absolute inset-0 bg-blue-900/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 text-white cursor-pointer backdrop-blur-md">
+                              {uploading ? <Loader2 className="animate-spin" size={24} /> : <Camera size={28} />}
+                              <p className="text-[9px] font-black uppercase mt-2 tracking-widest text-center px-4 text-amber-500 italic">Change Photo</p>
+                              <input type="file" className="hidden" onChange={handlePhotoUpload} accept="image/*" />
+                           </label>
+                        </div>
                      </div>
-                  </div>
-               </motion.div>
-               <div className="mb-4 sm:mb-10 text-center sm:text-left flex flex-col items-center sm:items-start">
-                  <motion.h2 
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-2xl md:text-6xl font-black text-slate-900 tracking-tighter flex items-center justify-center sm:justify-start gap-3 md:gap-6 italic uppercase leading-none"
-                  >
-                    {profileData?.user?.name || 'Investor'}
-                    {profileData?.user?.kyc_status === 'verified' && <div className="bg-emerald-500 p-1.5 md:p-3 rounded-full text-white shadow-xl shadow-emerald-500/20"><ShieldCheck size={18} md:size={32} strokeWidth={2.5} /></div>}
-                  </motion.h2>
-                  <motion.div 
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex flex-wrap items-center justify-center sm:justify-start gap-3 md:gap-4 mt-4 md:mt-6"
-                  >
-                    <span className="px-4 py-1.5 bg-slate-900 text-amber-500 text-[9px] md:text-[10px] font-black rounded-xl md:rounded-2xl uppercase tracking-[0.2em] shadow-lg italic">User ID: #{user.id}</span>
-                    <span className={`px-4 py-1.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                      {humanKycStatus(profileData?.user?.kyc_status || 'pending')}
-                    </span>
                   </motion.div>
+
+                  {/* Name + badges — on white, always readable */}
+                  <div className="flex-1 text-center sm:text-left pt-2 sm:pt-0 sm:pb-3">
+                     <motion.h2
+                       initial={{ x: -20, opacity: 0 }}
+                       animate={{ x: 0, opacity: 1 }}
+                       transition={{ delay: 0.2 }}
+                       className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter flex items-center justify-center sm:justify-start gap-3 md:gap-4 italic uppercase leading-none"
+                     >
+                       {profileData?.user?.name || 'Investor'}
+                       {profileData?.user?.kyc_status === 'verified' && <div className="bg-amber-500 p-1.5 md:p-2.5 rounded-full text-white shadow-xl shadow-amber-500/20"><ShieldCheck size={18} md:size={26} strokeWidth={2.5} /></div>}
+                     </motion.h2>
+                     <motion.div
+                       initial={{ x: -20, opacity: 0 }}
+                       animate={{ x: 0, opacity: 1 }}
+                       transition={{ delay: 0.3 }}
+                       className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4"
+                     >
+                       <span className="px-4 py-1.5 bg-blue-900 text-amber-500 text-[9px] md:text-[10px] font-black rounded-xl uppercase tracking-[0.2em] shadow-lg italic">Member ID: {profileData?.user?.customer_id || `VEV${String(user.id).padStart(3, '0')}`}</span>
+                       <span className={`px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                         {humanKycStatus(profileData?.user?.kyc_status || 'pending')}
+                       </span>
+                       {profileData?.user?.referral_code && (
+                         <span className="px-4 py-1.5 bg-slate-50 text-blue-900 text-[9px] md:text-[10px] font-black rounded-xl uppercase tracking-[0.2em] border border-slate-200 shadow-sm italic">Referral: {profileData.user.referral_code}</span>
+                       )}
+                     </motion.div>
+                  </div>
                </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mt-32 md:mt-40">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mt-4 md:mt-6">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-8 md:space-y-12">
                <motion.div 
@@ -261,18 +271,18 @@ const Profile = () => {
                  className="bg-white border border-slate-200/60 p-6 sm:p-10 md:p-16 rounded-[2.5rem] md:rounded-[4rem] shadow-sm relative overflow-hidden"
                >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 mb-10 md:mb-20 relative z-10">
-                     <h3 className="text-[9px] md:text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center gap-4 md:gap-6 italic">
-                        <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-900 text-amber-500 rounded-xl md:rounded-3xl flex items-center justify-center shadow-xl"><Edit3 size={20} md:size={32} /></div>
+                     <h3 className="text-[9px] md:text-xs font-black text-blue-900 uppercase tracking-[0.4em] flex items-center gap-4 md:gap-6 italic">
+                        <div className="w-10 h-10 md:w-16 md:h-16 bg-blue-900 text-amber-500 rounded-xl md:rounded-3xl flex items-center justify-center shadow-xl"><Edit3 size={20} md:size={32} /></div>
                         Profile Attributes
                      </h3>
                      <div className="flex w-full sm:w-auto gap-3 md:gap-6">
                         {editing && (
-                           <button onClick={handleSave} disabled={saving} className="flex-1 sm:flex-none px-6 md:px-10 py-4 md:py-5 bg-slate-900 text-white rounded-2xl md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] hover:bg-amber-600 transition-all flex items-center justify-center gap-3 md:gap-4 shadow-2xl active:scale-95 italic">
+                           <button onClick={handleSave} disabled={saving} className="flex-1 sm:flex-none px-6 md:px-10 py-4 md:py-5 bg-blue-900 text-white rounded-2xl md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] hover:bg-amber-600 transition-all flex items-center justify-center gap-3 md:gap-4 shadow-2xl active:scale-95 italic">
                               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                               Save
                            </button>
                         )}
-                        <button onClick={() => setEditing(!editing)} className={`flex-1 sm:flex-none px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] border transition-all active:scale-95 italic ${editing ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-slate-50 text-slate-900 border-slate-200'}`}>
+                        <button onClick={() => setEditing(!editing)} className={`flex-1 sm:flex-none px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] border transition-all active:scale-95 italic ${editing ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-slate-50 text-blue-900 border-slate-200'}`}>
                            {editing ? 'Cancel' : 'Edit'}
                         </button>
                      </div>
@@ -280,7 +290,7 @@ const Profile = () => {
 
                   <AnimatePresence>
                      {status.message && (
-                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`mb-8 md:mb-12 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex items-center gap-4 md:gap-6 text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl italic ${status.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`mb-8 md:mb-12 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex items-center gap-4 md:gap-6 text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl italic ${status.type === 'success' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
                            {status.type === 'success' ? <CheckCircle2 size={20} strokeWidth={2.5} /> : <AlertCircle size={20} strokeWidth={2.5} />}
                            {status.message}
                         </motion.div>
@@ -302,9 +312,9 @@ const Profile = () => {
                            <div className={`flex items-center gap-4 md:gap-6 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border transition-all duration-500 ${editing ? 'bg-white border-amber-500 shadow-xl' : 'bg-slate-50 border-slate-100 shadow-inner'}`}>
                               <field.icon size={20} className={editing ? 'text-amber-600' : 'text-slate-400'} />
                               {editing ? (
-                                 <input name={field.name} value={formData[field.name]} onChange={handleInputChange} className="bg-transparent w-full outline-none text-sm md:text-base font-black text-slate-900 placeholder:text-slate-300 italic" />
+                                 <input name={field.name} value={formData[field.name]} onChange={handleInputChange} className="bg-transparent w-full outline-none text-sm md:text-base font-black text-blue-900 placeholder:text-slate-300 italic" />
                               ) : (
-                                 <p className="text-sm md:text-base font-black text-slate-900 tracking-tight truncate uppercase italic">{field.value || 'Not added'}</p>
+                                 <p className="text-sm md:text-base font-black text-blue-900 tracking-tight truncate uppercase italic">{field.value || 'Not added'}</p>
                               )}
                            </div>
                         </div>
@@ -319,7 +329,7 @@ const Profile = () => {
                  transition={{ delay: 0.1 }}
                  className="bg-white border border-slate-200/60 p-6 sm:p-10 md:p-16 rounded-[2.5rem] md:rounded-[4rem] shadow-sm"
                >
-                  <h3 className="text-[9px] md:text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center gap-4 md:gap-6 mb-10 md:mb-20 italic">
+                  <h3 className="text-[9px] md:text-xs font-black text-blue-900 uppercase tracking-[0.4em] flex items-center gap-4 md:gap-6 mb-10 md:mb-20 italic">
                      <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-50 text-blue-600 rounded-xl md:rounded-3xl flex items-center justify-center border border-slate-100 shadow-sm"><ShieldCheck size={20} md:size={32} /></div>
                      Verification & Bank
                   </h3>
@@ -328,14 +338,14 @@ const Profile = () => {
                      <div className="p-8 md:p-14 bg-slate-50 border border-slate-100 rounded-[2rem] md:rounded-[4rem] relative group overflow-hidden shadow-inner">
                         <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em] mb-4 md:mb-6 italic">KYC Status</p>
                         <div className="flex items-center gap-4 mb-6 md:mb-10">
-                           <span className={`px-6 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
+                           <span className={`px-6 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl italic ${profileData?.user?.kyc_status === 'verified' ? 'bg-amber-500 text-white' : 'bg-amber-500 text-white'}`}>
                               {humanKycStatus(profileData?.user?.kyc_status || 'not_found')}
                            </span>
                         </div>
                         <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate italic">Aadhaar: {profileData?.user?.aadhar_no ? 'On file' : 'Not added'}</p>
                      </div>
   
-                     <div className="p-8 md:p-14 bg-slate-900 text-white rounded-[2rem] md:rounded-[4rem] relative group overflow-hidden shadow-2xl">
+                     <div className="p-8 md:p-14 bg-blue-900 text-white rounded-[2rem] md:rounded-[4rem] relative group overflow-hidden shadow-2xl">
                         <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-1000"><Wallet size={100} /></div>
                         <p className="text-[9px] font-black text-amber-500 uppercase tracking-[0.3em] mb-4 md:mb-6 italic">Wallet Balance</p>
                         <h4 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-6 md:mb-10 italic">₹{parseFloat(profileData?.wallet?.balance || 0).toLocaleString()}</h4>
@@ -348,13 +358,13 @@ const Profile = () => {
                   <div className="mt-8 md:mt-14 space-y-4 md:space-y-6">
                      {[
                        { label: 'Aadhaar Card', value: profileData?.user?.aadhar_no, color: 'bg-blue-50 text-blue-600', icon: Fingerprint },
-                       { label: 'PAN Card', value: profileData?.user?.pan_no, color: 'bg-rose-50 text-rose-600', icon: CreditCard }
+                       { label: 'PAN Card', value: profileData?.user?.pan_no, color: 'bg-blue-50 text-blue-600', icon: CreditCard }
                      ].map((doc, i) => (
                         <div key={i} className="p-6 md:p-10 bg-slate-50 border border-slate-200 rounded-[1.8rem] md:rounded-[3rem] flex items-center justify-between group hover:border-amber-500 transition-all shadow-sm">
                            <div className="flex items-center gap-6 md:gap-10 min-w-0">
                               <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center shrink-0 border border-slate-200 bg-white shadow-xl ${doc.color}`}><doc.icon size={20} md:size={32} /></div>
                               <div className="min-w-0">
-                                 <p className="text-sm md:text-xl font-black text-slate-900 uppercase tracking-tight truncate italic">{doc.label}</p>
+                                 <p className="text-sm md:text-xl font-black text-blue-900 uppercase tracking-tight truncate italic">{doc.label}</p>
                                  <p className="text-[9px] md:text-[12px] text-slate-400 font-black uppercase tracking-[0.25em] mt-1 md:mt-2 truncate italic">{doc.value ? 'Submitted' : 'Not added yet'}</p>
                               </div>
                            </div>
@@ -372,17 +382,19 @@ const Profile = () => {
                  animate={{ opacity: 1, x: 0 }}
                  className="bg-white border border-slate-200/60 p-6 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-sm overflow-hidden"
                >
-                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.5em] mb-10 md:mb-16 italic border-l-4 border-amber-500 pl-4">My Summary</h3>
+                  <h3 className="text-[10px] font-black text-blue-900 uppercase tracking-[0.5em] mb-10 md:mb-16 italic border-l-4 border-amber-500 pl-4">My Summary</h3>
                   <div className="space-y-10 md:space-y-12">
                      {[
                        { label: 'Total Invested', value: `₹${parseFloat(profileData?.stats?.total_invested || 0).toLocaleString()}`, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
-                       { label: 'Active Plans', value: profileData?.stats?.active_cycles || 0, icon: ShieldCheck, color: 'bg-emerald-50 text-emerald-600' },
+                       { label: 'Cashback Earned', value: `₹${parseFloat(profileData?.stats?.total_cashback || 0).toLocaleString()}`, icon: Wallet, color: 'bg-emerald-50 text-emerald-600' },
+                       { label: 'Active Plans', value: profileData?.stats?.active_cycles || 0, icon: ShieldCheck, color: 'bg-amber-50 text-amber-600' },
                        { label: 'Referrals', value: profileData?.stats?.referral_count || 0, icon: Award, color: 'bg-blue-50 text-blue-600' },
+                       { label: 'Member Since', value: profileData?.user?.created_at ? new Date(profileData.user.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—', icon: Calendar, color: 'bg-blue-50 text-blue-600' },
                      ].map((stat, i) => (
                         <div key={i} className="flex justify-between items-end border-b border-slate-100 pb-10 md:pb-12 last:border-0 last:pb-0">
                            <div className="min-w-0">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-2 md:mb-3 truncate italic">{stat.label}</p>
-                              <p className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter truncate italic">{stat.value}</p>
+                              <p className="text-2xl md:text-4xl font-black text-blue-900 tracking-tighter truncate italic">{stat.value}</p>
                            </div>
                            <div className={`p-4 md:p-5 rounded-2xl md:rounded-3xl shrink-0 border border-slate-100 bg-slate-50 shadow-sm ${stat.color}`}><stat.icon size={20} md:size={28} strokeWidth={2} /></div>
                         </div>
@@ -394,7 +406,7 @@ const Profile = () => {
                  initial={{ opacity: 0, x: 20 }}
                  animate={{ opacity: 1, x: 0 }}
                  transition={{ delay: 0.1 }}
-                 className="bg-slate-900 text-white p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-2xl relative overflow-hidden group border border-white/5"
+                 className="bg-blue-900 text-white p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-2xl relative overflow-hidden group border border-white/5"
                >
                   <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
                     <ShieldCheck size={100} className="text-white" />
@@ -410,15 +422,18 @@ const Profile = () => {
                       </button>
                      <button className="w-full bg-white/5 hover:bg-blue-600 hover:text-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-between transition-all group border border-white/5 shadow-xl italic">
                         <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em]">Two-Factor</span>
-                        <div className="px-3 py-1 bg-amber-500 text-slate-900 text-[8px] font-black rounded-lg uppercase tracking-widest italic">ACTIVE</div>
+                        <div className="px-3 py-1 bg-amber-500 text-blue-900 text-[8px] font-black rounded-lg uppercase tracking-widest italic">ACTIVE</div>
                      </button>
                   </div>
-                  <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="w-full mt-16 md:mt-24 bg-rose-600/10 text-rose-500 border border-rose-500/20 py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center gap-4 md:gap-6 shadow-2xl active:scale-95 italic">
+                  <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="w-full mt-16 md:mt-24 bg-blue-600/10 text-blue-500 border border-blue-500/20 py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-4 md:gap-6 shadow-2xl active:scale-95 italic">
                      <LogOut size={20} md:size={28} strokeWidth={2.5} /> Terminate
                   </button>
                </motion.div>
             </div>
           </div>
+
+          {/* Feedback & Remarks */}
+          <FeedbackWidget />
         </main>
       </div>
 
@@ -431,7 +446,7 @@ const Profile = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowPasswordModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              className="absolute inset-0 bg-blue-900/60 backdrop-blur-md"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 40 }}
@@ -440,17 +455,17 @@ const Profile = () => {
               className="relative w-full max-w-xl bg-white border border-slate-200 rounded-[2rem] md:rounded-[4rem] p-8 md:p-20 shadow-[0_0_100px_rgba(0,0,0,0.3)] overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-12 opacity-5">
-                <Hash size={100} className="text-slate-900" />
+                <Hash size={100} className="text-blue-900" />
               </div>
               
               <div className="flex justify-between items-start mb-10 md:mb-16 relative z-10">
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter mb-2 md:mb-3 italic uppercase">Change Password</h3>
+                  <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter mb-2 md:mb-3 italic uppercase">Change Password</h3>
                   <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Update your login password</p>
                 </div>
                 <button 
                   onClick={() => setShowPasswordModal(false)}
-                  className="p-3 md:p-4 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-xl md:rounded-[1.5rem] transition-colors border border-slate-200 active:scale-95 shadow-sm"
+                  className="p-3 md:p-4 bg-slate-50 text-slate-400 hover:text-blue-900 rounded-xl md:rounded-[1.5rem] transition-colors border border-slate-200 active:scale-95 shadow-sm"
                 >
                   <X size={20} md:size={32} />
                 </button>
@@ -465,7 +480,7 @@ const Profile = () => {
                       value={passwordForm.new}
                       onChange={(e) => setPasswordForm({...passwordForm, new: e.target.value})}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 border border-slate-200 p-6 md:p-8 pr-16 md:pr-20 rounded-[1.5rem] md:rounded-[2.5rem] text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all font-black tracking-widest shadow-inner italic text-sm"
+                      className="w-full bg-slate-50 border border-slate-200 p-6 md:p-8 pr-16 md:pr-20 rounded-[1.5rem] md:rounded-[2.5rem] text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all font-black tracking-widest shadow-inner italic text-sm"
                     />
                     <button 
                       type="button"
@@ -484,7 +499,7 @@ const Profile = () => {
                       value={passwordForm.confirm}
                       onChange={(e) => setPasswordForm({...passwordForm, confirm: e.target.value})}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 border border-slate-200 p-6 md:p-8 pr-16 md:pr-20 rounded-[1.5rem] md:rounded-[2.5rem] text-slate-900 outline-none focus:border-amber-600 focus:bg-white transition-all font-black tracking-widest shadow-inner italic text-sm"
+                      className="w-full bg-slate-50 border border-slate-200 p-6 md:p-8 pr-16 md:pr-20 rounded-[1.5rem] md:rounded-[2.5rem] text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all font-black tracking-widest shadow-inner italic text-sm"
                     />
                     <button 
                       type="button"
@@ -499,7 +514,7 @@ const Profile = () => {
                 <button 
                   onClick={handlePasswordChange}
                   disabled={saving}
-                  className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl flex items-center justify-center gap-3 md:gap-4 mt-6 md:mt-8 active:scale-[0.98] italic"
+                  className="w-full bg-blue-900 text-white py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] font-black text-[10px] md:text-[11px] uppercase tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl flex items-center justify-center gap-3 md:gap-4 mt-6 md:mt-8 active:scale-[0.98] italic"
                 >
                   {saving ? <Loader2 className="animate-spin" size={20} /> : <ShieldCheck size={24} md:size={28} strokeWidth={2.5} />}
                   Update Password

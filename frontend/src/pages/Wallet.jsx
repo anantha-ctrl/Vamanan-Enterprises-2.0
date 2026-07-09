@@ -68,7 +68,7 @@ const Wallet = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter overflow-x-hidden text-blue-900 selection:bg-amber-100 selection:text-amber-900">
       <Sidebar 
         showMobileMenu={showMobileMenu} 
         setShowMobileMenu={setShowMobileMenu} 
@@ -89,7 +89,7 @@ const Wallet = () => {
                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Financial Overview</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Wallet</h1>
+                <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Wallet</h1>
                 <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Manage your capital and transaction history</p>
              </div>
              <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ const Wallet = () => {
                   className="bg-white border border-slate-200 px-5 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"
                 ><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /></button>
                 <div className="bg-white border border-slate-200 px-6 py-3 rounded-2xl shadow-sm hidden md:flex items-center gap-4">
-                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                   <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 italic">Account Synchronized</span>
                 </div>
              </div>
@@ -109,7 +109,7 @@ const Wallet = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="lg:col-span-2 bg-slate-900 p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] shadow-2xl text-white relative overflow-hidden group"
+              className="lg:col-span-2 bg-blue-900 p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] shadow-2xl text-white relative overflow-hidden group"
             >
                <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-1000">
                   <WalletIcon size={loading ? 150 : 300} />
@@ -133,7 +133,7 @@ const Wallet = () => {
                      <button 
                        type="button"
                        onClick={handleWithdraw}
-                       className="flex-1 sm:flex-none bg-amber-500 text-slate-900 px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.25em] text-[10px] md:text-xs hover:bg-white transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-3 md:gap-4"
+                       className="flex-1 sm:flex-none bg-amber-500 text-blue-900 px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black uppercase tracking-[0.25em] text-[10px] md:text-xs hover:bg-white transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-3 md:gap-4"
                      >
                         <CreditCard size={18} /> Withdraw
                      </button>
@@ -157,17 +157,17 @@ const Wallet = () => {
             >
                <div className="space-y-10 md:space-y-12">
                   <div className="flex justify-between items-start">
-                     <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 text-amber-600 rounded-xl md:rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-slate-900 group-hover:text-amber-500 transition-colors duration-500">
+                     <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 text-amber-600 rounded-xl md:rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-blue-900 group-hover:text-amber-500 transition-colors duration-500">
                         <Users size={20} md:size={24} />
                      </div>
-                     <div className="bg-emerald-50 text-emerald-600 px-3 md:px-4 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border border-emerald-100">Live</div>
+                     <div className="bg-amber-50 text-amber-600 px-3 md:px-4 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border border-amber-100">Live</div>
                   </div>
                   
                   <div className="space-y-3 md:space-y-4">
                      <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Network Revenue</p>
                      <div>
                         <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest italic">Total Earned</p>
-                        <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter italic mt-1">₹{referralTotal.toLocaleString()}</h3>
+                        <h3 className="text-2xl md:text-3xl font-black text-blue-900 tracking-tighter italic mt-1">₹{referralTotal.toLocaleString()}</h3>
                      </div>
                   </div>
                   <div className="flex items-center gap-3 bg-blue-50/50 p-4 rounded-xl md:rounded-2xl border border-blue-100/50">
@@ -187,7 +187,7 @@ const Wallet = () => {
           >
              <div className="p-8 md:p-14 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Transaction History</h3>
+                  <h3 className="text-xl md:text-2xl font-black text-blue-900 tracking-tighter uppercase italic">Transaction History</h3>
                   <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2 italic">Record of all your transactions and earnings</p>
                 </div>
                 <div className="flex items-center gap-3 bg-slate-50 px-5 md:px-6 py-2 rounded-full border border-slate-200">
@@ -206,9 +206,9 @@ const Wallet = () => {
                        const isReferral = tx.category === 'referral' || tx.description.toLowerCase().includes('referral');
                        
                        let Icon = WalletIcon;
-                       let iconBg = 'bg-slate-900 text-amber-500';
-                       let amountColor = isCredit ? 'text-emerald-600' : 'text-rose-600';
-                       let statusBg = tx.status === 'completed' || tx.status === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100';
+                       let iconBg = 'bg-blue-900 text-amber-500';
+                       let amountColor = isCredit ? 'text-amber-600' : 'text-blue-600';
+                       let statusBg = tx.status === 'completed' || tx.status === 'success' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-amber-50 text-amber-600 border-amber-100';
 
                        if (isCashback) {
                           Icon = Gift;
@@ -223,7 +223,7 @@ const Wallet = () => {
                                   <Icon size={20} md:size={24} />
                                </div>
                                <div>
-                                  <h4 className="text-sm md:text-base font-black text-slate-900 mb-1 md:mb-2 uppercase italic tracking-tight">{tx.description}</h4>
+                                  <h4 className="text-sm md:text-base font-black text-blue-900 mb-1 md:mb-2 uppercase italic tracking-tight">{tx.description}</h4>
                                   <div className="flex flex-wrap items-center gap-3 md:gap-4">
                                      <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-2">
                                         <Clock size={10} md:size={12} className="text-amber-500" /> {date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} • {date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}

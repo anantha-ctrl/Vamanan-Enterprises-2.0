@@ -4,6 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once '../config/db.php';
+require_once '../config/migrate.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -11,6 +12,9 @@ $db = $database->getConnection();
 if (!$db) {
     die(json_encode(["status" => "error", "message" => "Database connection failed"]));
 }
+
+// Run migrations to ensure all tables and columns are initialized
+runMigrations($db);
 
 try {
     $logs = [];

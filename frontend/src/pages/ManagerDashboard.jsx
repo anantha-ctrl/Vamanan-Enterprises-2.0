@@ -293,7 +293,7 @@ const ManagerDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden">
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
@@ -307,7 +307,7 @@ const ManagerDashboard = () => {
           <div className="flex items-center gap-8">
              <button 
                onClick={() => setShowMobileMenu(true)} 
-               className="p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm group lg:hidden"
+               className="p-4 bg-white border border-slate-200 rounded-2xl hover:bg-blue-900 hover:text-white transition-all shadow-sm group lg:hidden"
              >
                 <Menu size={22} className="group-hover:scale-110 transition-transform" />
              </button>
@@ -316,10 +316,10 @@ const ManagerDashboard = () => {
              <div className="hidden lg:block">
                 <div className="flex flex-col">
                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden p-1.5 shadow-xl border border-white/10">
-                         <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+                      <div className="w-12 h-12 bg-blue-900 rounded-2xl flex items-center justify-center overflow-hidden p-1.5 shadow-xl border border-white/10">
+                         <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
                       </div>
-                      <h2 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
+                      <h2 className="text-3xl font-black text-blue-900 uppercase italic tracking-tighter leading-none">
                          {activeTab.replace('_', ' ')}
                       </h2>
                    </div>
@@ -330,12 +330,12 @@ const ManagerDashboard = () => {
 
           {/* Center: System Status & Identity */}
           <div className="flex flex-col items-center justify-center">
-             {/* <div className="hidden lg:flex items-center gap-4 bg-slate-900/5 px-6 py-2.5 rounded-full border border-slate-200/50 backdrop-blur-sm shadow-inner group">
+             {/* <div className="hidden lg:flex items-center gap-4 bg-blue-900/5 px-6 py-2.5 rounded-full border border-slate-200/50 backdrop-blur-sm shadow-inner group">
                 <div className="relative">
-                   <div className={`w-2 h-2 ${stats.users?.total > 0 ? 'bg-emerald-500' : 'bg-amber-500'} rounded-full animate-pulse`}></div>
-                   <div className={`absolute inset-0 ${stats.users?.total > 0 ? 'bg-emerald-500' : 'bg-amber-500'} rounded-full animate-ping opacity-20`}></div>
+                   <div className={`w-2 h-2 ${stats.users?.total > 0 ? 'bg-amber-500' : 'bg-amber-500'} rounded-full animate-pulse`}></div>
+                   <div className={`absolute inset-0 ${stats.users?.total > 0 ? 'bg-amber-500' : 'bg-amber-500'} rounded-full animate-ping opacity-20`}></div>
                 </div>
-                <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] italic group-hover:text-slate-900 transition-colors">
+                <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] italic group-hover:text-blue-900 transition-colors">
                    {stats.users?.total || 0} Active Customers
                 </span>
              </div> */}
@@ -343,11 +343,11 @@ const ManagerDashboard = () => {
              {/* Mobile Identity */}
              <div className="flex flex-col items-center justify-center lg:hidden">
                 <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-xl rotate-3">
-                      <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+                   <div className="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-xl rotate-3">
+                      <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
                    </div>
-                   <h1 className="text-sm font-black tracking-tighter text-slate-900 uppercase italic leading-none">
-                      Vamanan <span className="text-amber-600">Gold</span>
+                   <h1 className="text-sm font-black tracking-tighter text-blue-900 uppercase italic leading-none">
+                      Vamanan <span className="text-amber-600">Enterprises V</span>
                    </h1>
                 </div>
              </div>
@@ -360,7 +360,7 @@ const ManagerDashboard = () => {
                className="flex items-center gap-6 cursor-pointer group/profile transition-all px-4 py-2 rounded-[2rem] hover:bg-slate-50 border border-transparent hover:border-slate-200 shadow-sm hover:shadow-md"
              >
                 <div className="hidden sm:flex flex-col items-end">
-                   <p className="text-xs font-black text-slate-900 uppercase italic leading-none tracking-tighter group-hover/profile:text-amber-600 transition-colors">
+                   <p className="text-xs font-black text-blue-900 uppercase italic leading-none tracking-tighter group-hover/profile:text-amber-600 transition-colors">
                       {currentUser.name || 'Regional User'}
                    </p>
                    <div className="flex items-center gap-2 mt-2">
@@ -373,10 +373,10 @@ const ManagerDashboard = () => {
                 </div>
                 <div className="relative">
                    <div className="absolute -inset-1.5 bg-gradient-to-tr from-amber-600 to-amber-200 rounded-[1.5rem] blur opacity-0 group-hover/profile:opacity-40 transition duration-500"></div>
-                   <div className="relative w-12 h-12 md:w-14 md:h-14 bg-slate-900 text-amber-500 rounded-[1.4rem] flex items-center justify-center font-black italic shadow-2xl border-4 border-white ring-1 ring-slate-200 transform group-hover/profile:scale-105 transition-all text-xl">
+                   <div className="relative w-12 h-12 md:w-14 md:h-14 bg-blue-900 text-amber-500 rounded-[1.4rem] flex items-center justify-center font-black italic shadow-2xl border-4 border-white ring-1 ring-slate-200 transform group-hover/profile:scale-105 transition-all text-xl">
                       {currentUser.name ? currentUser.name[0] : 'M'}
                    </div>
-                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-4 border-white rounded-full shadow-lg"></div>
+                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-500 border-4 border-white rounded-full shadow-lg"></div>
                 </div>
              </div>
           </div>
@@ -387,38 +387,38 @@ const ManagerDashboard = () => {
             <div className="space-y-16">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all"></div>
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all"></div>
                   <div className="flex justify-between items-start mb-6 relative z-10">
-                    <div className="p-3 bg-slate-50 text-slate-900 rounded-2xl shadow-inner"><Landmark size={24}/></div>
-                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full italic tracking-widest">LIVE VOLUME</span>
+                    <div className="p-3 bg-slate-50 text-blue-900 rounded-2xl shadow-inner"><Landmark size={24}/></div>
+                    <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full italic tracking-widest">LIVE VOLUME</span>
                   </div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Total Investment Volume</p>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">₹{(stats.revenue?.total_volume || 0).toLocaleString()}</h3>
+                  <h3 className="text-3xl font-black text-blue-900 tracking-tighter italic">₹{(stats.revenue?.total_volume || 0).toLocaleString()}</h3>
                 </div>
                 <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
                   <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-slate-50 text-slate-900 rounded-2xl"><Users size={24}/></div>
-                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">+5.2%</span>
+                    <div className="p-3 bg-slate-50 text-blue-900 rounded-2xl"><Users size={24}/></div>
+                    <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full">+5.2%</span>
                   </div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Total Users</p>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">{stats.users?.total || 0}</h3>
+                  <h3 className="text-3xl font-black text-blue-900 tracking-tighter italic">{stats.users?.total || 0}</h3>
                 </div>
                 <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all"></div>
                   <div className="flex justify-between items-start mb-6 relative z-10">
-                    <div className="p-3 bg-slate-50 text-slate-900 rounded-2xl shadow-inner"><Zap size={24}/></div>
+                    <div className="p-3 bg-slate-50 text-blue-900 rounded-2xl shadow-inner"><Zap size={24}/></div>
                     <div className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full italic tracking-widest">{stats.revenue?.active_investments || 0} ACTIVE</div>
                   </div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Active Tasks</p>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">{stats.revenue?.active_investments || 0} Members</h3>
+                  <h3 className="text-3xl font-black text-blue-900 tracking-tighter italic">{stats.revenue?.active_investments || 0} Members</h3>
                 </div>
                 <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all"></div>
                   <div className="flex justify-between items-start mb-6 relative z-10">
-                    <div className="p-3 bg-slate-50 text-slate-900 rounded-2xl shadow-inner"><TrendingUp size={24}/></div>
+                    <div className="p-3 bg-slate-50 text-blue-900 rounded-2xl shadow-inner"><TrendingUp size={24}/></div>
                   </div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Today's Gold Rate</p>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">₹{stats.liveGoldPrice || 0}</h3>
+                  <h3 className="text-3xl font-black text-blue-900 tracking-tighter italic">₹{stats.liveGoldPrice || 0}</h3>
                 </div>
               </div>
 
@@ -432,13 +432,13 @@ const ManagerDashboard = () => {
                     {users.filter(u => u.kyc_status === 'pending').slice(0, 3).map(u => (
                       <div key={u.id} className="flex justify-between items-center p-6 bg-slate-50 rounded-[2rem] hover:bg-white border border-transparent hover:border-slate-100 transition-all group">
                         <div className="flex items-center gap-6">
-                          <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black italic">{u.name[0]}</div>
+                          <div className="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center font-black italic">{u.name[0]}</div>
                           <div>
                             <p className="text-sm font-black italic uppercase">{u.name}</p>
                             <p className="text-[9px] text-slate-400 font-bold uppercase">{u.email}</p>
                           </div>
                         </div>
-                        <button onClick={() => { setSelectedKYC(u); setActiveTab('kyc'); }} className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-black uppercase italic tracking-widest hover:bg-slate-900 hover:text-white transition-all">Review</button>
+                        <button onClick={() => { setSelectedKYC(u); setActiveTab('kyc'); }} className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-black uppercase italic tracking-widest hover:bg-blue-900 hover:text-white transition-all">Review</button>
                       </div>
                     ))}
                     {users.filter(u => u.kyc_status === 'pending').length === 0 && (
@@ -456,7 +456,7 @@ const ManagerDashboard = () => {
                     {withdrawals.slice(0, 3).map(w => (
                       <div key={w.id} className="flex justify-between items-center p-6 bg-slate-50 rounded-[2rem] border border-transparent hover:border-slate-100 transition-all group">
                         <div className="flex items-center gap-6">
-                          <div className="w-12 h-12 bg-slate-900 text-amber-500 rounded-xl flex items-center justify-center font-black italic"><Wallet size={20}/></div>
+                          <div className="w-12 h-12 bg-blue-900 text-amber-500 rounded-xl flex items-center justify-center font-black italic"><Wallet size={20}/></div>
                           <div>
                             <p className="text-sm font-black italic uppercase">{w.user_name}</p>
                             <p className="text-[9px] text-slate-400 font-bold uppercase">{humanPaymentMethod(w.payment_method)}</p>
@@ -464,7 +464,7 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-black italic">₹{parseFloat(w.amount).toLocaleString()}</p>
-                          <p className={`text-[8px] font-black uppercase ${w.status === 'pending' ? 'text-amber-500' : 'text-emerald-500'}`}>{humanStatus(w.status)}</p>
+                          <p className={`text-[8px] font-black uppercase ${w.status === 'pending' ? 'text-amber-500' : 'text-amber-500'}`}>{humanStatus(w.status)}</p>
                         </div>
                       </div>
                     ))}
@@ -491,9 +491,9 @@ const ManagerDashboard = () => {
                     )}
                     
                     <div className="flex items-center gap-6 mb-8">
-                      <div className="w-16 h-16 bg-slate-900 text-amber-500 rounded-[1.5rem] flex items-center justify-center font-black italic text-xl border border-white/5 shadow-xl">{u.name[0]}</div>
+                      <div className="w-16 h-16 bg-blue-900 text-amber-500 rounded-[1.5rem] flex items-center justify-center font-black italic text-xl border border-white/5 shadow-xl">{u.name[0]}</div>
                       <div className="min-w-0">
-                        <p className="text-base font-black text-slate-900 uppercase italic tracking-tighter truncate leading-none mb-2">{u.name}</p>
+                        <p className="text-base font-black text-blue-900 uppercase italic tracking-tighter truncate leading-none mb-2">{u.name}</p>
                         <div className="flex items-center gap-2">
                            <Clock size={10} className="text-slate-400" />
                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic truncate">Joined {new Date(u.created_at).toLocaleDateString()}</p>
@@ -504,13 +504,13 @@ const ManagerDashboard = () => {
                     <div className="grid grid-cols-2 gap-4 mb-8">
                        <div className="p-4 bg-white/50 rounded-2xl border border-slate-200/50">
                           <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Wallet</p>
-                          <p className="text-sm font-black text-slate-900 italic">₹{parseFloat(u.balance || 0).toLocaleString()}</p>
+                          <p className="text-sm font-black text-blue-900 italic">₹{parseFloat(u.balance || 0).toLocaleString()}</p>
                        </div>
                        <div className="p-4 bg-white/50 rounded-2xl border border-slate-200/50">
                           <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Status</p>
                           <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-emerald-500' : u.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
-                             <p className={`text-[9px] font-black italic uppercase ${u.status === 'active' ? 'text-emerald-600' : u.status === 'pending' ? 'text-amber-500' : 'text-rose-500'}`}>{humanStatus(u.status)}</p>
+                             <div className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-amber-500' : u.status === 'pending' ? 'bg-amber-500' : 'bg-blue-500'}`}></div>
+                             <p className={`text-[9px] font-black italic uppercase ${u.status === 'active' ? 'text-amber-600' : u.status === 'pending' ? 'text-amber-500' : 'text-blue-500'}`}>{humanStatus(u.status)}</p>
                           </div>
                        </div>
                     </div>
@@ -520,7 +520,7 @@ const ManagerDashboard = () => {
                           <button 
                             onClick={() => handleAction('activate_user', u.id)}
                             disabled={processing}
-                            className="w-full bg-slate-900 text-amber-500 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-emerald-600 hover:text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full bg-blue-900 text-amber-500 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 hover:text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                           >
                              <CheckCircle size={14} /> Grant Login Access
                           </button>
@@ -528,7 +528,7 @@ const ManagerDashboard = () => {
                           <button 
                             onClick={() => handleAction('suspend_user', u.id)}
                             disabled={processing}
-                            className="w-full bg-white border border-rose-100 text-rose-500 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-rose-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full bg-white border border-blue-100 text-blue-500 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-blue-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
                           >
                              <ShieldAlert size={14} /> Suspend Account
                           </button>
@@ -536,7 +536,7 @@ const ManagerDashboard = () => {
                           <button 
                             onClick={() => handleAction('activate_user', u.id)}
                             disabled={processing}
-                            className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-emerald-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full bg-amber-50 text-amber-600 py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
                           >
                              <RefreshCw size={14} /> Re-Activate ID
                           </button>
@@ -564,7 +564,7 @@ const ManagerDashboard = () => {
                         <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Customer</p>
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black italic">{inv.user_name[0]}</div>
+                            <div className="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center font-black italic">{inv.user_name[0]}</div>
                             <div>
                               <p className="text-sm font-black italic uppercase">{inv.user_name}</p>
                               <p className="text-[9px] text-slate-400 font-bold uppercase">{inv.user_email}</p>
@@ -579,11 +579,11 @@ const ManagerDashboard = () => {
                         <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Valuation</p>
                           <p className="text-xl font-black italic tracking-tighter">₹{parseFloat(inv.total_value).toLocaleString()}</p>
-                          <p className="text-[10px] text-emerald-600 font-black uppercase mt-1 italic">₹{inv.daily_payout}/Day Yield</p>
+                          <p className="text-[10px] text-amber-600 font-black uppercase mt-1 italic">₹{inv.daily_payout}/Day Yield</p>
                         </div>
                         <div className="flex gap-4">
-                          <button onClick={() => handleApproveInvestment(inv.cycle_id, 'active')} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95 shadow-lg shadow-slate-200 italic">Approve</button>
-                          <button onClick={() => handleApproveInvestment(inv.cycle_id, 'rejected')} className="flex-1 bg-white border border-slate-200 text-slate-400 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all active:scale-95 italic">Reject</button>
+                          <button onClick={() => handleApproveInvestment(inv.cycle_id, 'active')} className="flex-1 bg-blue-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all active:scale-95 shadow-lg shadow-slate-200 italic">Approve</button>
+                          <button onClick={() => handleApproveInvestment(inv.cycle_id, 'rejected')} className="flex-1 bg-white border border-slate-200 text-slate-400 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 hover:text-blue-500 hover:border-blue-100 transition-all active:scale-95 italic">Reject</button>
                         </div>
                       </div>
                     </div>
@@ -601,16 +601,16 @@ const ManagerDashboard = () => {
                   <div key={u.id} className="p-10 bg-slate-50 border border-slate-100 hover:border-amber-500/30 hover:bg-white rounded-[3rem] transition-all group">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                       <div className="flex items-center gap-8">
-                        <div className="w-16 h-16 bg-slate-900 text-white rounded-[1.5rem] flex items-center justify-center font-black italic text-xl shadow-xl">{u.name[0]}</div>
+                        <div className="w-16 h-16 bg-blue-900 text-white rounded-[1.5rem] flex items-center justify-center font-black italic text-xl shadow-xl">{u.name[0]}</div>
                         <div>
-                          <p className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">{u.name}</p>
+                          <p className="text-lg font-black text-blue-900 uppercase italic tracking-tighter leading-none mb-2">{u.name}</p>
                           <p className="text-[10px] text-slate-400 font-black uppercase italic">{u.email}</p>
                         </div>
                       </div>
                       <div className="flex gap-6">
-                        <button onClick={() => setSelectedKYC(u)} className="px-10 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-900 hover:text-white transition-all italic active:scale-95 shadow-sm">Review Document</button>
-                        <button onClick={() => handleAction('approve_kyc', u.id)} className="p-4 bg-slate-900 text-amber-500 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5"><CheckCircle size={24}/></button>
-                        <button onClick={() => handleAction('reject_kyc', u.id)} className="p-4 bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-rose-500 hover:border-rose-200 transition-all shadow-sm active:scale-95"><X size={24}/></button>
+                        <button onClick={() => setSelectedKYC(u)} className="px-10 py-4 bg-white text-blue-900 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-blue-900 hover:text-white transition-all italic active:scale-95 shadow-sm">Review Document</button>
+                        <button onClick={() => handleAction('approve_kyc', u.id)} className="p-4 bg-blue-900 text-amber-500 rounded-2xl hover:bg-amber-600 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5"><CheckCircle size={24}/></button>
+                        <button onClick={() => handleAction('reject_kyc', u.id)} className="p-4 bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-blue-500 hover:border-blue-200 transition-all shadow-sm active:scale-95"><X size={24}/></button>
                       </div>
                     </div>
                   </div>
@@ -633,20 +633,20 @@ const ManagerDashboard = () => {
                   <div key={w.id} className="p-10 bg-slate-50 border border-slate-100 hover:border-amber-500/30 hover:bg-white rounded-[3rem] transition-all group">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                       <div className="flex items-center gap-8">
-                        <div className="w-16 h-16 bg-slate-900 text-amber-500 rounded-[1.5rem] flex items-center justify-center font-black italic shadow-xl"><Landmark size={24}/></div>
+                        <div className="w-16 h-16 bg-blue-900 text-amber-500 rounded-[1.5rem] flex items-center justify-center font-black italic shadow-xl"><Landmark size={24}/></div>
                         <div>
-                          <p className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">{w.user_name}</p>
+                          <p className="text-lg font-black text-blue-900 uppercase italic tracking-tighter leading-none mb-2">{w.user_name}</p>
                           <p className="text-[10px] text-slate-400 font-black uppercase italic">{humanPaymentMethod(w.payment_method)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-12">
                         <div className="text-right">
-                          <p className="text-3xl font-black text-slate-900 italic tracking-tighter leading-none mb-1">₹{parseFloat(w.amount).toLocaleString()}</p>
+                          <p className="text-3xl font-black text-blue-900 italic tracking-tighter leading-none mb-1">₹{parseFloat(w.amount).toLocaleString()}</p>
                           <p className="text-[9px] font-black text-amber-500 uppercase italic tracking-widest">Pending Review</p>
                         </div>
                         <div className="flex gap-4">
-                          <button onClick={() => handleAction('approve_withdrawal', w.id)} className="p-4 bg-slate-900 text-amber-500 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5"><CheckCircle size={24}/></button>
-                          <button onClick={() => handleAction('reject_withdrawal', w.id)} className="p-4 bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-rose-500 hover:border-rose-200 transition-all shadow-sm active:scale-95"><X size={24}/></button>
+                          <button onClick={() => handleAction('approve_withdrawal', w.id)} className="p-4 bg-blue-900 text-amber-500 rounded-2xl hover:bg-amber-600 hover:text-white transition-all shadow-xl active:scale-95 border border-white/5"><CheckCircle size={24}/></button>
+                          <button onClick={() => handleAction('reject_withdrawal', w.id)} className="p-4 bg-white border border-slate-200 text-slate-300 rounded-2xl hover:text-blue-500 hover:border-blue-200 transition-all shadow-sm active:scale-95"><X size={24}/></button>
                         </div>
                       </div>
                     </div>
@@ -675,7 +675,7 @@ const ManagerDashboard = () => {
                     <button 
                       key={tab.id}
                       onClick={() => setSettingsTab(tab.id)}
-                      className={`px-8 py-4 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest italic transition-all ${settingsTab === tab.id ? 'bg-slate-900 text-amber-500 shadow-xl' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+                      className={`px-8 py-4 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest italic transition-all ${settingsTab === tab.id ? 'bg-blue-900 text-amber-500 shadow-xl' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
                     >
                       <tab.icon size={16} /> {tab.label}
                     </button>
@@ -687,9 +687,9 @@ const ManagerDashboard = () => {
                     <div className="bg-white border border-slate-200 p-8 md:p-16 rounded-[4rem] shadow-sm relative overflow-hidden">
                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] rotate-12"><UserCircle size={240} /></div>
                        <div className="flex items-center gap-8 mb-16 relative z-10">
-                          <div className="w-20 h-20 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-amber-500 shadow-2xl border border-white/5"><UserCircle size={40}/></div>
+                          <div className="w-20 h-20 bg-blue-900 rounded-[2.5rem] flex items-center justify-center text-amber-500 shadow-2xl border border-white/5"><UserCircle size={40}/></div>
                           <div>
-                             <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Account Details</h3>
+                             <h3 className="text-3xl font-black text-blue-900 tracking-tighter uppercase italic">Account Details</h3>
                              <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mt-1 italic">Keep your manager account details updated</p>
                           </div>
                        </div>
@@ -751,7 +751,7 @@ const ManagerDashboard = () => {
                              <button 
                                type="submit" 
                                disabled={processing} 
-                               className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95"
+                               className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95"
                              >
                                 {processing ? <Loader2 className="animate-spin" /> : <><Save size={20}/> Save Account Details</>}
                              </button>
@@ -763,7 +763,7 @@ const ManagerDashboard = () => {
 
                {settingsTab === 'permissions' && (
                  <div className="space-y-12">
-                    <div className="bg-slate-900 rounded-[4rem] p-16 text-white relative overflow-hidden group border border-white/5 shadow-2xl">
+                    <div className="bg-blue-900 rounded-[4rem] p-16 text-white relative overflow-hidden group border border-white/5 shadow-2xl">
                        <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-1000 rotate-12"><ShieldCheck size={260} /></div>
                        <div className="relative z-10">
                           <h4 className="text-3xl font-black uppercase italic tracking-tighter mb-6 flex items-center gap-4">
@@ -784,7 +784,7 @@ const ManagerDashboard = () => {
                                <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all group/perm">
                                   <div className="flex justify-between items-center mb-4">
                                      <p className="text-sm font-black italic uppercase tracking-tighter">{perm.label}</p>
-                                     <span className={`text-[8px] font-black px-3 py-1 rounded-full ${perm.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>{humanStatus(perm.status)}</span>
+                                     <span className={`text-[8px] font-black px-3 py-1 rounded-full ${perm.status === 'ACTIVE' ? 'bg-amber-500/20 text-amber-500' : 'bg-amber-500/20 text-amber-500'}`}>{humanStatus(perm.status)}</span>
                                   </div>
                                   <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest italic">{perm.desc}</p>
                                </div>
@@ -805,14 +805,14 @@ const ManagerDashboard = () => {
                           {(stats.logs || []).map((log) => (
                              <div key={log.id} className="flex items-center justify-between p-8 bg-slate-50 rounded-3xl border border-transparent hover:border-slate-100 hover:bg-white transition-all group">
                                 <div className="flex items-center gap-6">
-                                   <div className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black italic">#</div>
+                                   <div className="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center font-black italic">#</div>
                                    <div>
                                       <p className="text-sm font-black uppercase italic">{log.action.replace('_', ' ')}</p>
                                       <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{log.details}</p>
                                    </div>
                                 </div>
                                 <div className="text-right">
-                                   <p className="text-[10px] font-black text-slate-900 italic">{new Date(log.created_at).toLocaleString()}</p>
+                                   <p className="text-[10px] font-black text-blue-900 italic">{new Date(log.created_at).toLocaleString()}</p>
                                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-1">IP: {log.ip_address}</p>
                                 </div>
                              </div>
@@ -838,7 +838,7 @@ const ManagerDashboard = () => {
                           ].map(notif => (
                             <div key={notif.id} className="flex items-center justify-between p-10 bg-slate-50 rounded-[3rem] border border-slate-100">
                                <div className="flex items-center gap-8">
-                                  <div className="p-4 bg-white rounded-2xl shadow-sm text-slate-900"><notif.icon size={24} /></div>
+                                  <div className="p-4 bg-white rounded-2xl shadow-sm text-blue-900"><notif.icon size={24} /></div>
                                   <div>
                                      <p className="text-lg font-black uppercase italic tracking-tighter leading-none mb-2">{notif.label}</p>
                                      <p className="text-[10px] text-slate-400 font-black uppercase italic">{notif.desc}</p>
@@ -846,7 +846,7 @@ const ManagerDashboard = () => {
                                </div>
                                <button 
                                  onClick={() => setProfileForm({...profileForm, [notif.id]: !profileForm[notif.id]})}
-                                 className={`w-20 h-10 rounded-full relative transition-all duration-500 ${profileForm[notif.id] ? 'bg-slate-900' : 'bg-slate-200'}`}
+                                 className={`w-20 h-10 rounded-full relative transition-all duration-500 ${profileForm[notif.id] ? 'bg-blue-900' : 'bg-slate-200'}`}
                                >
                                   <div className={`absolute top-1 w-8 h-8 rounded-full bg-white shadow-lg transition-all duration-500 ${profileForm[notif.id] ? 'left-11' : 'left-1'}`}></div>
                                </button>
@@ -856,7 +856,7 @@ const ManagerDashboard = () => {
                        <div className="mt-16 flex justify-end">
                           <button 
                             onClick={handleUpdateProfile}
-                            className="px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] italic shadow-2xl hover:bg-amber-600 transition-all"
+                            className="px-12 py-6 bg-blue-900 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] italic shadow-2xl hover:bg-amber-600 transition-all"
                           >
                              Save Notification Settings
                           </button>
@@ -893,12 +893,12 @@ const ManagerDashboard = () => {
                                     <p className="text-[9px] text-slate-400 font-bold">{inv.user_email}</p>
                                  </td>
                                  <td className="px-8 py-6">
-                                    <span className="text-[10px] font-black uppercase bg-slate-900 text-amber-500 px-3 py-1 rounded-lg italic">{humanAssetType(inv.asset_type)}</span>
+                                    <span className="text-[10px] font-black uppercase bg-blue-900 text-amber-500 px-3 py-1 rounded-lg italic">{humanAssetType(inv.asset_type)}</span>
                                  </td>
                                  <td className="px-8 py-6 text-sm font-black italic">{inv.weight}g</td>
                                  <td className="px-8 py-6 text-sm font-black italic">₹{parseFloat(inv.total_value).toLocaleString()}</td>
                                  <td className="px-8 py-6">
-                                    <span className={`text-[9px] font-black uppercase italic px-3 py-1 rounded-full ${inv.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                    <span className={`text-[9px] font-black uppercase italic px-3 py-1 rounded-full ${inv.status === 'completed' ? 'bg-amber-50 text-amber-600' : 'bg-amber-50 text-amber-600'}`}>
                                        {humanStatus(inv.status)}
                                     </span>
                                  </td>
@@ -926,7 +926,7 @@ const ManagerDashboard = () => {
                      </h3>
                      <button 
                        onClick={() => { setIsEditing(false); setAssetForm({ name: '', category: adminCategories[0]?.name || 'Gold', price: '', weight: '', purity: '22K', description: '', is_active: 1 }); setShowAssetModal(true); }}
-                       className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
+                       className="px-8 py-4 bg-blue-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
                      >
                         <Plus size={18} /> Provision New Asset
                      </button>
@@ -935,11 +935,11 @@ const ManagerDashboard = () => {
                      {products.map(product => (
                         <div key={product.id} className="bg-slate-50 border border-slate-100 p-8 rounded-[3rem] hover:bg-white hover:border-amber-500/30 transition-all group relative overflow-hidden">
                            <div className="absolute top-0 right-0 p-6">
-                              <span className={`text-[8px] font-black px-3 py-1 rounded-full ${product.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                              <span className={`text-[8px] font-black px-3 py-1 rounded-full ${product.is_active ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
                                  {product.is_active ? 'ACTIVE' : 'INACTIVE'}
                               </span>
                            </div>
-                           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-900 mb-6 shadow-sm border border-slate-50 group-hover:scale-110 transition-transform"><Package size={28}/></div>
+                           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-blue-900 mb-6 shadow-sm border border-slate-50 group-hover:scale-110 transition-transform"><Package size={28}/></div>
                            <h4 className="text-lg font-black uppercase italic tracking-tighter mb-2">{product.name}</h4>
                            <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-6">{product.category}</p>
                            <div className="grid grid-cols-2 gap-4 mb-8">
@@ -957,13 +957,13 @@ const ManagerDashboard = () => {
                               <div className="flex gap-2">
                                  <button 
                                    onClick={() => { setIsEditing(true); setAssetForm(product); setShowAssetModal(true); }}
-                                   className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-slate-900 transition-all"
+                                   className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-blue-900 transition-all"
                                  >
                                    <Edit3 size={18}/>
                                  </button>
                                  <button 
                                    onClick={() => handleDeleteAsset(product.id)}
-                                   className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-rose-500 transition-all"
+                                   className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-blue-500 transition-all"
                                  >
                                    <Trash2 size={18}/>
                                  </button>
@@ -983,7 +983,7 @@ const ManagerDashboard = () => {
                      <Wallet size={24} className="text-amber-600" /> Operational Ledger: Cashback Monitoring
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                     <div className="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group">
+                     <div className="bg-blue-900 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-5 rotate-12 group-hover:scale-110 transition-transform duration-700"><Coins size={120} /></div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Total Payout Volume</p>
                         <h4 className="text-3xl font-black italic tracking-tighter text-amber-500">₹{(stats.revenue?.cashback || 0).toLocaleString()}</h4>
@@ -991,21 +991,21 @@ const ManagerDashboard = () => {
                      <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-5 rotate-12 group-hover:scale-110 transition-transform duration-700"><Users size={120} /></div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Active Recipients</p>
-                        <h4 className="text-3xl font-black italic tracking-tighter text-slate-900">{walletsData.length} Accounts</h4>
+                        <h4 className="text-3xl font-black italic tracking-tighter text-blue-900">{walletsData.length} Accounts</h4>
                      </div>
                   </div>
                   <div className="space-y-4">
                      {walletsData.map(wallet => (
                         <div key={wallet.id} className="flex items-center justify-between p-8 bg-slate-50 rounded-3xl border border-transparent hover:border-slate-100 hover:bg-white transition-all group">
                            <div className="flex items-center gap-6">
-                              <div className="w-14 h-14 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center font-black italic shadow-xl">{wallet.user_name ? wallet.user_name[0] : 'U'}</div>
+                              <div className="w-14 h-14 bg-blue-900 text-amber-500 rounded-2xl flex items-center justify-center font-black italic shadow-xl">{wallet.user_name ? wallet.user_name[0] : 'U'}</div>
                               <div>
                                  <p className="text-sm font-black uppercase italic leading-none mb-2">{wallet.user_name}</p>
                                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{wallet.wallet_address || 'Standard Wallet'}</p>
                               </div>
                            </div>
                            <div className="text-right">
-                              <p className="text-xl font-black italic tracking-tighter text-slate-900">₹{parseFloat(wallet.balance).toLocaleString()}</p>
+                              <p className="text-xl font-black italic tracking-tighter text-blue-900">₹{parseFloat(wallet.balance).toLocaleString()}</p>
                               <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mt-1 italic">Current Liquidity</p>
                            </div>
                         </div>
@@ -1026,7 +1026,7 @@ const ManagerDashboard = () => {
                         <div key={ticket.id} className="p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] hover:bg-white hover:border-amber-500/30 transition-all group">
                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                               <div className="flex items-center gap-6">
-                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black italic shadow-xl ${ticket.status === 'open' ? 'bg-amber-100 text-amber-600' : 'bg-slate-900 text-slate-400'}`}><MessageCircle size={24}/></div>
+                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black italic shadow-xl ${ticket.status === 'open' ? 'bg-amber-100 text-amber-600' : 'bg-blue-900 text-slate-400'}`}><MessageCircle size={24}/></div>
                                  <div>
                                     <p className="text-sm font-black uppercase italic tracking-tighter mb-2">{ticket.subject}</p>
                                     <p className="text-[10px] text-slate-400 font-black uppercase italic">ID: #{ticket.id} • User: {ticket.user_name}</p>
@@ -1034,7 +1034,7 @@ const ManagerDashboard = () => {
                               </div>
                               <div className="flex items-center gap-6 self-end md:self-auto">
                                  <span className={`text-[8px] font-black px-4 py-2 rounded-full italic tracking-widest ${ticket.status === 'open' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'}`}>{humanStatus(ticket.status)}</span>
-                                 <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-lg active:scale-95">Respond</button>
+                                 <button className="px-6 py-3 bg-blue-900 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-lg active:scale-95">Respond</button>
                               </div>
                            </div>
                         </div>
@@ -1059,7 +1059,7 @@ const ManagerDashboard = () => {
                      </h3>
                      <button 
                        onClick={() => setShowBroadcastModal(true)}
-                       className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
+                       className="px-8 py-4 bg-blue-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
                      >
                         <Plus size={18} /> New Notification
                      </button>
@@ -1070,7 +1070,7 @@ const ManagerDashboard = () => {
                            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"><Megaphone size={100} /></div>
                            <div className="flex justify-between items-start relative z-10">
                               <div className="flex items-center gap-6">
-                                 <div className="w-12 h-12 bg-slate-900 text-amber-500 rounded-xl flex items-center justify-center font-black italic"><Megaphone size={20}/></div>
+                                 <div className="w-12 h-12 bg-blue-900 text-amber-500 rounded-xl flex items-center justify-center font-black italic"><Megaphone size={20}/></div>
                                  <div>
                                     <p className="text-sm font-black uppercase italic tracking-tighter mb-1">{notif.title}</p>
                                     <p className="text-[10px] text-slate-500 font-black italic leading-relaxed max-w-2xl">{notif.message}</p>
@@ -1094,7 +1094,7 @@ const ManagerDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                      <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Aggregate Daily Payout</p>
-                        <h4 className="text-4xl font-black italic tracking-tighter text-slate-900">₹{(stats.revenue?.total || 0).toLocaleString()}</h4>
+                        <h4 className="text-4xl font-black italic tracking-tighter text-blue-900">₹{(stats.revenue?.total || 0).toLocaleString()}</h4>
                      </div>
                      <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Next Disbursement Cycle</p>
@@ -1120,10 +1120,10 @@ const ManagerDashboard = () => {
                                     <p className="text-sm font-black uppercase italic leading-none mb-1">{rep.user_name}</p>
                                     <p className="text-[9px] text-slate-400 font-bold">{rep.user_email}</p>
                                  </td>
-                                 <td className="px-8 py-6 text-sm font-black italic text-emerald-600">₹{parseFloat(rep.daily_payout).toLocaleString()}</td>
+                                 <td className="px-8 py-6 text-sm font-black italic text-amber-600">₹{parseFloat(rep.daily_payout).toLocaleString()}</td>
                                  <td className="px-8 py-6 text-sm font-black italic">₹{parseFloat(rep.total_value).toLocaleString()}</td>
                                  <td className="px-8 py-6 rounded-r-[2rem]">
-                                    <span className="text-[9px] font-black uppercase italic px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full tracking-widest">ACTIVE</span>
+                                    <span className="text-[9px] font-black uppercase italic px-3 py-1 bg-amber-50 text-amber-600 rounded-full tracking-widest">ACTIVE</span>
                                  </td>
                               </tr>
                            ))}
@@ -1143,7 +1143,7 @@ const ManagerDashboard = () => {
                      </h3>
                      <button 
                        onClick={() => setShowStaffModal(true)}
-                       className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
+                       className="px-8 py-4 bg-blue-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl"
                      >
                         <UserPlus size={18} /> Register Personnel
                      </button>
@@ -1151,14 +1151,14 @@ const ManagerDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                      {users.filter(u => ['staff', 'advocate'].includes(u.role)).map(staff => (
                         <div key={staff.id} className="p-10 bg-slate-50 border border-slate-100 rounded-[3rem] hover:bg-white hover:border-amber-500/30 transition-all group">
-                           <div className="w-16 h-16 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center font-black italic shadow-xl mb-6">{staff.name[0]}</div>
+                           <div className="w-16 h-16 bg-blue-900 text-amber-500 rounded-2xl flex items-center justify-center font-black italic shadow-xl mb-6">{staff.name[0]}</div>
                            <h4 className="text-lg font-black uppercase italic tracking-tighter leading-none mb-2">{staff.name}</h4>
                            <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-6">{staff.email}</p>
                            <div className="flex justify-between items-center">
                               <span className="text-[9px] font-black px-4 py-2 bg-amber-50 text-amber-600 rounded-full italic uppercase tracking-widest">{humanRole(staff.role)}</span>
                               <div className="flex gap-2">
-                                 <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-slate-900 transition-all rounded-xl"><Edit3 size={18}/></button>
-                                 <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-rose-500 transition-all rounded-xl"><Trash2 size={18}/></button>
+                                 <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-blue-900 transition-all rounded-xl"><Edit3 size={18}/></button>
+                                 <button className="p-3 bg-white border border-slate-200 text-slate-300 hover:text-blue-500 transition-all rounded-xl"><Trash2 size={18}/></button>
                               </div>
                            </div>
                         </div>
@@ -1172,7 +1172,7 @@ const ManagerDashboard = () => {
             <div className="py-40 text-center flex flex-col items-center gap-10">
               <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-200 animate-pulse border border-slate-100"><Package size={48} /></div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-3 tracking-tighter leading-none">Module Initialized</h3>
+                <h3 className="text-2xl font-black text-blue-900 uppercase italic mb-3 tracking-tighter leading-none">Module Initialized</h3>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Navigating to {activeTab.replace('_', ' ')} command layer...</p>
                 <button onClick={() => fetchData()} className="mt-8 text-amber-600 underline text-[10px] font-black uppercase italic tracking-widest">Refresh Connectivity</button>
               </div>
@@ -1183,11 +1183,11 @@ const ManagerDashboard = () => {
 
       <AnimatePresence>
         {showAssetModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white p-12 md:p-20 rounded-[4rem] max-w-4xl w-full shadow-2xl relative border border-slate-100 my-auto">
-                <button onClick={() => setShowAssetModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-slate-900 transition-all rounded-2xl"><X size={32} /></button>
+                <button onClick={() => setShowAssetModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-blue-900 transition-all rounded-2xl"><X size={32} /></button>
                 <div className="mb-16">
-                   <h3 className="text-4xl font-black text-slate-900 mb-3 italic uppercase tracking-tighter">{isEditing ? 'Asset Calibration' : 'Asset Provisioning'}</h3>
+                   <h3 className="text-4xl font-black text-blue-900 mb-3 italic uppercase tracking-tighter">{isEditing ? 'Asset Calibration' : 'Asset Provisioning'}</h3>
                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">{isEditing ? 'Modify institutional protocol parameters' : 'Deploy new institutional gold/silver inventory'}</p>
                 </div>
                 
@@ -1227,7 +1227,7 @@ const ManagerDashboard = () => {
                       <textarea rows="3" value={assetForm.description} onChange={e => setAssetForm({...assetForm, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Specifications and purchase details..."></textarea>
                    </div>
                    <div className="pt-8 flex justify-end">
-                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                          {processing ? <Loader2 className="animate-spin" /> : <>{isEditing ? <Save size={20}/> : <PlusCircle size={20}/>} {isEditing ? 'Synchronize Updates' : 'Deploy Asset'}</>}
                       </button>
                    </div>
@@ -1237,11 +1237,11 @@ const ManagerDashboard = () => {
         )}
 
         {showBroadcastModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white p-12 md:p-20 rounded-[4rem] max-w-4xl w-full shadow-2xl relative border border-slate-100 my-auto">
-                <button onClick={() => setShowBroadcastModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-slate-900 transition-all rounded-2xl"><X size={32} /></button>
+                <button onClick={() => setShowBroadcastModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-blue-900 transition-all rounded-2xl"><X size={32} /></button>
                 <div className="mb-16">
-                   <h3 className="text-4xl font-black text-slate-900 mb-3 italic uppercase tracking-tighter">Broadcast Authorization</h3>
+                   <h3 className="text-4xl font-black text-blue-900 mb-3 italic uppercase tracking-tighter">Broadcast Authorization</h3>
                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Deploy platform-wide institutional alerts</p>
                 </div>
                 <form onSubmit={handleCreateBroadcast} className="space-y-10">
@@ -1254,7 +1254,7 @@ const ManagerDashboard = () => {
                       <textarea required rows="4" value={broadcastForm.message} onChange={e => setBroadcastForm({...broadcastForm, message: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-3xl py-5 px-8 text-sm font-black italic focus:bg-white outline-none transition-all shadow-inner resize-none" placeholder="Detailed message..."></textarea>
                    </div>
                    <div className="pt-8 flex justify-end">
-                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                          {processing ? <Loader2 className="animate-spin" /> : <><Megaphone size={20}/> Dispatch Broadcast</>}
                       </button>
                    </div>
@@ -1264,11 +1264,11 @@ const ManagerDashboard = () => {
         )}
 
         {showStaffModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 overflow-y-auto">
              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white p-12 md:p-20 rounded-[4rem] max-w-4xl w-full shadow-2xl relative border border-slate-100 my-auto">
-                <button onClick={() => setShowStaffModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-slate-900 transition-all rounded-2xl"><X size={32} /></button>
+                <button onClick={() => setShowStaffModal(false)} className="absolute top-10 right-10 p-3 bg-slate-50 text-slate-300 hover:text-blue-900 transition-all rounded-2xl"><X size={32} /></button>
                 <div className="mb-16">
-                   <h3 className="text-4xl font-black text-slate-900 mb-3 italic uppercase tracking-tighter">Personnel Registration</h3>
+                   <h3 className="text-4xl font-black text-blue-900 mb-3 italic uppercase tracking-tighter">Personnel Registration</h3>
                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] italic">Add a new staff member</p>
                 </div>
                 <form onSubmit={handleCreateStaff} className="space-y-10">
@@ -1320,7 +1320,7 @@ const ManagerDashboard = () => {
                                }}
                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
                                   staffForm.permissions.includes(perm.id)
-                                  ? 'bg-slate-900 border-slate-900 text-white shadow-lg'
+                                  ? 'bg-blue-900 border-blue-900 text-white shadow-lg'
                                   : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-amber-500/50 hover:bg-white'
                                }`}
                             >
@@ -1332,7 +1332,7 @@ const ManagerDashboard = () => {
                    </div>
 
                    <div className="pt-8 flex justify-end">
-                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-slate-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
+                      <button type="submit" disabled={processing} className="w-full md:w-80 bg-blue-900 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 hover:bg-amber-600 transition shadow-2xl active:scale-95">
                          {processing ? <Loader2 className="animate-spin" /> : <><UserPlus size={20}/> Complete Onboarding</>}
                       </button>
                    </div>
@@ -1342,7 +1342,7 @@ const ManagerDashboard = () => {
         )}
 
         {selectedKYC && (
-          <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-2xl z-[999] flex items-center justify-center p-4 md:p-8">
+          <div className="fixed inset-0 bg-blue-900/90 backdrop-blur-2xl z-[999] flex items-center justify-center p-4 md:p-8">
              <motion.div 
                initial={{ scale: 0.9, opacity: 0 }} 
                animate={{ scale: 1, opacity: 1 }} 
@@ -1353,13 +1353,13 @@ const ManagerDashboard = () => {
                    <div>
                       <div className="flex items-center gap-4 mb-2">
                          <div className="w-1.5 h-6 bg-amber-600 rounded-full"></div>
-                         <h3 className="text-2xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Identity Review</h3>
+                         <h3 className="text-2xl md:text-3xl font-black text-blue-900 italic uppercase tracking-tighter">Identity Review</h3>
                       </div>
                       <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic ml-6">Review for: <span className="text-amber-600 uppercase">{selectedKYC.name}</span></p>
                    </div>
                    <button 
                      onClick={() => setSelectedKYC(null)} 
-                     className="p-4 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all rounded-2xl active:scale-95 shadow-sm"
+                     className="p-4 bg-slate-50 text-slate-400 hover:text-blue-900 hover:bg-slate-100 transition-all rounded-2xl active:scale-95 shadow-sm"
                    >
                      <X size={24} />
                    </button>
@@ -1369,7 +1369,7 @@ const ManagerDashboard = () => {
                 <div className="p-8 md:p-12 space-y-12 flex-1">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
                        {/* Artifact Viewer */}
-                       <div className="lg:col-span-2 bg-slate-950 border-4 border-slate-900 rounded-[2.5rem] md:rounded-[3rem] p-4 md:p-8 min-h-[300px] md:min-h-[600px] flex items-center justify-center shadow-inner relative group">
+                       <div className="lg:col-span-2 bg-slate-950 border-4 border-blue-900 rounded-[2.5rem] md:rounded-[3rem] p-4 md:p-8 min-h-[300px] md:min-h-[600px] flex items-center justify-center shadow-inner relative group">
                           {selectedKYC.kyc_document ? (
                             <img 
                               src={`${API_BASE_URL.replace('/api', '')}/${selectedKYC.kyc_document}`} 
@@ -1378,8 +1378,8 @@ const ManagerDashboard = () => {
                             />
                           ) : (
                             <div className="text-center py-20">
-                               <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                  <AlertTriangle size={32} className="text-rose-500 animate-pulse" />
+                               <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                  <AlertTriangle size={32} className="text-blue-500 animate-pulse" />
                                </div>
                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic">No digital artifact found</p>
                             </div>
@@ -1393,15 +1393,15 @@ const ManagerDashboard = () => {
                              <div className="space-y-4">
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Contact Line</p>
-                                   <p className="text-xs font-bold text-slate-900">{selectedKYC.phone || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900">{selectedKYC.phone || 'N/A'}</p>
                                 </div>
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Aadhar Reference</p>
-                                   <p className="text-xs font-bold text-slate-900">{selectedKYC.aadhar_no || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900">{selectedKYC.aadhar_no || 'N/A'}</p>
                                 </div>
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">PAN Number</p>
-                                   <p className="text-xs font-bold text-slate-900 uppercase">{selectedKYC.pan_no || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900 uppercase">{selectedKYC.pan_no || 'N/A'}</p>
                                 </div>
                              </div>
                           </div>
@@ -1411,19 +1411,19 @@ const ManagerDashboard = () => {
                              <div className="space-y-4">
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Institution</p>
-                                   <p className="text-xs font-bold text-slate-900 uppercase">{selectedKYC.bank_name || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900 uppercase">{selectedKYC.bank_name || 'N/A'}</p>
                                 </div>
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Vault Number</p>
-                                   <p className="text-xs font-bold text-slate-900">{selectedKYC.account_no || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900">{selectedKYC.account_no || 'N/A'}</p>
                                 </div>
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">IFSC Code</p>
-                                   <p className="text-xs font-bold text-slate-900 uppercase">{selectedKYC.ifsc_code || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900 uppercase">{selectedKYC.ifsc_code || 'N/A'}</p>
                                 </div>
                                 <div>
                                    <p className="text-[8px] font-black text-slate-400 uppercase italic">Branch Designation</p>
-                                   <p className="text-xs font-bold text-slate-900 uppercase">{selectedKYC.branch_name || 'N/A'}</p>
+                                   <p className="text-xs font-bold text-blue-900 uppercase">{selectedKYC.branch_name || 'N/A'}</p>
                                 </div>
                              </div>
                           </div>
@@ -1434,13 +1434,13 @@ const ManagerDashboard = () => {
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <button 
                         onClick={() => handleAction('approve_kyc', selectedKYC.id)} 
-                        className="w-full bg-slate-900 text-amber-500 py-6 rounded-2xl md:rounded-3xl font-black text-xs uppercase tracking-[0.3em] hover:bg-emerald-600 hover:text-white transition-all shadow-xl italic active:scale-95 flex items-center justify-center gap-3"
+                        className="w-full bg-blue-900 text-amber-500 py-6 rounded-2xl md:rounded-3xl font-black text-xs uppercase tracking-[0.3em] hover:bg-amber-600 hover:text-white transition-all shadow-xl italic active:scale-95 flex items-center justify-center gap-3"
                       >
                          <CheckCircle2 size={18} /> Approve Identity
                       </button>
                       <button 
                         onClick={() => handleAction('reject_kyc', selectedKYC.id)} 
-                        className="w-full bg-white border-2 border-slate-100 text-slate-400 py-6 rounded-2xl md:rounded-3xl font-black text-xs uppercase tracking-[0.3em] hover:text-rose-500 hover:border-rose-200 transition-all italic active:scale-95 flex items-center justify-center gap-3 shadow-sm"
+                        className="w-full bg-white border-2 border-slate-100 text-slate-400 py-6 rounded-2xl md:rounded-3xl font-black text-xs uppercase tracking-[0.3em] hover:text-blue-500 hover:border-blue-200 transition-all italic active:scale-95 flex items-center justify-center gap-3 shadow-sm"
                       >
                          <XCircle size={18} /> Reject Request
                       </button>
@@ -1457,9 +1457,9 @@ const ManagerDashboard = () => {
             initial={{ opacity: 0, y: 100, x: '-50%' }}
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: 100, x: '-50%' }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] bg-slate-900 text-amber-500 px-10 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] italic shadow-[0_20px_50px_rgba(0,0,0,0.4)] flex items-center gap-4 border border-white/10"
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] bg-blue-900 text-amber-500 px-10 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] italic shadow-[0_20px_50px_rgba(0,0,0,0.4)] flex items-center gap-4 border border-white/10"
           >
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
             {successMessage}
             <button onClick={() => setSuccessMessage(null)} className="ml-4 text-slate-500 hover:text-white"><X size={14}/></button>
           </motion.div>

@@ -165,12 +165,12 @@ const ExportPayoutExcel = () => {
           {/* Institutional Export Controls */}
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-3">
+              <h3 className="text-xl font-black text-blue-900 tracking-tighter uppercase italic flex items-center gap-3">
                 <FileSpreadsheet className="text-amber-500" size={24} />
                 Export Payout File
               </h3>
               <div className="flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                 <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping" />
                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Live Sync Active • Pulse: {lastSync.toLocaleTimeString()}</p>
               </div>
             </div>
@@ -194,7 +194,7 @@ const ExportPayoutExcel = () => {
               <button 
                 onClick={exportExcel}
                 disabled={filteredPayouts.length === 0 || isExporting || loading}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 group"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-blue-900 text-white px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 group"
               >
                 {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} className="text-amber-500 group-hover:text-white transition-colors" />}
                 Generate Bulk Transfer
@@ -207,8 +207,8 @@ const ExportPayoutExcel = () => {
             {[
               { label: "Today's Yield", value: `₹${parseFloat(stats.today || 0).toLocaleString()}`, icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50' },
               { label: 'Active Cycles', value: stats.active_cycles || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Total Paid', value: `₹${parseFloat(stats.total_paid || 0).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { label: 'Last Payout', value: stats.last_run || 'Never', icon: Calendar, color: 'text-rose-600', bg: 'bg-rose-50' }
+              { label: 'Total Paid', value: `₹${parseFloat(stats.total_paid || 0).toLocaleString()}`, icon: CheckCircle2, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: 'Last Payout', value: stats.last_run || 'Never', icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' }
             ].map((stat, i) => (
               <motion.div 
                 key={i}
@@ -224,7 +224,7 @@ const ExportPayoutExcel = () => {
                   </div>
                   <div>
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">{stat.label}</p>
-                    <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">{stat.value}</h3>
+                    <h3 className="text-xl font-black text-blue-900 italic tracking-tighter">{stat.value}</h3>
                   </div>
                 </div>
               </motion.div>
@@ -323,18 +323,18 @@ const ExportPayoutExcel = () => {
                         >
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-amber-500 font-black text-xs border-2 border-slate-100 italic">
+                              <div className="w-10 h-10 bg-blue-900 rounded-full flex items-center justify-center text-amber-500 font-black text-xs border-2 border-slate-100 italic">
                                 {p.user_name?.charAt(0)}
                               </div>
                               <div>
-                                <h4 className="text-xs font-black text-slate-900 uppercase italic tracking-tight">{p.user_name}</h4>
+                                <h4 className="text-xs font-black text-blue-900 uppercase italic tracking-tight">{p.user_name}</h4>
                                 <p className="text-[8px] font-black text-slate-400 tracking-widest">{p.user_email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-8 py-6">
                             <div className="space-y-1">
-                              <div className="flex items-center gap-2 text-[10px] font-black text-slate-900 uppercase italic">
+                              <div className="flex items-center gap-2 text-[10px] font-black text-blue-900 uppercase italic">
                                 <Landmark size={12} className="text-amber-500" />
                                 {p.bank_name || 'NOT CONFIGURED'}
                               </div>
@@ -344,15 +344,15 @@ const ExportPayoutExcel = () => {
                           </td>
                           <td className="px-8 py-6">
                             <div className="space-y-1">
-                              <span className="text-xs font-black text-slate-900 italic">₹{parseFloat(p.amount).toLocaleString()}</span>
+                              <span className="text-xs font-black text-blue-900 italic">₹{parseFloat(p.amount).toLocaleString()}</span>
                               <p className="text-[8px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-full inline-block">Day {p.current_day} Yield</p>
                             </div>
                           </td>
                           <td className="px-8 py-6">
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest italic ${
-                              p.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'
+                              p.status === 'completed' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-amber-50 text-amber-600 border border-amber-100'
                             }`}>
-                              <div className={`w-1.5 h-1.5 rounded-full ${p.status === 'completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+                              <div className={`w-1.5 h-1.5 rounded-full ${p.status === 'completed' ? 'bg-amber-500' : 'bg-amber-500 animate-pulse'}`} />
                               {humanStatus(p.status)}
                             </span>
                           </td>
@@ -372,7 +372,7 @@ const ExportPayoutExcel = () => {
 
           {/* Export History Section */}
           <div className="space-y-6">
-            <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] italic flex items-center gap-3">
+            <h2 className="text-sm font-black text-blue-900 uppercase tracking-[0.2em] italic flex items-center gap-3">
               <History size={18} className="text-amber-500" />
               Export History
             </h2>
@@ -385,15 +385,15 @@ const ExportPayoutExcel = () => {
                     </div>
                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{new Date(h.created_at).toLocaleDateString()}</span>
                   </div>
-                  <h4 className="text-[10px] font-black text-slate-900 uppercase italic mb-1 truncate">{h.filename}</h4>
+                  <h4 className="text-[10px] font-black text-blue-900 uppercase italic mb-1 truncate">{h.filename}</h4>
                   <div className="flex items-center justify-between mt-4 border-t border-slate-50 pt-4">
                     <div>
                       <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Total Volume</p>
-                      <p className="text-xs font-black text-slate-900 italic">₹{parseFloat(h.total_amount).toLocaleString()}</p>
+                      <p className="text-xs font-black text-blue-900 italic">₹{parseFloat(h.total_amount).toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Records</p>
-                      <p className="text-xs font-black text-slate-900 italic">{h.total_records} ENTITIES</p>
+                      <p className="text-xs font-black text-blue-900 italic">{h.total_records} ENTITIES</p>
                     </div>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ const ExportPayoutExcel = () => {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowPreview(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+              className="absolute inset-0 bg-blue-900/40 backdrop-blur-md"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -420,10 +420,10 @@ const ExportPayoutExcel = () => {
             >
               <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">Bulk Transfer Preview</h3>
+                  <h3 className="text-xl font-black text-blue-900 uppercase italic tracking-tight">Bulk Transfer Preview</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Verification Details</p>
                 </div>
-                <button onClick={() => setShowPreview(false)} className="p-3 bg-white rounded-full text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
+                <button onClick={() => setShowPreview(false)} className="p-3 bg-white rounded-full text-slate-400 hover:text-blue-900 transition-colors shadow-sm">
                   <X size={20} />
                 </button>
               </div>
@@ -442,18 +442,18 @@ const ExportPayoutExcel = () => {
                   <tbody className="divide-y divide-slate-50">
                     {filteredPayouts.map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-4 text-[10px] font-black text-slate-900 uppercase italic">{p.user_name}</td>
+                        <td className="px-4 py-4 text-[10px] font-black text-blue-900 uppercase italic">{p.user_name}</td>
                         <td className="px-4 py-4 text-[10px] font-black text-blue-600 uppercase italic">{p.bank_name || 'N/A'}</td>
                         <td className="px-4 py-4 text-[10px] font-black text-slate-600 tracking-widest">{p.account_no}</td>
                         <td className="px-4 py-4 text-[10px] font-black text-slate-600 tracking-widest">{p.ifsc_code}</td>
-                        <td className="px-4 py-4 text-right text-[10px] font-black text-emerald-600 italic">₹{parseFloat(p.amount).toLocaleString()}</td>
+                        <td className="px-4 py-4 text-right text-[10px] font-black text-amber-600 italic">₹{parseFloat(p.amount).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               
-              <div className="p-8 bg-slate-900 flex justify-between items-center">
+              <div className="p-8 bg-blue-900 flex justify-between items-center">
                 <div>
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Consolidated Batch Value</p>
                   <p className="text-2xl font-black text-white italic">₹{filteredTotal.toLocaleString()}</p>

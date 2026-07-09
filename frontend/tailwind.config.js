@@ -9,37 +9,45 @@ export default {
       colors: {
         'gold-primary': '#D4AF37',
         'gold-secondary': '#C5A028',
-        'dark-bg': '#05162E', // Premium Deepest Navy Blue
-        'dark-card': '#0B2545', // Premium Midnight Navy Blue
+        'dark-bg': '#05162E',
+        'dark-card': '#0B2545',
         'light-bg': '#FFFFFF',
         'light-card': '#F9FAFB',
-        // Premium Navy Blue overrides for default dark/black text colors
-        black: '#0B2545',
-        slate: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#475569',
-          600: '#1E3A8A', // Deep Navy Blue
-          700: '#1D4ED8', // Medium Navy Blue
-          800: '#0F2C59', // Rich Navy Blue
-          900: '#0B2545', // Midnight Navy Blue
-          950: '#05162E', // Deepest Navy Blue
+        brand: {
+          50:  '#eef4ff',
+          100: '#d9e5ff',
+          200: '#bcd2ff',
+          300: '#8eb4ff',
+          400: '#598bff',
+          500: '#3563ff',
+          600: '#1f42f5',
+          700: '#1832e1',
+          800: '#1a2cb6',
+          900: '#1c2c8f',
         },
-        gray: {
-          50: '#f9fafb',
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
-          500: '#6b7280',
-          600: '#1E3A8A', // Deep Navy Blue
-          700: '#1D4ED8', // Medium Navy Blue
-          800: '#0F2C59', // Rich Navy Blue
-          900: '#0B2545', // Midnight Navy Blue
-          950: '#05162E', // Deepest Navy Blue
+        gold: {
+          50:  '#fbf8ef',
+          100: '#f7eecc',
+          200: '#eedb99',
+          300: '#e5c566',
+          400: '#dcb03f',
+          500: '#d4af37',
+          600: '#b8901f',
+          700: '#946e1b',
+          800: '#79591c',
+          900: '#674a1b',
+        },
+        amber: {
+          50:  '#fbf8ef',
+          100: '#f7eecc',
+          200: '#eedb99',
+          300: '#e5c566',
+          400: '#dcb03f',
+          500: '#d4af37',
+          600: '#b8901f',
+          700: '#946e1b',
+          800: '#79591c',
+          900: '#674a1b',
         }
       },
       fontFamily: {

@@ -14,12 +14,12 @@ import { User, Network, TrendingUp, ShieldCheck, Sparkles, Crown } from 'lucide-
 
 // Depth-cycled palette (root = depth 0).
 const DEPTH_THEME = [
-  { dot: 'bg-slate-900',   ring: 'border-slate-900',   badge: 'bg-amber-500 text-slate-900', text: 'text-amber-600' },
-  { dot: 'bg-amber-500',   ring: 'border-amber-400',   badge: 'bg-amber-500 text-slate-900', text: 'text-amber-600' },
+  { dot: 'bg-blue-900',   ring: 'border-blue-900',   badge: 'bg-amber-500 text-blue-900', text: 'text-amber-600' },
+  { dot: 'bg-amber-500',   ring: 'border-amber-400',   badge: 'bg-amber-500 text-blue-900', text: 'text-amber-600' },
   { dot: 'bg-blue-500',    ring: 'border-blue-400',    badge: 'bg-blue-500 text-white',      text: 'text-blue-600' },
-  { dot: 'bg-emerald-500', ring: 'border-emerald-400', badge: 'bg-emerald-500 text-white',   text: 'text-emerald-600' },
-  { dot: 'bg-indigo-500',  ring: 'border-indigo-400',  badge: 'bg-indigo-500 text-white',    text: 'text-indigo-600' },
-  { dot: 'bg-rose-500',    ring: 'border-rose-400',     badge: 'bg-rose-500 text-white',      text: 'text-rose-600' },
+  { dot: 'bg-amber-500', ring: 'border-amber-400', badge: 'bg-amber-500 text-white',   text: 'text-amber-600' },
+  { dot: 'bg-slate-700',   ring: 'border-slate-500',   badge: 'bg-slate-700 text-white',     text: 'text-slate-700' },
+  { dot: 'bg-blue-500',    ring: 'border-blue-400',     badge: 'bg-blue-500 text-white',      text: 'text-blue-600' },
 ];
 
 const NodeCard = ({ node, depth }) => {
@@ -35,7 +35,7 @@ const NodeCard = ({ node, depth }) => {
       transition={{ duration: 0.3 }}
       className={`inline-flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl bg-white border-2 shadow-sm hover:shadow-lg transition-all ${theme.ring} ${
         node.is_newest ? 'ring-2 ring-amber-400/60' : ''
-      } ${node.is_you ? 'ring-2 ring-slate-900/20' : ''}`}
+      } ${node.is_you ? 'ring-2 ring-blue-900/20' : ''}`}
     >
       {/* avatar */}
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-white font-black text-[13px] ${theme.dot} shadow`}>
@@ -43,14 +43,14 @@ const NodeCard = ({ node, depth }) => {
       </div>
 
       {/* name */}
-      <p className="text-[11px] font-black uppercase tracking-tight italic text-slate-900 leading-none whitespace-nowrap max-w-[150px] truncate">
+      <p className="text-[11px] font-black uppercase tracking-tight italic text-blue-900 leading-none whitespace-nowrap max-w-[150px] truncate">
         {node.name}
       </p>
 
       {/* badges */}
       <div className="flex items-center justify-center gap-1 flex-wrap">
         {node.is_you && (
-          <span className="text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-900 text-amber-400 italic">You</span>
+          <span className="text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-blue-900 text-amber-400 italic">You</span>
         )}
         {node.is_newest && (
           <span className="inline-flex items-center gap-1 text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 italic">
@@ -58,7 +58,7 @@ const NodeCard = ({ node, depth }) => {
           </span>
         )}
         {node.kyc_status === 'verified' && (
-          <ShieldCheck size={12} className="text-emerald-500 shrink-0" />
+          <ShieldCheck size={12} className="text-amber-500 shrink-0" />
         )}
       </div>
 
@@ -71,7 +71,7 @@ const NodeCard = ({ node, depth }) => {
           <p className="text-[7px] text-slate-300 font-black uppercase tracking-widest italic leading-none">{created}</p>
         )}
         {node.total_investment > 0 && (
-          <p className="text-[7px] text-emerald-600 font-black uppercase tracking-widest italic leading-none">
+          <p className="text-[7px] text-amber-600 font-black uppercase tracking-widest italic leading-none">
             ₹{parseFloat(node.total_investment).toLocaleString()}
           </p>
         )}
@@ -118,7 +118,7 @@ const RecencyGenealogyTree = ({ data, loading }) => {
   return (
     <div className="w-full">
       {/* Header banner + legend */}
-      <div className="mb-6 p-6 bg-slate-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-2xl border border-white/5">
+      <div className="mb-6 p-6 bg-blue-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-2xl border border-white/5">
         <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12"><Network size={150} /></div>
         <div className="relative z-10 text-center md:text-left">
           <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Your Referral Tree</h3>

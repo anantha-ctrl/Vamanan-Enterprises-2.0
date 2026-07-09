@@ -19,9 +19,9 @@ const imgUrl = (p) => p ? (p.startsWith('http') ? p : `${SITE_URL}/${p}`) : null
 // ── Stock Badge ───────────────────────────────────────────────────────────────
 const StockBadge = ({ status }) => {
   const map = {
-    in_stock:     { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100', label: 'In Stock' },
+    in_stock:     { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', label: 'In Stock' },
     low_stock:    { bg: 'bg-amber-50',   text: 'text-amber-600',   border: 'border-amber-100',   label: 'Low Stock' },
-    out_of_stock: { bg: 'bg-rose-50',    text: 'text-rose-600',    border: 'border-rose-100',    label: 'Out of Stock' },
+    out_of_stock: { bg: 'bg-blue-50',    text: 'text-blue-600',    border: 'border-blue-100',    label: 'Out of Stock' },
   };
   const s = map[status] || map.in_stock;
   return (
@@ -34,11 +34,11 @@ const StockBadge = ({ status }) => {
 // ── Movement Badge ────────────────────────────────────────────────────────────
 const MovBadge = ({ type }) => {
   const map = {
-    add:     { bg: 'bg-emerald-100', text: 'text-emerald-700', label: '+ Add' },
-    remove:  { bg: 'bg-rose-100',    text: 'text-rose-700',    label: '− Remove' },
+    add:     { bg: 'bg-amber-100', text: 'text-amber-700', label: '+ Add' },
+    remove:  { bg: 'bg-blue-100',    text: 'text-blue-700',    label: '− Remove' },
     adjust:  { bg: 'bg-blue-100',    text: 'text-blue-700',    label: '⟳ Adjust' },
     sale:    { bg: 'bg-amber-100',   text: 'text-amber-700',   label: '↑ Sale' },
-    return:  { bg: 'bg-purple-100',  text: 'text-purple-700',  label: '↩ Return' },
+    return:  { bg: 'bg-blue-100',  text: 'text-blue-700',  label: '↩ Return' },
     initial: { bg: 'bg-slate-100',   text: 'text-slate-600',   label: '◎ Initial' },
   };
   const s = map[type] || map.adjust;
@@ -381,7 +381,7 @@ const Inventory = () => {
 
   // ═══════════════════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen flex-1 min-w-0">
@@ -396,7 +396,7 @@ const Inventory = () => {
             {/* Header row */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
               <div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">
+                <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">
                   Gold Inventory
                 </h3>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 italic">
@@ -417,9 +417,9 @@ const Inventory = () => {
               <div className="flex items-center gap-3 flex-wrap">
                 {stockEnabled && alerts.length > 0 && (
                   <button onClick={() => setAlertsPanel(true)}
-                    className="relative bg-rose-500 text-white px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 shadow-lg hover:bg-rose-400 transition-all active:scale-95">
+                    className="relative bg-blue-500 text-white px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 shadow-lg hover:bg-blue-400 transition-all active:scale-95">
                     <Bell size={13} /> Alerts
-                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-slate-900 text-white rounded-full text-[8px] font-black flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-900 text-white rounded-full text-[8px] font-black flex items-center justify-center">
                       {alerts.length}
                     </span>
                   </button>
@@ -441,7 +441,7 @@ const Inventory = () => {
 
                 {selectedIds.size > 0 && (
                   <button onClick={handleBulkDelete} disabled={processing}
-                    className="bg-rose-600 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-rose-700 transition shadow-lg active:scale-95 uppercase tracking-widest italic disabled:opacity-50">
+                    className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-blue-700 transition shadow-lg active:scale-95 uppercase tracking-widest italic disabled:opacity-50">
                     <Trash2 size={15} strokeWidth={3} /> Delete Selected ({selectedIds.size})
                   </button>
                 )}
@@ -452,7 +452,7 @@ const Inventory = () => {
                 </button>
 
                 <button onClick={openAddModal}
-                  className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest italic">
+                  className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-[9px] flex items-center gap-2 hover:bg-amber-600 transition shadow-xl active:scale-95 uppercase tracking-widest italic">
                   <Plus size={15} strokeWidth={3} /> Provision Asset
                 </button>
               </div>
@@ -522,7 +522,7 @@ const Inventory = () => {
                                 )}
                                 <Package className="text-slate-200" size={18} style={{ display: imgUrl(p.image) ? 'none' : 'block' }} />
                               </div>
-                              <span className="font-black text-sm text-slate-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors max-w-[180px] truncate">
+                              <span className="font-black text-sm text-blue-900 uppercase italic tracking-tight group-hover:text-amber-600 transition-colors max-w-[180px] truncate">
                                 {p.name}
                               </span>
                             </div>
@@ -530,20 +530,20 @@ const Inventory = () => {
 
                           {/* Classification */}
                           <td className="py-6 px-6">
-                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">{p.category || 'Gold'}</div>
+                            <div className="text-[10px] font-black text-blue-900 uppercase tracking-widest italic">{p.category || 'Gold'}</div>
                             <div className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase">Asset Type</div>
                           </td>
 
                           {/* Metric / Purity */}
                           <td className="py-6 px-6">
-                            <span className="font-black text-xs text-slate-900 italic tracking-tighter uppercase">
+                            <span className="font-black text-xs text-blue-900 italic tracking-tighter uppercase">
                               {p.weight ? `${p.weight}g` : '—'}{p.purity ? ` · ${p.purity}` : ''}
                             </span>
                           </td>
 
                           {/* Market Value */}
                           <td className="py-6 px-6">
-                            <span className="font-black text-xl text-slate-900 italic tracking-tighter">
+                            <span className="font-black text-xl text-blue-900 italic tracking-tighter">
                               ₹{parseFloat(p.price || 0).toLocaleString('en-IN')}
                             </span>
                           </td>
@@ -553,7 +553,7 @@ const Inventory = () => {
                             <td className="py-6 px-6">
                               <button onClick={() => { setStockModal(p); setStockForm({ action: 'add', quantity: '', notes: '' }); setStockMsg({ type: '', text: '' }); }}
                                 className="flex items-center gap-2 group/s hover:text-amber-600 transition-colors">
-                                <span className={`font-black text-lg italic tracking-tighter ${stockStatus === 'out_of_stock' ? 'text-rose-600' : stockStatus === 'low_stock' ? 'text-amber-600' : 'text-slate-900'}`}>
+                                <span className={`font-black text-lg italic tracking-tighter ${stockStatus === 'out_of_stock' ? 'text-blue-600' : stockStatus === 'low_stock' ? 'text-amber-600' : 'text-blue-900'}`}>
                                   {stockQty}
                                 </span>
                                 <span className="text-[8px] text-slate-300 font-black uppercase italic">units</span>
@@ -565,7 +565,7 @@ const Inventory = () => {
                           {/* Status */}
                           <td className="py-6 px-6">
                             <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border italic ${
-                              p.is_active == 1 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                              p.is_active == 1 ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                             }`}>
                               {p.is_active == 1 ? 'Active' : 'Inactive'}
                             </span>
@@ -583,12 +583,12 @@ const Inventory = () => {
                               )}
                               <button onClick={() => openEditModal(p)}
                                 title="Edit"
-                                className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-lg active:scale-90">
+                                className="w-9 h-9 bg-blue-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-lg active:scale-90">
                                 <Settings size={15} />
                               </button>
                               <button onClick={() => handleDeleteProduct(p.id)}
                                 title="Delete"
-                                className="w-9 h-9 bg-white text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-slate-200 active:scale-90">
+                                className="w-9 h-9 bg-white text-blue-500 rounded-xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all border border-slate-200 active:scale-90">
                                 <Trash2 size={15} />
                               </button>
                             </div>
@@ -628,12 +628,12 @@ const Inventory = () => {
       {/* ════════════════ BULK UPLOAD MODAL ════════════════ */}
       <AnimatePresence>
         {showBulkModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[400] flex items-center justify-center p-4"
+          <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[400] flex items-center justify-center p-4"
             onClick={() => !bulkUploading && setShowBulkModal(false)}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
               className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
-              <div className="bg-slate-900 px-8 py-6 flex items-center justify-between">
+              <div className="bg-blue-900 px-8 py-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center text-amber-500 border border-white/10"><FileSpreadsheet size={20} /></div>
                   <div>
@@ -669,10 +669,10 @@ const Inventory = () => {
                 {/* Result */}
                 {bulkResult && (
                   <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 max-h-44 overflow-y-auto">
-                    <p className="text-sm font-black text-emerald-600 italic flex items-center gap-2"><CheckCircle2 size={16} /> {bulkResult.inserted} imported</p>
+                    <p className="text-sm font-black text-amber-600 italic flex items-center gap-2"><CheckCircle2 size={16} /> {bulkResult.inserted} imported</p>
                     {bulkResult.errors?.length > 0 && (
                       <div className="mt-3 space-y-1">
-                        <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest italic">{bulkResult.errors.length} skipped:</p>
+                        <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest italic">{bulkResult.errors.length} skipped:</p>
                         {bulkResult.errors.map((err, i) => (
                           <p key={i} className="text-[9px] text-slate-500 font-bold leading-relaxed">• {err}</p>
                         ))}
@@ -685,7 +685,7 @@ const Inventory = () => {
                   <button onClick={() => setShowBulkModal(false)} disabled={bulkUploading}
                     className="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest italic hover:bg-slate-200 transition-all active:scale-95 disabled:opacity-50">Close</button>
                   <button onClick={handleBulkUpload} disabled={bulkUploading || !bulkFile}
-                    className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest italic hover:bg-amber-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                    className="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest italic hover:bg-amber-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
                     {bulkUploading ? <Loader2 className="animate-spin" size={16} /> : <><Upload size={14} /> Import Products</>}
                   </button>
                 </div>
@@ -698,18 +698,18 @@ const Inventory = () => {
       {/* ════════════════ PRODUCT MODAL (ADD / EDIT) ════════════════ */}
       <AnimatePresence>
         {showProductModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[400] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md z-[400] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="bg-white border border-slate-100 p-8 md:p-12 rounded-[3rem] w-full max-w-4xl relative overflow-y-auto max-h-[90vh] shadow-2xl">
 
               <button onClick={() => setShowProductModal(false)}
-                className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 p-2 bg-slate-50 rounded-full transition-colors">
+                className="absolute top-8 right-8 text-slate-400 hover:text-blue-900 p-2 bg-slate-50 rounded-full transition-colors">
                 <XCircle size={26} />
               </button>
 
               <div className="mb-8">
-                <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">
+                <h3 className="text-2xl font-black text-blue-900 tracking-tighter uppercase italic">
                   {productForm.id ? 'Edit Asset' : 'Provision New Asset'}
                 </h3>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1.5 italic">
@@ -721,12 +721,12 @@ const Inventory = () => {
               <div className="flex gap-3 mb-8">
                 <button type="button"
                   onClick={() => { setProductType('precious_metal'); setProductForm(f => ({ ...f, purity: '24K' })); }}
-                  className={`flex-1 py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'precious_metal' ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
+                  className={`flex-1 py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'precious_metal' ? 'bg-blue-900 text-amber-400 border-blue-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
                   <Zap size={14} /> Precious Metal
                 </button>
                 <button type="button"
                   onClick={() => { setProductType('general'); setProductForm(f => ({ ...f, purity: '', weight: '' })); }}
-                  className={`flex-1 py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'general' ? 'bg-slate-900 text-emerald-400 border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-emerald-300'}`}>
+                  className={`flex-1 py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest italic transition-all border-2 flex items-center justify-center gap-2 ${productType === 'general' ? 'bg-blue-900 text-amber-400 border-blue-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-amber-300'}`}>
                   <Package size={14} /> General Product
                 </button>
               </div>
@@ -887,7 +887,7 @@ const Inventory = () => {
                 <div className="flex items-center gap-4">
                   <button type="button"
                     onClick={() => setProductForm(f => ({ ...f, is_active: f.is_active == 1 ? 0 : 1 }))}
-                    className={`w-12 h-6 rounded-full transition-all relative ${productForm.is_active == 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}>
+                    className={`w-12 h-6 rounded-full transition-all relative ${productForm.is_active == 1 ? 'bg-amber-500' : 'bg-slate-200'}`}>
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${productForm.is_active == 1 ? 'left-6' : 'left-0.5'}`} />
                   </button>
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">
@@ -910,7 +910,7 @@ const Inventory = () => {
                     Cancel
                   </button>
                   <button type="submit" disabled={processing}
-                    className="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest italic hover:bg-amber-600 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
+                    className="flex-1 py-4 bg-blue-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest italic hover:bg-amber-600 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
                     {processing ? <Loader2 size={16} className="animate-spin" /> : <><Zap size={14} className="text-amber-400" /> {productForm.id ? 'Save Changes' : 'Provision Asset'}</>}
                   </button>
                 </div>
@@ -923,14 +923,14 @@ const Inventory = () => {
       {/* ════════════════ STOCK UPDATE MODAL ════════════════ */}
       <AnimatePresence>
         {stockModal && (
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[450] flex items-center justify-center p-4"
+          <div className="fixed inset-0 bg-blue-900/80 backdrop-blur-xl z-[450] flex items-center justify-center p-4"
             onClick={() => setStockModal(null)}>
             <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
               className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden">
 
-              <div className="bg-slate-900 p-7 relative overflow-hidden">
+              <div className="bg-blue-900 p-7 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
                 <button onClick={() => setStockModal(null)} className="absolute top-5 right-5 z-20 p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white/60 hover:text-white transition-colors"><X size={16} /></button>
                 <div className="flex items-center gap-4 relative z-10">
@@ -968,8 +968,8 @@ const Inventory = () => {
                       onClick={() => setStockForm(f => ({ ...f, action: a.val }))}
                       className={`py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest italic transition-all border-2 ${
                         stockForm.action === a.val
-                          ? a.color === 'emerald' ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg'
-                          : a.color === 'rose' ? 'bg-rose-500 text-white border-rose-500 shadow-lg'
+                          ? a.color === 'emerald' ? 'bg-amber-500 text-white border-amber-500 shadow-lg'
+                          : a.color === 'rose' ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
                           : 'bg-blue-500 text-white border-blue-500 shadow-lg'
                           : 'bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-300'
                       }`}>
@@ -982,13 +982,13 @@ const Inventory = () => {
                   value={stockForm.quantity}
                   onChange={e => setStockForm(f => ({ ...f, quantity: e.target.value }))}
                   placeholder="Enter quantity..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 text-2xl font-black italic text-slate-900 outline-none focus:border-amber-500 focus:bg-white transition-all shadow-inner tracking-tighter" />
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 text-2xl font-black italic text-blue-900 outline-none focus:border-amber-500 focus:bg-white transition-all shadow-inner tracking-tighter" />
 
                 {stockForm.quantity && (
                   <div className="flex items-center gap-2 text-[9px] font-black italic">
                     <span className="text-slate-400">{currentStockQty}</span>
                     <ArrowRight size={10} className="text-slate-300" />
-                    <span className={`font-black ${stockForm.action === 'add' ? 'text-emerald-600' : stockForm.action === 'remove' ? 'text-rose-600' : 'text-blue-600'}`}>
+                    <span className={`font-black ${stockForm.action === 'add' ? 'text-amber-600' : stockForm.action === 'remove' ? 'text-blue-600' : 'text-blue-600'}`}>
                       {stockForm.action === 'add' ? currentStockQty + parseInt(stockForm.quantity || 0)
                         : stockForm.action === 'remove' ? Math.max(0, currentStockQty - parseInt(stockForm.quantity || 0))
                         : parseInt(stockForm.quantity || 0)} units
@@ -1001,13 +1001,13 @@ const Inventory = () => {
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-5 text-xs font-black italic text-slate-700 outline-none focus:border-amber-500 focus:bg-white transition-all resize-none" />
 
                 {stockMsg.text && (
-                  <div className={`p-3 rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 ${stockMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+                  <div className={`p-3 rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 ${stockMsg.type === 'success' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`}>
                     {stockMsg.type === 'success' ? <Check size={12} /> : <AlertCircle size={12} />}{stockMsg.text}
                   </div>
                 )}
 
                 <button type="submit" disabled={submitting}
-                  className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] italic hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3">
+                  className="w-full bg-blue-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] italic hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3">
                   {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Zap size={14} className="text-amber-400" /> Confirm Update</>}
                 </button>
               </form>
@@ -1019,10 +1019,10 @@ const Inventory = () => {
       {/* ════════════════ MOVEMENT HISTORY MODAL ════════════════ */}
       <AnimatePresence>
         {historyModal && (
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[400] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-blue-900/80 backdrop-blur-xl z-[400] flex items-center justify-center p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="bg-slate-900 px-7 py-5 flex items-center justify-between shrink-0">
+              <div className="bg-blue-900 px-7 py-5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"><History size={16} className="text-amber-400" /></div>
                   <div>
@@ -1041,7 +1041,7 @@ const Inventory = () => {
                 ) : movements.map((m, i) => (
                   <motion.div key={m.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}
                     className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-start gap-4">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${m.movement_type === 'add' ? 'bg-emerald-100 text-emerald-600' : m.movement_type === 'remove' ? 'bg-rose-100 text-rose-600' : m.movement_type === 'sale' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${m.movement_type === 'add' ? 'bg-amber-100 text-amber-600' : m.movement_type === 'remove' ? 'bg-blue-100 text-blue-600' : m.movement_type === 'sale' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
                       {m.movement_type === 'add' ? <Plus size={14} strokeWidth={2.5} /> : m.movement_type === 'remove' ? <Minus size={14} strokeWidth={2.5} /> : m.movement_type === 'return' ? <RotateCcw size={14} /> : <ArrowUpDown size={14} />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1051,7 +1051,7 @@ const Inventory = () => {
                       <div className="flex items-center gap-3 text-[9px] font-black italic">
                         <span className="text-slate-400">Before: <span className="text-slate-700">{m.previous_qty}</span></span>
                         <ArrowRight size={8} className="text-slate-300" />
-                        <span className="text-slate-400">After: <span className={`font-black ${m.new_qty > m.previous_qty ? 'text-emerald-600' : 'text-rose-600'}`}>{m.new_qty}</span></span>
+                        <span className="text-slate-400">After: <span className={`font-black ${m.new_qty > m.previous_qty ? 'text-amber-600' : 'text-blue-600'}`}>{m.new_qty}</span></span>
                       </div>
                       {m.notes && <p className="text-[8px] text-slate-400 italic mt-1 truncate">📝 {m.notes}</p>}
                     </div>
@@ -1076,10 +1076,10 @@ const Inventory = () => {
         {alertsPanel && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[350]" onClick={() => setAlertsPanel(false)} />
+              className="fixed inset-0 bg-blue-900/60 backdrop-blur-sm z-[350]" onClick={() => setAlertsPanel(false)} />
             <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 280 }}
               className="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[360] shadow-2xl flex flex-col">
-              <div className="bg-slate-900 px-6 py-5 flex items-center justify-between shrink-0">
+              <div className="bg-blue-900 px-6 py-5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-amber-500/20 rounded-xl flex items-center justify-center"><Bell size={15} className="text-amber-400" /></div>
                   <div>
@@ -1092,12 +1092,12 @@ const Inventory = () => {
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {alerts.map((a, i) => (
                   <motion.div key={a.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
-                    className={`rounded-2xl p-4 border ${a.alert_type === 'out_of_stock' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
+                    className={`rounded-2xl p-4 border ${a.alert_type === 'out_of_stock' ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
                     <div className="flex items-center gap-3 mb-2">
-                      {a.alert_type === 'out_of_stock' ? <X size={13} className="text-rose-500 shrink-0" /> : <AlertTriangle size={13} className="text-amber-500 shrink-0" />}
+                      {a.alert_type === 'out_of_stock' ? <X size={13} className="text-blue-500 shrink-0" /> : <AlertTriangle size={13} className="text-amber-500 shrink-0" />}
                       <div className="min-w-0">
-                        <p className={`text-[9px] font-black uppercase italic truncate ${a.alert_type === 'out_of_stock' ? 'text-rose-700' : 'text-amber-700'}`}>{a.product_name}</p>
-                        <p className={`text-[8px] font-black uppercase tracking-widest italic ${a.alert_type === 'out_of_stock' ? 'text-rose-500' : 'text-amber-600'}`}>
+                        <p className={`text-[9px] font-black uppercase italic truncate ${a.alert_type === 'out_of_stock' ? 'text-blue-700' : 'text-amber-700'}`}>{a.product_name}</p>
+                        <p className={`text-[8px] font-black uppercase tracking-widest italic ${a.alert_type === 'out_of_stock' ? 'text-blue-500' : 'text-amber-600'}`}>
                           {a.alert_type === 'out_of_stock' ? 'Out of Stock' : `Low — ${a.current_qty} units left`}
                         </p>
                       </div>
@@ -1106,7 +1106,7 @@ const Inventory = () => {
                       const prod = products.find(p => p.id === a.product_id);
                       if (prod) { setStockModal(prod); setStockForm({ action: 'add', quantity: '', notes: '' }); setStockMsg({ type: '', text: '' }); setAlertsPanel(false); }
                     }}
-                      className={`w-full py-2 rounded-xl text-[8px] font-black uppercase tracking-widest italic transition-all ${a.alert_type === 'out_of_stock' ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-amber-500 text-slate-900 hover:bg-amber-400'}`}>
+                      className={`w-full py-2 rounded-xl text-[8px] font-black uppercase tracking-widest italic transition-all ${a.alert_type === 'out_of_stock' ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-amber-500 text-blue-900 hover:bg-amber-400'}`}>
                       Restock Now
                     </button>
                   </motion.div>
@@ -1121,7 +1121,7 @@ const Inventory = () => {
       <AnimatePresence>
         {toast && (
           <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className={`fixed bottom-8 right-8 z-[600] px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest italic ${toast.type === 'error' ? 'bg-rose-500 text-white' : 'bg-slate-900 text-white'}`}>
+            className={`fixed bottom-8 right-8 z-[600] px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest italic ${toast.type === 'error' ? 'bg-blue-500 text-white' : 'bg-blue-900 text-white'}`}>
             {toast.type === 'error' ? <AlertCircle size={14} /> : <Check size={14} className="text-amber-400" />}
             {toast.message}
           </motion.div>

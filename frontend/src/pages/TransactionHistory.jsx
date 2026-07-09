@@ -81,7 +81,7 @@ const TransactionHistory = () => {
 
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-xl">
+            <div className="bg-blue-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-xl">
               <div className="relative z-10">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Available Balance</p>
                 <h3 className="text-4xl font-black italic tracking-tighter">₹{data.balance.toLocaleString()}</h3>
@@ -90,11 +90,11 @@ const TransactionHistory = () => {
             </div>
             <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm group hover:border-amber-500/20 transition-all">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Total Cashback</p>
-              <h3 className="text-4xl font-black italic tracking-tighter text-slate-900">₹{(data.cashback_total || 0).toLocaleString()}</h3>
+              <h3 className="text-4xl font-black italic tracking-tighter text-blue-900">₹{(data.cashback_total || 0).toLocaleString()}</h3>
             </div>
             <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-sm group hover:border-amber-500/20 transition-all">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic mb-2">Referral Rewards</p>
-              <h3 className="text-4xl font-black italic tracking-tighter text-slate-900">₹{(data.referral_total || 0).toLocaleString()}</h3>
+              <h3 className="text-4xl font-black italic tracking-tighter text-blue-900">₹{(data.referral_total || 0).toLocaleString()}</h3>
             </div>
           </div>
 
@@ -128,7 +128,7 @@ const TransactionHistory = () => {
               </div>
               <button 
                 onClick={fetchWalletData}
-                className="p-3.5 bg-slate-900 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-slate-900 transition-all active:scale-95"
+                className="p-3.5 bg-blue-900 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-blue-900 transition-all active:scale-95"
               >
                 <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
               </button>
@@ -158,32 +158,32 @@ const TransactionHistory = () => {
                       className="hover:bg-slate-50/50 transition-colors group"
                     >
                       <td className="px-8 py-6">
-                        <span className="text-[10px] font-black text-slate-900 tracking-widest">#TXN-{t.id}</span>
+                        <span className="text-[10px] font-black text-blue-900 tracking-widest">#TXN-{t.id}</span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            t.type === 'credit' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                            t.type === 'credit' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                           }`}>
                             {t.type === 'credit' ? <ArrowDownLeft size={20} /> : <ArrowUpRight size={20} />}
                           </div>
                           <div>
-                            <p className="text-[11px] font-black text-slate-900 uppercase italic tracking-tighter">{t.description}</p>
+                            <p className="text-[11px] font-black text-blue-900 uppercase italic tracking-tighter">{t.description}</p>
                             <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic">{t.category}</span>
                           </div>
                         </div>
                       </td>
                       <td className="px-8 py-6">
                         <span className={`text-base font-black italic tracking-tighter ${
-                          t.type === 'credit' ? 'text-emerald-600' : 'text-slate-900'
+                          t.type === 'credit' ? 'text-amber-600' : 'text-blue-900'
                         }`}>
                           {t.type === 'credit' ? '+' : '-'} ₹{parseFloat(t.amount).toLocaleString()}
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${
-                          t.status === 'completed' || t.status === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                          t.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                          t.status === 'completed' || t.status === 'success' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                          t.status === 'failed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
                           {humanStatus(t.status)}

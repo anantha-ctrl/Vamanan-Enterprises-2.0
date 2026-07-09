@@ -28,7 +28,7 @@ const Field = ({ label, name, icon: Icon, placeholder, type = 'text', required =
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight"
+        className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight"
       />
     </div>
   </div>
@@ -42,10 +42,10 @@ const SectionCard = ({ title, icon: Icon, children, delay = 0 }) => (
     className="bg-white border border-slate-200/60 p-8 md:p-14 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm space-y-10 md:space-y-12"
   >
     <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-      <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg">
+      <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-amber-500 shadow-lg">
         <Icon size={20} />
       </div>
-      <h3 className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] italic">{title}</h3>
+      <h3 className="text-[9px] md:text-[10px] font-black text-blue-900 uppercase tracking-[0.3em] italic">{title}</h3>
     </div>
     {children}
   </motion.div>
@@ -180,7 +180,7 @@ const CashbackApplication = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-inter text-slate-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-50 flex font-inter text-blue-900 overflow-x-hidden selection:bg-amber-100 selection:text-amber-900">
       <Sidebar showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
       <div className="ml-0 lg:ml-72 min-h-screen relative w-full">
@@ -199,7 +199,7 @@ const CashbackApplication = () => {
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
                 <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Application</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Cashback Application</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-blue-900 tracking-tighter uppercase italic leading-none">Cashback Application</h1>
               <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 md:mt-3 italic">Submit your purchase details to claim cashback rewards</p>
             </div>
           </motion.div>
@@ -208,17 +208,17 @@ const CashbackApplication = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-8 md:p-20 rounded-[2.5rem] md:rounded-[3.5rem] border border-emerald-100 bg-white shadow-2xl shadow-emerald-500/5 flex flex-col items-center justify-center text-center relative overflow-hidden"
+              className="p-8 md:p-20 rounded-[2.5rem] md:rounded-[3.5rem] border border-amber-100 bg-white shadow-2xl shadow-amber-500/5 flex flex-col items-center justify-center text-center relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-20"></div>
-              <ShieldCheck size={100} className="text-emerald-500 mb-6 md:mb-8 drop-shadow-xl" strokeWidth={1.5} />
-              <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 tracking-tighter uppercase italic leading-tight">Application Received</h2>
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-20"></div>
+              <ShieldCheck size={100} className="text-amber-500 mb-6 md:mb-8 drop-shadow-xl" strokeWidth={1.5} />
+              <h2 className="text-2xl md:text-3xl font-black text-blue-900 mb-4 tracking-tighter uppercase italic leading-tight">Application Received</h2>
               <p className="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest max-w-md mx-auto mb-10 italic leading-relaxed">
                 Your cashback application has been submitted and saved. Our team will verify the details shortly.
               </p>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="bg-slate-900 text-white px-10 py-5 rounded-[1.5rem] font-black flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl active:scale-95 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic"
+                className="bg-blue-900 text-white px-10 py-5 rounded-[1.5rem] font-black flex items-center gap-3 hover:bg-amber-600 transition-all shadow-xl active:scale-95 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic"
               >
                 Back to Dashboard <ArrowRight size={18} />
               </button>
@@ -232,7 +232,7 @@ const CashbackApplication = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`p-5 md:p-6 rounded-2xl md:rounded-[2rem] flex items-center gap-4 md:gap-6 border shadow-xl ${
-                      status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'
+                      status.type === 'success' ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-blue-50 border-blue-100 text-blue-600'
                     }`}
                   >
                     {status.type === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
@@ -273,7 +273,7 @@ const CashbackApplication = () => {
                           value={formData.product_details}
                           onChange={handleInputChange}
                           placeholder="Describe the purchased product..."
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-slate-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight resize-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl md:rounded-[1.5rem] py-4 md:py-5 pl-14 pr-8 text-sm text-blue-900 outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/5 transition-all font-black italic tracking-tight resize-none"
                         />
                       </div>
                     </div>
@@ -305,7 +305,7 @@ const CashbackApplication = () => {
                     <Field label="Date" name="application_date" icon={Calendar} placeholder="" type="date" value={formData.application_date} onChange={handleInputChange} />
                     <Field label="Place" name="place" icon={MapPin} placeholder="Krishnagiri" value={formData.place} onChange={handleInputChange} />
                   </div>
-                  <div className="flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-slate-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
+                  <div className="flex items-start gap-4 md:gap-6 p-6 md:p-8 bg-blue-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl">
                     <ShieldCheck className="text-amber-500 shrink-0 mt-1" size={22} strokeWidth={2.5} />
                     <p className="text-[8px] md:text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider italic">
                       Submit this application along with copies of PAN Card, Aadhaar Card and Bank details. Fill this application with care — the company is not responsible for any incorrect information.
@@ -317,7 +317,7 @@ const CashbackApplication = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-slate-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
+                className="w-full bg-blue-900 text-white py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] font-black flex items-center justify-center gap-3 md:gap-4 hover:bg-amber-600 transition-all shadow-2xl active:scale-[0.98] disabled:opacity-50 text-[9px] md:text-[10px] uppercase tracking-[0.3em] italic group"
               >
                 {submitting ? <Loader2 className="animate-spin" size={22} /> : (
                   <>Submit Application <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>

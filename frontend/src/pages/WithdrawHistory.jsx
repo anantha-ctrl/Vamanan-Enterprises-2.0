@@ -134,7 +134,7 @@ const WithdrawHistory = () => {
                       <WalletIcon size={14} className="text-amber-600" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 italic">Available Balance: ₹{data.balance.toLocaleString()}</span>
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Withdraw Money</h2>
+                    <h2 className="text-3xl font-black text-blue-900 tracking-tighter uppercase italic">Withdraw Money</h2>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Enter your bank details to receive your money</p>
                   </div>
 
@@ -188,7 +188,7 @@ const WithdrawHistory = () => {
                       <button 
                         type="submit"
                         disabled={processing}
-                        className="w-full py-5 bg-slate-900 text-amber-500 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] italic shadow-2xl hover:bg-amber-500 hover:text-slate-900 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                        className="w-full py-5 bg-blue-900 text-amber-500 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] italic shadow-2xl hover:bg-amber-500 hover:text-blue-900 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                       >
                         {processing ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                         Request Withdrawal
@@ -202,14 +202,14 @@ const WithdrawHistory = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl flex items-center gap-4"
+                        className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex items-center gap-4"
                       >
-                        <div className="p-3 bg-emerald-500 text-white rounded-xl">
+                        <div className="p-3 bg-amber-500 text-white rounded-xl">
                           <CheckCircle2 size={20} />
                         </div>
                         <div>
-                          <p className="text-[10px] font-black text-emerald-900 uppercase italic tracking-widest">Request Submitted</p>
-                          <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Your withdrawal request has been received.</p>
+                          <p className="text-[10px] font-black text-amber-900 uppercase italic tracking-widest">Request Submitted</p>
+                          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest mt-1">Your withdrawal request has been received.</p>
                         </div>
                       </motion.div>
                     )}
@@ -220,7 +220,7 @@ const WithdrawHistory = () => {
 
             {/* Sidebar Notes */}
             <div className="space-y-6">
-              <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-6 shadow-xl">
+              <div className="bg-blue-900 rounded-[2.5rem] p-8 text-white space-y-6 shadow-xl">
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="text-amber-500" size={24} />
                   <h3 className="font-black text-sm uppercase italic tracking-tight">Good to Know</h3>
@@ -246,7 +246,7 @@ const WithdrawHistory = () => {
                   <h3 className="font-black text-[10px] text-amber-900 uppercase tracking-widest italic">Status</h3>
                 </div>
                 <p className="text-[9px] font-bold text-amber-700 leading-relaxed italic">
-                  System status: <span className="text-emerald-600">Online</span>. Large transfers above ₹50,000 may take a little longer to verify.
+                  System status: <span className="text-amber-600">Online</span>. Large transfers above ₹50,000 may take a little longer to verify.
                 </p>
               </div>
             </div>
@@ -256,11 +256,11 @@ const WithdrawHistory = () => {
           <div className="bg-white rounded-[3rem] border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-8 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-900 text-amber-500 rounded-xl">
+                <div className="p-3 bg-blue-900 text-amber-500 rounded-xl">
                   <History size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Withdrawal History</h3>
+                  <h3 className="text-lg font-black text-blue-900 uppercase italic tracking-tighter">Withdrawal History</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Your past withdrawals</p>
                 </div>
               </div>
@@ -287,10 +287,10 @@ const WithdrawHistory = () => {
                       className="hover:bg-slate-50/50 transition-colors"
                     >
                       <td className="px-8 py-6">
-                        <span className="text-[10px] font-black text-slate-900 tracking-widest">#REQ-{w.id}</span>
+                        <span className="text-[10px] font-black text-blue-900 tracking-widest">#REQ-{w.id}</span>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-base font-black italic tracking-tighter text-slate-900">₹{parseFloat(w.amount).toLocaleString()}</span>
+                        <span className="text-base font-black italic tracking-tighter text-blue-900">₹{parseFloat(w.amount).toLocaleString()}</span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
@@ -300,8 +300,8 @@ const WithdrawHistory = () => {
                       </td>
                       <td className="px-8 py-6">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${
-                          w.status === 'completed' || w.status === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                          w.status === 'failed' || w.status === 'rejected' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                          w.status === 'completed' || w.status === 'success' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                          w.status === 'failed' || w.status === 'rejected' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                           'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
                           {humanStatus(w.status)}

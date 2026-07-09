@@ -27,16 +27,16 @@ const Header = ({
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden p-1.5 shadow-lg border border-white/10 shrink-0">
-              <img src="/vamanan-logo.png" alt="Vamanan Gold" className="w-full h-full object-contain" />
+            <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-900 rounded-2xl md:rounded-3xl flex items-center justify-center overflow-hidden p-2 shadow-lg border border-white/10 shrink-0">
+              <img src="/vamanan-logo.png" alt="Vamanan Enterprises V" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[8px] md:text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mb-0.5">
-                <span>Vamanan Gold</span>
-                <div className="w-1 h-1 rounded-full bg-amber-500 shrink-0"></div>
+              <div className="flex items-center gap-2 text-[10px] md:text-xs text-slate-500 font-black uppercase tracking-[0.3em] mb-1">
+                <span>Vamanan Enterprises V</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></div>
                 <span className="text-amber-600 truncate">{humanize(activeTab)}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-4xl font-black capitalize tracking-tighter text-slate-900 leading-none truncate">
+              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black capitalize tracking-tighter text-blue-900 leading-none truncate">
                 {tabLabel}
               </h2>
             </div>
@@ -46,7 +46,7 @@ const Header = ({
         <div className="flex items-center gap-3 shrink-0">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{humanRole(adminData.role)}</span>
-            <span className="text-xs font-black text-slate-900">{adminData.name}</span>
+            <span className="text-xs font-black text-blue-900">{adminData.name}</span>
           </div>
           <button 
             onClick={() => setShowAdminModal(true)}
@@ -66,7 +66,7 @@ const Header = ({
             placeholder="Search users, orders, assets..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl md:rounded-2xl py-3 md:py-4 pl-10 md:pl-14 pr-6 text-sm outline-none focus:border-amber-600 transition-all focus:bg-white text-slate-900 shadow-sm"
+            className="w-full bg-white border border-slate-200 rounded-xl md:rounded-2xl py-3 md:py-4 pl-10 md:pl-14 pr-6 text-sm outline-none focus:border-amber-600 transition-all focus:bg-white text-blue-900 shadow-sm"
           />
         </div>
 

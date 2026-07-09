@@ -23,60 +23,39 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global Overrides: Convert default black/dark text into rich midnight navy blue */
-body,
-.text-black,
-.text-slate-950,
-.text-slate-900,
-.text-slate-800,
-.text-gray-950,
-.text-gray-900,
-.text-gray-800,
-.text-zinc-950,
-.text-zinc-900,
-.text-zinc-800,
-.text-neutral-950,
-.text-neutral-900,
-.text-neutral-800 {
-  color: #0B2545 !important;
-}
-
-/* Form controls default to premium navy (they sit on light surfaces).
-   NOTE: headings (h1–h6) and <p> are intentionally NOT forced here — doing so
-   overrides the inherited `text-white` on dark cards and makes those headings
-   invisible (dark navy text on a dark navy panel). They inherit navy from
-   `body` on light surfaces and white from their parent on dark cards. */
+/* Form controls default text color */
 input, select, textarea {
-  color: #0B2545;
+  color: #1e293b;
 }
 
 .bg-black\/40 { background-color: rgba(0,0,0,0.08) !important; }
 
-/* Global Overrides: Convert default black/dark background colors to premium navy blue variants */
-.bg-black {
-  background-color: #0B2545 !important;
+/* Custom Interactive Overrides: Make buttons and links that use bg-slate-900 render as brand Royal Blue */
+button.bg-slate-900,
+a.bg-slate-900,
+.btn-primary-custom {
+  background-color: #1f42f5 !important;
+  color: #ffffff !important;
 }
-.bg-slate-950,
-.bg-slate-900,
-.bg-gray-950,
-.bg-gray-900,
-.bg-zinc-950,
-.bg-zinc-900,
-.bg-neutral-950,
-.bg-neutral-900 {
-  background-color: #05162E !important; /* Premium Deepest Navy Blue background */
+
+button.bg-slate-900:hover,
+a.bg-slate-900:hover,
+.btn-primary-custom:hover {
+  background-color: #1832e1 !important;
 }
-.bg-slate-800,
-.bg-gray-800,
-.bg-zinc-800,
-.bg-neutral-800 {
-  background-color: #0F2C59 !important; /* Premium Rich Navy Blue card/panel background */
+
+/* Interactive hover override for amber buttons to match gold theme */
+button.hover\:bg-amber-600:hover,
+a.hover\:bg-amber-600:hover {
+  background-color: #b8901f !important;
 }
+
+/* Premium dark navy / royal blue panel backgrounds */
 .bg-dark-bg {
-  background-color: #05162E !important;
+  background-color: #0c1230 !important;
 }
 .bg-dark-card {
-  background-color: #0B2545 !important;
+  background-color: #101840 !important;
 }
 
 

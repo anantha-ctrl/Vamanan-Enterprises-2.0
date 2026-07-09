@@ -10,17 +10,17 @@ const TreeNode = ({ node, level = 1 }) => {
   const levelColors = [
     'border-amber-500 bg-amber-50',
     'border-blue-500 bg-blue-50',
-    'border-emerald-500 bg-emerald-50',
-    'border-indigo-500 bg-indigo-50',
-    'border-rose-500 bg-rose-50',
+    'border-amber-500 bg-amber-50',
+    'border-slate-600 bg-slate-50',
+    'border-blue-500 bg-blue-50',
   ];
 
   const levelText = [
     'text-amber-700',
     'text-blue-700',
-    'text-emerald-700',
-    'text-indigo-700',
-    'text-rose-700',
+    'text-amber-700',
+    'text-slate-700',
+    'text-blue-700',
   ];
 
   return (
@@ -45,13 +45,13 @@ const TreeNode = ({ node, level = 1 }) => {
           <div className="flex items-center gap-3 mt-0.5">
             <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest italic">{node.referral_code}</p>
             {node.total_investment > 0 && (
-              <p className="text-[8px] text-emerald-600 font-black uppercase tracking-widest italic">₹{parseFloat(node.total_investment).toLocaleString()}</p>
+              <p className="text-[8px] text-amber-600 font-black uppercase tracking-widest italic">₹{parseFloat(node.total_investment).toLocaleString()}</p>
             )}
           </div>
         </div>
 
         {node.kyc_status === 'verified' && (
-          <ShieldCheck size={14} className="text-emerald-500" />
+          <ShieldCheck size={14} className="text-amber-500" />
         )}
       </div>
 
@@ -94,7 +94,7 @@ const GenealogyTree = ({ data, loading }) => {
 
   return (
     <div className="w-full h-full overflow-hidden">
-      <div className="mb-6 p-6 bg-slate-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-2xl border border-white/5">
+      <div className="mb-6 p-6 bg-blue-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-2xl border border-white/5">
         <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12"><Network size={150} /></div>
         <div className="relative z-10 text-center md:text-left">
           <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Your Referral Tree</h3>
@@ -103,11 +103,11 @@ const GenealogyTree = ({ data, loading }) => {
         <div className="relative z-10 flex flex-wrap justify-center gap-2">
           {['L1','L2','L3','L4','L5'].map((l, i) => (
              <div key={l} className={`px-3 py-1 rounded-full text-[8px] font-black border shadow-lg ${[
-               'border-amber-500/20 bg-amber-500 text-slate-900',
+               'border-amber-500/20 bg-amber-500 text-blue-900',
                'border-blue-500/20 bg-blue-500 text-white',
-               'border-emerald-500/20 bg-emerald-500 text-white',
-               'border-indigo-500/20 bg-indigo-500 text-white',
-               'border-rose-500/20 bg-rose-500 text-white',
+               'border-amber-500/20 bg-amber-500 text-white',
+               'border-slate-600/20 bg-slate-600 text-white',
+               'border-blue-500/20 bg-blue-500 text-white',
              ][i]}`}>{l}</div>
           ))}
         </div>

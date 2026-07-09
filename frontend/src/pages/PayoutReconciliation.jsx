@@ -251,7 +251,7 @@ const PayoutReconciliation = () => {
 
           {/* Institutional Upload Hub */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-slate-900/20">
+            <div className="lg:col-span-2 bg-blue-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-blue-900/20">
               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-amber-500/20 transition-all duration-700" />
               <div className="relative z-10 flex flex-col h-full justify-between gap-10">
                 <div className="space-y-4">
@@ -265,13 +265,13 @@ const PayoutReconciliation = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-3xl p-6 hover:border-amber-500 transition-all cursor-pointer bg-slate-800/50 group/upload">
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-3xl p-6 hover:border-amber-500 transition-all cursor-pointer bg-blue-800/50 group/upload">
                     <input type="file" className="hidden" accept=".csv, .xlsx, .xls, .pdf" onChange={handleFileUpload} disabled={processing} />
                     {processing ? <Loader2 size={32} className="text-amber-500 animate-spin" /> : <Upload size={32} className="text-slate-500 group-hover/upload:text-amber-500 transition-colors" />}
                     <span className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Upload Bank Response</span>
                     <span className="text-[8px] text-slate-500 font-bold mt-1">Excel, CSV, or PDF Documents</span>
                   </label>
-                  <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700 flex flex-col justify-between">
+                  <div className="bg-blue-800/50 rounded-3xl p-6 border border-slate-700 flex flex-col justify-between">
                     <div className="space-y-4">
                       <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest italic underline decoration-amber-500/30 underline-offset-4">Document Specification</p>
                       <ul className="space-y-2">
@@ -312,15 +312,15 @@ const PayoutReconciliation = () => {
                 <div className="flex items-center justify-between">
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] italic">System Pulse</h4>
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                    <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest italic">{lastPulse.toLocaleTimeString()}</span>
+                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping" />
+                    <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest italic">{lastPulse.toLocaleTimeString()}</span>
                   </div>
                 </div>
                 <div className="space-y-4">
                   {[
                     { label: 'Pending Batch', value: stats.pending, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-                    { label: 'Reconciled Success', value: stats.success, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                    { label: 'Failure Intercepts', value: stats.failed, icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-50' }
+                    { label: 'Reconciled Success', value: stats.success, icon: CheckCircle2, color: 'text-amber-600', bg: 'bg-amber-50' },
+                    { label: 'Failure Intercepts', value: stats.failed, icon: AlertCircle, color: 'text-blue-600', bg: 'bg-blue-50' }
                   ].map((stat, i) => (
                     <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:scale-[1.02] transition-transform">
                       <div className="flex items-center gap-3">
@@ -337,7 +337,7 @@ const PayoutReconciliation = () => {
               <button 
                 onClick={fetchData}
                 disabled={loading}
-                className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all active:scale-95"
+                className="w-full mt-6 py-4 bg-blue-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-600 transition-all active:scale-95"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                 Refresh Records
@@ -353,7 +353,7 @@ const PayoutReconciliation = () => {
                   <Database size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter">Status Matrix</h3>
+                  <h3 className="text-lg font-black text-blue-900 uppercase italic tracking-tighter">Status Matrix</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Data Verification</p>
                 </div>
               </div>
@@ -397,7 +397,7 @@ const PayoutReconciliation = () => {
                     >
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
-                          <span className="text-xs font-black text-slate-900 uppercase italic tracking-tighter">{p.user_name}</span>
+                          <span className="text-xs font-black text-blue-900 uppercase italic tracking-tighter">{p.user_name}</span>
                           <span className="text-[9px] font-bold text-slate-400">ID: {p.user_id}</span>
                         </div>
                       </td>
@@ -410,8 +410,8 @@ const PayoutReconciliation = () => {
                       <td className="px-8 py-6">
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${
-                            p.status === 'success' || p.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                            p.status === 'failed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                            p.status === 'success' || p.status === 'completed' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                            p.status === 'failed' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                             'bg-amber-50 text-amber-600 border border-amber-100'
                           }`}>
                             {p.status === 'success' || p.status === 'completed' ? <CheckCircle2 size={10} /> :
@@ -420,7 +420,7 @@ const PayoutReconciliation = () => {
                             {humanStatus(p.status)}
                           </span>
                           {p.failure_reason && (
-                            <span className="text-[8px] font-bold text-rose-400 italic bg-rose-50/50 px-2 py-0.5 rounded border border-rose-100/50 w-fit">
+                            <span className="text-[8px] font-bold text-blue-400 italic bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100/50 w-fit">
                               {p.failure_reason}
                             </span>
                           )}
@@ -436,7 +436,7 @@ const PayoutReconciliation = () => {
                         {p.status === 'failed' && (
                           <button 
                             onClick={() => retryPayout(p.id)}
-                            className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-amber-600 transition-all active:scale-90 shadow-lg shadow-slate-900/10"
+                            className="p-2.5 bg-blue-900 text-white rounded-xl hover:bg-amber-600 transition-all active:scale-90 shadow-lg shadow-blue-900/10"
                             title="Retry Transfer"
                           >
                             <RefreshCw size={14} />

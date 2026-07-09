@@ -1,4 +1,4 @@
-// High-Frequency Application Hub - Vamanan Gold
+// High-Frequency Application Hub - Vamanan Enterprises V
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import LandingPage from './pages/LandingPage';
