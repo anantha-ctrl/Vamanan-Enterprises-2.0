@@ -10,11 +10,12 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
 
 - **Live Market Synchronization**: Real-time integration with global gold exchanges (XAU/INR) featuring automated 10-minute synchronization and direct TradingView chart validation.
 - **Cinematic Landing Portal**: High-end landing page with real-time market tickers, military-grade security matrices, and dynamic institutional performance metrics.
+- **Live Landing Metrics Engine**: The public landing headline stats — **Institutional Partners**, **Managed Assets**, and **Weekly Payouts** — are served live from `api/public/stats.php`, which sums real platform data (customer count, capital under management, disbursed payouts) and adds admin-tunable **marketing offsets** (`marketing_investor_offset`, `marketing_capital_offset`, `marketing_payout_offset` in `platform_settings`). The figures render as CountUp-animated tiles (e.g. **5,000+** partners · **₹50Cr+** assets · **₹10L+** weekly payout) and grow automatically as real membership and volume accrue on top of the baseline — no redeploy required.
 - **Automated Yield Protocol**: Proprietary "1% Diurnal Yield" engine that credits daily cashback and 5-tier referral commissions on the ex-GST product value. It now runs **automatically once per calendar day** via a self-triggering ("lazy cron") guard — fired the first time any customer or admin opens their dashboard — backed by an **atomic once-per-day claim** plus a per-cycle `last_paid_at` guard that make double-payment impossible. The same `daily_yield_engine.php` also powers the manual **Process Daily Yield** trigger and any OS/cPanel cron, so manual and automatic runs share one idempotent code path.
 - **Referral Genealogy Org-Chart**: A live, top-down **downline tree** — the account holder (`YOU`) anchors the top and every direct referral branches beneath them, recursively, connected by org-chart lines. Children render **newest-first**, and the most recently joined member network-wide is badged **Newest**. Built from the real `referrer_id` ancestry with cycle-safe traversal, served as a nested tree by the PHP-REST layer straight from the MySQL core, and polled live so the chart redraws as the network grows. (Distinct from the **5-tier commission ladder**, which continues to flow up the true referral ancestry so payouts remain correct.)
 - **Digital Ratification Workflow**: Secure, multi-party agreement protocol requiring Advocate Ratification and Partner Verification for all institutional gold contracts.
 - **Advanced Audit Command Center**:
-  - **Cashback Reports**: Premium gold-black dashboard with monthly/daily yield tracking and automated liability forecasting.
+  - **Cashback Reports**: Premium blue-navy dashboard with monthly/daily yield tracking and automated liability forecasting.
   - **Withdrawal Registry**: Secure liquidity bridge with status monitoring (Pending/Approved/Failed) and real-time alert nodes.
   - **Payout Analytics**: Institutional disbursement ledger with bank-grade artifact tracking (IFSC, A/C No) and daily velocity charts.
 - **GST-Exclusive Cashback & Tax Engine**: Category-based GST (admin-configurable Gold/Silver vs. general-product rates) applied at checkout with automatic **CGST + SGST** split. Customers pay the full GST-inclusive invoice, but **every incentive — daily cashback, 5-tier referral, and commission — is calculated strictly on the ex-GST product value**; GST never contributes to any reward. Each order auto-generates a printable **Tax Invoice** (with CGST/SGST breakdown, viewable from the customer dashboard) plus a linked cashback application, and a dedicated **GST Filing** console surfaces a real-time, rate-wise (GSTR-1 style) and invoice-wise summary with CSV export.
@@ -152,18 +153,21 @@ flowchart TD
 Makkal_Gold/
 │
 ├── api/                    # Sovereign Core Backend
-│   ├── admin/              # Administrative Audit & Sync Endpoints
+│   ├── admin/              # Administrative Audit & Sync Endpoints (feedback, offers, ...)
 │   │   └── tally/          # Tally ERP Integration (ledgers, reports, vouchers, export, sync)
 │   ├── auth/               # Secure Authentication Nodes (Login, Register, OTP Verification & Resend)
 │   ├── cron/               # Automated Yield Engines (Daily Protocol)
-│   ├── customer/           # Investor-Facing Data & Ratification Nodes
+│   ├── customer/           # Investor-Facing Data & Ratification Nodes (feedback, referrals, ...)
+│   ├── shop/               # Purchase / Order + GST-exclusive cashback engine
+│   ├── offers/             # Active festival/promo offers feed (login popup + banner)
+│   ├── public/             # Public landing metrics (stats.php: live partners/assets/payout)
 │   ├── models/             # Fiscal Business Logic (Wallet, Cycle)
 │   ├── config.php          # Self-Healing DB Config
 │   └── config/             # DB and Mail Protocols
 │
 ├── frontend/               # Institutional React Portal
 │   ├── src/                
-│   │   ├── components/     # Reusable UI Frameworks (Header, Sidebar)
+│   │   ├── components/     # Reusable UI Frameworks (Header, Sidebar, FeedbackWidget, AdminFeedback, AdminOffers)
 │   │   ├── pages/          # High-Fidelity Views (Dashboard, Reports, etc.)
 │   │   └── assets/         # Local Institutional Branding Artifacts
 │   └── vite.config.js      

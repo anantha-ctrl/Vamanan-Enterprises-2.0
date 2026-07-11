@@ -322,8 +322,10 @@ try {
     )");
 
     // --- SEED INITIAL DATA ---
-    $count = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
-    if ($count == 0) {
+    // Sample-product seeding intentionally DISABLED after the full data reset so the
+    // catalog stays empty until real products are added via Admin → Asset Inventory.
+    // (Re-enable by restoring `if ($count == 0)` below.)
+    if (false) {
         $pdo->exec("INSERT INTO products (name, category, slug, weight, purity, price, description, is_active) VALUES
             ('22K Gold Coin (1g)', 'Gold', '22k-gold-coin-1g', 1.000, '22K', 7850.00, 'Pure 22K Gold Coin with BIS Hallmark.', 1),
             ('22K Gold Coin (2g)', 'Gold', '22k-gold-coin-2g', 2.000, '22K', 15700.00, 'Pure 22K Gold Coin with BIS Hallmark.', 1),
@@ -337,9 +339,10 @@ try {
             ->execute(['Super Admin', 'admin@makkalgold.com', 'admin123', 'admin', 'ADMIN001', 'active']);
     }
 
-    // Seed Manager if not exists
+    // Manager auto-seed DISABLED after the full data reset — only the admin login is kept.
+    // (Re-enable by restoring `if ($managerCount == 0)` below.)
     $managerCount = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'manager'")->fetchColumn();
-    if ($managerCount == 0) {
+    if (false) {
         $pdo->prepare("INSERT INTO users (name, email, password, role, referral_code, status) VALUES (?, ?, ?, ?, ?, ?)")
             ->execute(['Operations Manager', 'manager@makkalgold.com', 'manager123', 'manager', 'MGR001', 'active']);
     }
