@@ -24,7 +24,7 @@ try {
 
     // Initialize default settings if table is empty
     $defaults = [
-        'referral_commission_l1' => '0.2',
+        'referral_commission_l1' => '1',
         'referral_commission_l2' => '0.1',
         'referral_commission_l3' => '0.1',
         'referral_commission_l4' => '0.05',
@@ -38,6 +38,11 @@ try {
         'maintenance_mode' => '0',
         'payout_processing_fee' => '10',
         'daily_cashback_rate' => '1',
+        // Incentive deductions (applied to daily cashback + referral commissions).
+        // Configurable independently; total withheld = tds_rate + service_charge_rate.
+        'tds_rate' => '5',
+        'service_charge_rate' => '5',
+        'tds_charges_rate' => '10', // legacy combined key (kept for backward compatibility)
         'min_investment' => '1000',
         'support_phone' => '+91 90000 00000',
         'support_email' => 'support@makkalgold.com',

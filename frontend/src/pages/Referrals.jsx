@@ -136,7 +136,13 @@ const Referrals = () => {
   const totalNodes = levels.reduce((s, l) => s + l.count, 0);
   const progress = data?.progress || 0;
   const eligible = data?.eligible || false;
-  const totalEarnings = data?.total_network_earnings || 0;
+  const totalEarnings = data?.total_network_earnings || 0;   // net credited
+  const totalGross = data?.total_network_gross || 0;         // before deductions
+  const totalTds = data?.total_network_tds || 0;             // TDS component
+  const totalCharges = data?.total_network_charges || 0;     // charges component
+  const totalDeduction = data?.total_network_deduction || (totalTds + totalCharges);
+  const tdsRate = data?.tds_rate ?? 5;
+  const chargeRate = data?.service_charge_rate ?? 5;
   const todayEarnings = data?.today_earnings || 0;
   const history = data?.history || [];
   const dailyCashbackRate = data?.daily_cashback_rate || '1%';
@@ -164,6 +170,20 @@ const Referrals = () => {
               <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
             </button> */}
           </motion.div>
+
+          {/* Referral paused banner (admin-controlled, real-time) */}
+          {data?.referral_active === 0 && (
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-4 bg-red-50 border border-red-100 rounded-[2rem] p-6 shadow-sm">
+              <div className="w-11 h-11 bg-red-500 rounded-2xl flex items-center justify-center text-white shrink-0"><ShieldCheck size={20} /></div>
+              <div>
+                <p className="text-[11px] font-black text-red-600 uppercase tracking-widest italic">Referral Commissions Paused</p>
+                <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest mt-1 italic leading-relaxed">
+                  Your referral earnings are currently stopped by the administrator. Your own daily cashback is unaffected. Contact support for details.
+                </p>
+              </div>
+            </motion.div>
+          )}
 
           {/* ── TOP REFERRAL CODE HERO ──────────────────────────── */}
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
@@ -207,8 +227,28 @@ const Referrals = () => {
                 <div className="absolute top-0 right-0 p-8 opacity-10"><TrendingUp size={150} /></div>
                 <div className="relative z-10 space-y-8 sm:space-y-10">
                   <div>
-                    <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Total Network Earnings</p>
+                    <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Total Network Earnings <span className="text-blue-400">(Net)</span></p>
                     <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-blue-900 italic tracking-tighter leading-none">₹{parseFloat(totalEarnings).toLocaleString()}</h3>
+                    {totalDeduction > 0 && (
+                      <div className="mt-4 space-y-2 bg-white/70 border border-slate-100 rounded-2xl p-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Gross Earned</span>
+                          <span className="text-[11px] font-black text-blue-900 italic tracking-tight">₹{parseFloat(totalGross).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-black text-red-400 uppercase tracking-widest italic">TDS ({tdsRate}%)</span>
+                          <span className="text-[11px] font-black text-red-500 italic tracking-tight">− ₹{parseFloat(totalTds).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-black text-red-400 uppercase tracking-widest italic">Service Charges ({chargeRate}%)</span>
+                          <span className="text-[11px] font-black text-red-500 italic tracking-tight">− ₹{parseFloat(totalCharges).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                          <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic">Net Credited</span>
+                          <span className="text-[11px] font-black text-amber-600 italic tracking-tight">₹{parseFloat(totalEarnings).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4 sm:gap-8">
                     <div>
@@ -573,9 +613,16 @@ const Referrals = () => {
                         <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{new Date(h.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                       </div>
                     </div>
-                    <p className="text-base font-black text-amber-600 italic tracking-tighter group-hover:text-amber-600 transition-colors">
-                      +₹{parseFloat(h.amount).toLocaleString()}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-base font-black text-amber-600 italic tracking-tighter group-hover:text-amber-600 transition-colors">
+                        +₹{parseFloat(h.amount).toLocaleString()}
+                      </p>
+                      {h.deduction > 0 && (
+                        <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-0.5">
+                          gross ₹{parseFloat(h.gross_amount).toLocaleString()} · <span className="text-red-400">TDS −₹{parseFloat(h.tds_amount || 0).toLocaleString()}</span> · <span className="text-red-400">chg −₹{parseFloat(h.charges_amount || 0).toLocaleString()}</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

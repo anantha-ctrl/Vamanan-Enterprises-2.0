@@ -56,7 +56,9 @@ try {
         'status' => "ENUM('active', 'pending', 'suspended') DEFAULT 'pending' AFTER branch_name",
         'notify_email' => "TINYINT(1) DEFAULT 1 AFTER status",
         'notify_system' => "TINYINT(1) DEFAULT 1 AFTER notify_email",
-        'permissions' => "TEXT AFTER notify_system"
+        'permissions' => "TEXT AFTER notify_system",
+        // Admin switch: 1 = member earns referral commission, 0 = referral stopped.
+        'referral_active' => "TINYINT(1) NOT NULL DEFAULT 1 AFTER referral_code"
     ];
 
     foreach ($columns as $col => $definition) {
@@ -142,6 +144,17 @@ try {
     // Ensure the category enum covers every category the app writes (esp. 'cashback' —
     // a stale migration elsewhere had dropped it, breaking the cashback ledger).
     try { $pdo->exec("ALTER TABLE transactions MODIFY COLUMN category ENUM('purchase', 'purchase_request', 'referral', 'cashback', 'payout', 'withdrawal', 'liquidation', 'manual', 'deposit', 'other') NOT NULL DEFAULT 'other'"); } catch (PDOException $e) {}
+    // TDS & charges breakdown on incentive credits (cashback / referral):
+    //   amount         = NET credited to the wallet (post-deduction)
+    //   gross_amount   = pre-deduction incentive (e.g. 1% daily cashback)
+    //   tds_amount     = TDS component withheld
+    //   charges_amount = processing/service charge component withheld
+    //   deduction      = total deduction (tds_amount + charges_amount = gross - net)
+    // NULL on rows where no deduction applies (purchases, withdrawals, legacy rows).
+    try { $pdo->exec("ALTER TABLE transactions ADD COLUMN gross_amount DECIMAL(15,2) NULL AFTER amount"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE transactions ADD COLUMN tds_amount DECIMAL(15,2) NULL AFTER gross_amount"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE transactions ADD COLUMN charges_amount DECIMAL(15,2) NULL AFTER tds_amount"); } catch (PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE transactions ADD COLUMN deduction DECIMAL(15,2) NULL AFTER charges_amount"); } catch (PDOException $e) {}
 
     // 5. Withdrawals Table
     $pdo->exec("CREATE TABLE IF NOT EXISTS withdrawals (

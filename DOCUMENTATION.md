@@ -86,7 +86,8 @@ Five roles (`users.role` enum): **admin, manager, staff, advocate, customer**.
 All tables are created/migrated by `api/config.php`. Highlights:
 
 ### users
-`id, customer_id (VEV###), name, email, password, role, kyc_status, referral_code (VEV…), referrer_id, phone, address, aadhar_no, pan_no, kyc_document, avatar, bank_name, account_no, ifsc_code, branch_name, status, notify_email, notify_system, permissions, created_at`
+`id, customer_id (VEV###), name, email, password, role, kyc_status, referral_code (VEV…), referral_active, referrer_id, phone, address, aadhar_no, pan_no, kyc_document, avatar, bank_name, account_no, ifsc_code, branch_name, status, notify_email, notify_system, permissions, created_at`
+- `referral_active` (TINYINT, default `1`) — admin switch to **stop/resume** a member's referral commissions; `0` makes the yield engine skip them for all referral payouts (own daily cashback unaffected).
 
 ### wallets
 `id, user_id, balance, total_earned, total_withdrawn`
@@ -95,8 +96,9 @@ All tables are created/migrated by `api/config.php`. Highlights:
 `id, product_code (VEVP###), name, category, slug, weight, purity, price, image, description, is_active, created_at, updated_at`
 
 ### transactions
-`id, wallet_id, amount, type(credit|debit), category, status(pending|completed|failed|rejected), description, created_at`
+`id, wallet_id, amount, gross_amount, tds_amount, charges_amount, deduction, type(credit|debit), category, status(pending|completed|failed|rejected), description, created_at`
 - `category` enum: `purchase, purchase_request, referral, cashback, payout, withdrawal, liquidation, manual, deposit, other`
+- **Deduction breakdown** on incentive credits (cashback / referral): `amount` = **net** credited to the wallet, `gross_amount` = pre-deduction incentive, `tds_amount` + `charges_amount` = the two withheld components, `deduction` = their total. `NULL` where no deduction applies (purchases, withdrawals, legacy rows).
 
 ### cashback_cycles  *(the heart of the yield engine)*
 `id, user_id, asset_type(gold|silver|product), weight, product_id, product_name,`
@@ -128,14 +130,18 @@ All tables are created/migrated by `api/config.php`. Highlights:
   - All other products → **`general_gst`** (configurable).
 - Stores `product_amount`, `gst_amount`, `total_amount`, `cashback_eligible_amount` separately.
 - Customer pays the **GST-inclusive** total; **all incentives are calculated on the ex-GST product subtotal only.**
-- On order: generates a **CGST/SGST tax invoice** and **auto-creates the cashback application/cycle**; captures `ledger_txn_id`.
+- On order: generates a **CGST/SGST tax invoice** and **auto-creates the cashback application/cycle** (with `daily_payout` = 1% of the ex-GST base); captures `ledger_txn_id`.
+- **Cashback Application popup** (`CashbackApplicationModal.jsx`): immediately after a successful order, a modal opens **prefilled** with the customer's live profile + bank data (`customer/cashback_application.php` GET) and the just-placed purchase (amount, product, date). The customer completes it manually and submits (POST) to `cashback_applications`; a "Skip for now" option proceeds to WhatsApp + dashboard.
 - Duplicate-submit guard: 60-second same-amount window (not a blanket pending block).
 - Delivery messaging: *“Product delivered within 7 working days; payout starts within 48 hours.”*
 
 ### 6.3 Cashback / Yield Engine
-- Admin **Authorize Activation** / **Reject** a cycle (`api/admin/approve_investment.php`).
+- Admin **Authorize Activation** / **Reject** a cycle (`api/admin/approve_investment.php`). On activation the cycle's `daily_payout` is (re)computed as `cashback_eligible_amount × dailyRate` so dashboards/reports show the real 1% yield.
 - **Process Daily Yield** (`api/admin/run_daily_payout.php`, `api/cron/daily_yield_engine.php`) credits `cashback_eligible_amount × dailyRate` to each active cycle and writes a `cashback` ledger transaction (feeds Tally).
-- Referral commission credited up the genealogy on the ex-GST base.
+- Referral commission credited up the genealogy on the ex-GST base. **Direct (L1) referral defaults to 1%** (`referral_commission_l1`); L2–L5 configurable in Settings.
+- **TDS + service charges**: gross incentive accrues to the cycle; the wallet is credited **net** after admin-configurable `tds_rate` + `service_charge_rate`. Each ledger row records `gross_amount / tds_amount / charges_amount / deduction`.
+- **Combined earnings cap (principal lock)**: a member's **cashback + referral together** cap at 100% of `cashback_eligible_amount`. Both cashback and referral increment the *same* cycle `paid_amount`; the cashback step **re-reads the live `paid_amount`** before crediting (so referral commissions credited earlier in the same pass are counted), and the cycle flips to `completed` the moment the combined total reaches the principal — **stopping payouts even before day 100**. Verified end-to-end that combined credits never exceed the principal.
+- **Referral stop/resume**: the engine skips any referrer whose `users.referral_active = 0` (`api/admin/toggle_referral.php`), leaving their own daily cashback intact.
 
 ### 6.4 Genealogy / Referrals
 - `api/admin/get_genealogy.php`, `api/customer/get_genealogy.php`, `api/customer/referrals.php`.
@@ -175,6 +181,16 @@ All tables are created/migrated by `api/config.php`. Highlights:
 ### 6.13 Member Identity Surfacing (VEV IDs)
 - `VEV###` member IDs are shown in: customer **Profile** (`customer/profile.php`), admin **Users** grid incl. a **Referred By** upline via self-join (`admin/all_users.php`), the **Advocate** directory (`advocate/stats.php`), and **Referral** direct + downline views (`customer/referrals.php`).
 
+### 6.14 TDS & Service-Charge Deduction (real-time breakdown)
+- Two admin-tunable rates in Settings — **TDS (%)** (`tds_rate`) and **Service / Processing Charges (%)** (`service_charge_rate`) — are withheld from every cashback and referral credit by `daily_yield_engine.php` (and the manual `admin/adjust_wallet.php` daily-payout path). Falls back to a legacy combined `tds_charges_rate` if the split keys are absent.
+- Each `transactions` row stores `gross_amount / tds_amount / charges_amount / deduction`; the wallet receives the **net**.
+- **Customer surfacing**: Transaction History (per-row gross · TDS · charges), Referral Network (Gross → TDS → Charges → Net card + per-txn split), and the Dashboard "Daily Payout (Net)" tile — all live.
+- **Admin surfacing**: `admin/reports.php` aggregates gross/TDS/charges/deduction/net for the **Cashback** and **Referral** reports (rendered as a **Deduction Breakdown** panel in `AdminReports.jsx`), and the **Wallet Adjustment** panel shows the **final net amount credited to the customer** with a gross → TDS → charges → net breakdown (`get_user_daily_payout.php` returns `total_daily_net / total_daily_tds / total_daily_charges`).
+
+### 6.15 Referral Stop / Resume (admin control)
+- `api/admin/toggle_referral.php` sets `users.referral_active` (0 = stopped, 1 = earning) and drops a notification for the member.
+- The yield engine skips paused members for referral commissions; the admin **Users** grid shows a live **● Earning / ■ Stopped** pill with a **Stop / Resume** button (optimistic update + refetch), and the member's **Referral Network** page shows a "Referral Commissions Paused" banner.
+
 ---
 
 ## 7. API Reference (by area)
@@ -187,7 +203,9 @@ All tables are created/migrated by `api/config.php`. Highlights:
 
 **shop/** `purchase` — **offers/** `active`
 
-**admin/** `stats, all_users, update_user, delete_user, update_profile, add_staff, create_staff, update_permissions, adjust_wallet, wallets, investments, investment_history, approve_investment, delete_investment, cashback_applications, run_daily_payout, get_user_daily_payout, payout_history, payout_reports, reconcile_payouts, export_payouts, product_requests, products, update_product, delete_product, bulk_upload_products, bulk_delete_products, bulk_add_users, categories, normalize_categories, inventory, seed_catalog, gst_filing, withdrawals, process_withdrawal, update_withdrawal, reports, settings, sync_market_rate, broadcast, send_notification, edit_notification, delete_notification, get_all_notifications, tickets, get_genealogy, activity_logs, update_transaction, feedback, offers`
+**admin/** `stats, all_users, update_user, delete_user, update_profile, add_staff, create_staff, update_permissions, adjust_wallet, wallets, investments, investment_history, approve_investment, delete_investment, cashback_applications, run_daily_payout, get_user_daily_payout, payout_history, payout_reports, reconcile_payouts, export_payouts, product_requests, products, update_product, delete_product, bulk_upload_products, bulk_delete_products, bulk_add_users, categories, normalize_categories, inventory, seed_catalog, gst_filing, withdrawals, process_withdrawal, update_withdrawal, reports, settings, sync_market_rate, broadcast, send_notification, edit_notification, delete_notification, get_all_notifications, tickets, get_genealogy, activity_logs, update_transaction, feedback, offers, toggle_referral`
+
+**public/** `stats` — live landing metrics (partners / assets / weekly payout = real counts + marketing offsets)
 
 **admin/tally/** `_bootstrap, data, vouchers, export, sync`
 
@@ -204,7 +222,7 @@ All tables are created/migrated by `api/config.php`. Highlights:
 **Pages** (`frontend/src/pages/`)
 Landing, Login, Register, Recovery · Dashboard, Shop, Referrals, Wallet, WalletOverview, TransactionHistory, WithdrawHistory, Withdrawals, Rules, KYC, Agreement, Profile, CashbackPlan, CashbackApplication, ProductRequest · AdminDashboard, AdminReports, ManagerDashboard, StaffDashboard, AdvocateDashboard, AdvocateProfile · Inventory, WalletListAdmin, CashbackPayouts, ExportPayoutExcel, PayoutReconciliation, PayoutReports, TallyExport, TallyIntegration.
 
-**Components** `Sidebar, Header, CustomerHeader, MobileHeader, BottomNav, Loader, GenealogyTree, RecencyGenealogyTree, FeedbackWidget, AdminFeedback, AdminOffers`.
+**Components** `Sidebar, Header, CustomerHeader, MobileHeader, BottomNav, Loader, GenealogyTree, RecencyGenealogyTree, FeedbackWidget, AdminFeedback, AdminOffers, CashbackApplicationModal`.
 
 **Utils** `accessControl.js` (permissions/routing), `humanLabels.js` (label formatting), `invoice.js` (`generateInvoice()`, `invoiceFromOrder()` — CGST/SGST tax invoice HTML).
 
@@ -254,6 +272,10 @@ Reference palette (white base + navy + gold + vivid blue):
 - **GST is never part of any incentive.** Cashback, referral, and commission all use `cashback_eligible_amount` (ex-GST).
 - **Category GST:** gold/silver → `gold_gst` (3% default); everything else → `general_gst`.
 - **CGST = SGST = GST / 2** (intra-state).
+- **Combined earnings cap:** cashback **+** referral together cap at **100% of the principal** (`cashback_eligible_amount`); payouts stop the moment the combined total is reached — even before day 100.
+- **Incentive deductions:** `tds_rate` + `service_charge_rate` (default 5% + 5%) are withheld from every cashback/referral credit; the cycle accrues **gross**, the wallet receives **net**.
+- **Direct referral (L1) = 1%** by default (`referral_commission_l1`); L2–L5 configurable.
+- **Referral stop:** `users.referral_active = 0` pauses a member's referral commissions (own cashback continues).
 - **VEV IDs** are assigned sequentially and backfilled idempotently on every request.
 - A cashback cycle is tied to its ledger transaction via `ledger_txn_id` for exact approve/reject/delete and correct revenue accounting.
 
@@ -287,7 +309,15 @@ Reference palette (white base + navy + gold + vivid blue):
    - **Advocate purchase totals** (live summary + grand-total footer).
    - **Blue-navy + gold theme** (white base, `blue-900` surfaces, `blue-600` primary, amber accents, red Logout).
    - **Full mobile-responsiveness pass** across admin consoles + landing page.
+10. **Yield economics: deductions, principal cap, referral controls (current):**
+    - **Live landing metrics** (`api/public/stats.php`): partners / assets / weekly payout = real counts + admin marketing offsets.
+    - **Configurable TDS + service charges** on every cashback/referral credit (`tds_rate`, `service_charge_rate`); ledger stores `gross_amount / tds_amount / charges_amount / deduction`; net hits the wallet. Breakdown surfaced in customer (Transaction History, Referral, Dashboard) and admin (Reports, Wallet Adjustment) panels.
+    - **Cashback Application popup** after checkout (`CashbackApplicationModal.jsx`) — prefilled with live profile/bank + purchase data, submitted manually.
+    - **Daily-payout correctness**: cycles now store `daily_payout = 1% of the ex-GST base` (fixed a stale `= 0`), (re)computed on activation and always computed live in `get_user_daily_payout.php`; the admin Wallet Adjustment shows the **final net amount to the customer**.
+    - **Direct referral (L1) set to 1%.**
+    - **Referral stop/resume** admin control (`users.referral_active`, `admin/toggle_referral.php`) — engine skips paused members; member banner + notification.
+    - **Combined earnings cap (principal lock)**: cashback + referral together stop at 100% of principal, even before day 100 — fixed a stale-read that could over-pay past the cap; added the customer Dashboard **Earnings Cap** panel.
 
 ---
 
-*Last updated: 2026-07-09.*
+*Last updated: 2026-07-13.*

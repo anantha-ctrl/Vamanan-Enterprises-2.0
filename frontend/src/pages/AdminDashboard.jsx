@@ -57,7 +57,7 @@ const AdminDashboard = () => {
   const [activityLogs, setActivityLogs] = useState([]);
   const [platformSettings, setPlatformSettings] = useState({
     referral_commission: '5',
-    referral_commission_l1: '0.2',
+    referral_commission_l1: '1',
     referral_commission_l2: '0.1',
     referral_commission_l3: '0.1',
     referral_commission_l4: '0.05',
@@ -71,6 +71,8 @@ const AdminDashboard = () => {
     maintenance_mode: '0',
     payout_processing_fee: '10',
     daily_cashback_rate: '1',
+    tds_rate: '5',
+    service_charge_rate: '5',
     min_investment: '1000',
     support_phone: '+91 90000 00000',
     support_email: 'support@makkalgold.com',
@@ -94,7 +96,7 @@ const AdminDashboard = () => {
   };
   
   // Adjustment States
-  const [adjForm, setAdjForm] = useState({ user_id: '', amount: '', type: 'credit', reason: '' });
+  const [adjForm, setAdjForm] = useState({ user_id: '', amount: '', type: 'credit', reason: '', category: '', gross_amount: 0, tds_amount: 0, charges_amount: 0, deduction: 0 });
   const [selectedUserPayout, setSelectedUserPayout] = useState(null);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [staffForm, setStaffForm] = useState({ name: '', email: '', role: 'staff', password: '', permissions: ['overview', 'kyc', 'tickets'] });
@@ -383,6 +385,27 @@ const AdminDashboard = () => {
     }
   };
 
+  // Stop / resume a member's referral commissions (admin control, real-time).
+  const handleToggleReferral = async (u) => {
+    const currentlyActive = Number(u.referral_active ?? 1) === 1;
+    const nextActive = currentlyActive ? 0 : 1;
+    // Optimistic UI update
+    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, referral_active: nextActive } : x));
+    try {
+      const res = await axios.post(`${API_BASE_URL}/admin/toggle_referral.php`, { user_id: u.id, active: nextActive });
+      if (res.data.status === 'success') {
+        showToast(nextActive === 1 ? `Referral resumed for ${u.name}` : `Referral stopped for ${u.name}`, "success");
+        fetchData(true);
+      } else {
+        setUsers(prev => prev.map(x => x.id === u.id ? { ...x, referral_active: currentlyActive ? 1 : 0 } : x));
+        showToast(res.data.message || "Failed to update referral status", "error");
+      }
+    } catch (err) {
+      setUsers(prev => prev.map(x => x.id === u.id ? { ...x, referral_active: currentlyActive ? 1 : 0 } : x));
+      showToast("Failed to update referral status: " + (err.response?.data?.message || "server error"), "error");
+    }
+  };
+
   const handleRegisterStaff = async (e) => {
     e.preventDefault();
     setProcessing(true);
@@ -408,9 +431,21 @@ const AdminDashboard = () => {
       const res = await axios.get(`${API_BASE_URL}/admin/get_user_daily_payout.php?user_id=${userId}`);
       if (res.data.status === 'success' && res.data.data) {
         setSelectedUserPayout(res.data.data);
-        // Auto-fill amount with today's total daily payout
-        if (res.data.data.total_daily_payout > 0) {
-          setAdjForm(prev => ({ ...prev, amount: res.data.data.total_daily_payout.toFixed(2) }));
+        // Auto-fill with the NET daily payout — the actual amount that reaches the
+        // customer's wallet after TDS + service charges (never the gross).
+        const d = res.data.data;
+        const net = (d.total_daily_net ?? d.total_daily_payout) || 0;
+        if (net > 0) {
+          setAdjForm(prev => ({
+            ...prev,
+            amount: Number(net).toFixed(2),
+            category: 'cashback',
+            reason: 'Daily Cashback Payout (net of TDS + charges)',
+            gross_amount: d.total_daily_payout || 0,
+            tds_amount: d.total_daily_tds || 0,
+            charges_amount: d.total_daily_charges || 0,
+            deduction: d.total_daily_deduction || 0,
+          }));
         }
       } else {
         console.warn('API returned error or empty data:', res.data.message);
@@ -1860,17 +1895,31 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-6">
                     <div className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-200"><Zap size={32} /></div>
                     <div>
-                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] mb-1 italic">Daily Payout Detected</p>
+                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] mb-1 italic">Daily Payout Detected (Gross)</p>
                       <h4 className="text-3xl font-black text-blue-900 italic tracking-tighter">₹{selectedUserPayout.total_daily_payout.toLocaleString()}</h4>
                       <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic">Across {selectedUserPayout.active_cycles} Active Cycles</p>
+                      {(selectedUserPayout.total_daily_deduction > 0) && (
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-black uppercase tracking-widest italic">
+                          <span className="text-red-500">− TDS ₹{(selectedUserPayout.total_daily_tds || 0).toLocaleString()}</span>
+                          <span className="text-red-500">− Charges ₹{(selectedUserPayout.total_daily_charges || 0).toLocaleString()}</span>
+                          <span className="text-amber-600">= Net ₹{(selectedUserPayout.total_daily_net || 0).toLocaleString()}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <button 
+                  <button
                     type="button"
-                    onClick={() => setAdjForm({ ...adjForm, amount: selectedUserPayout.total_daily_payout.toString(), reason: 'Daily Cashback Payout', type: 'credit', category: 'cashback' })}
+                    onClick={() => setAdjForm({ ...adjForm,
+                      amount: (selectedUserPayout.total_daily_net ?? selectedUserPayout.total_daily_payout).toString(),
+                      reason: 'Daily Cashback Payout (net of TDS + charges)', type: 'credit', category: 'cashback',
+                      gross_amount: selectedUserPayout.total_daily_payout || 0,
+                      tds_amount: selectedUserPayout.total_daily_tds || 0,
+                      charges_amount: selectedUserPayout.total_daily_charges || 0,
+                      deduction: selectedUserPayout.total_daily_deduction || 0,
+                    })}
                     className="w-full md:w-auto bg-amber-600 text-white px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-amber-700 transition-all shadow-xl hover:shadow-amber-500/20 active:scale-95 italic flex items-center justify-center gap-3"
                   >
-                    <CheckCircle2 size={18} /> Apply 1% Daily Payout
+                    <CheckCircle2 size={18} /> Apply Net Daily Payout
                   </button>
                 </div>
               )}
@@ -1880,7 +1929,9 @@ const AdminDashboard = () => {
                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Injection Quantity (₹)</label>
                    <div className="relative group">
                       <span className="absolute left-10 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">₹</span>
-                      <input type="number" placeholder="0.00" required value={adjForm.amount} onChange={e => setAdjForm({...adjForm, amount: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2.5rem] py-8 pl-20 pr-10 text-4xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter" />
+                      <input type="number" placeholder="0.00" required value={adjForm.amount}
+                        onChange={e => setAdjForm({...adjForm, amount: e.target.value, gross_amount: 0, tds_amount: 0, charges_amount: 0, deduction: 0 })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-[2.5rem] py-8 pl-20 pr-10 text-4xl font-black text-blue-900 outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner tracking-tighter" />
                    </div>
                 </div>
                 <div className="space-y-3">
@@ -1888,6 +1939,45 @@ const AdminDashboard = () => {
                    <textarea placeholder="Specify the precise reason for this manual intervention..." value={adjForm.reason} onChange={e => setAdjForm({...adjForm, reason: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] p-8 h-32 text-sm outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner text-slate-700 font-bold"></textarea>
                 </div>
               </div>
+
+              {/* Final amount confirmation — exactly what will hit the customer's wallet */}
+              {parseFloat(adjForm.amount || 0) > 0 && (
+                <div className={`p-8 rounded-[2.5rem] border shadow-sm ${adjForm.type === 'debit' ? 'bg-blue-50 border-blue-100' : 'bg-amber-50 border-amber-100'}`}>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <p className={`text-[10px] font-black uppercase tracking-[0.3em] italic mb-1 ${adjForm.type === 'debit' ? 'text-blue-600' : 'text-amber-600'}`}>
+                        {adjForm.type === 'debit' ? 'Final Amount Debited From Customer' : 'Final Amount Credited To Customer'}
+                      </p>
+                      <h4 className="text-4xl font-black text-blue-900 italic tracking-tighter">
+                        {adjForm.type === 'debit' ? '−' : '+'} ₹{parseFloat(adjForm.amount || 0).toLocaleString()}
+                      </h4>
+                      <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1.5 italic">
+                        This is the exact amount that reaches the wallet · real-time from ledger
+                      </p>
+                    </div>
+                    {parseFloat(adjForm.deduction || 0) > 0 && (
+                      <div className="bg-white/70 border border-slate-100 rounded-2xl p-4 min-w-[200px] space-y-1.5">
+                        <div className="flex justify-between text-[9px] font-black uppercase tracking-widest italic">
+                          <span className="text-slate-400">Gross</span>
+                          <span className="text-blue-900">₹{parseFloat(adjForm.gross_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-[9px] font-black uppercase tracking-widest italic">
+                          <span className="text-red-400">TDS</span>
+                          <span className="text-red-500">− ₹{parseFloat(adjForm.tds_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-[9px] font-black uppercase tracking-widest italic">
+                          <span className="text-red-400">Charges</span>
+                          <span className="text-red-500">− ₹{parseFloat(adjForm.charges_amount || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-[9px] font-black uppercase tracking-widest italic pt-1.5 border-t border-slate-100">
+                          <span className="text-amber-600">Net</span>
+                          <span className="text-amber-600">₹{parseFloat(adjForm.amount || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <button 
                 type="button" 
                 onClick={handleAdjustWallet}
@@ -2197,6 +2287,28 @@ const AdminDashboard = () => {
                             )}
                          </div>
                       </div>
+
+                      {/* Referral commission control (admin can stop/resume) */}
+                      {u.role !== 'admin' && (() => {
+                        const refActive = Number(u.referral_active ?? 1) === 1;
+                        return (
+                          <div onClick={e => e.stopPropagation()}
+                            className={`flex items-center justify-between p-4 mb-4 rounded-2xl border ${refActive ? 'bg-amber-50/50 border-amber-100' : 'bg-red-50/60 border-red-100'}`}>
+                            <div className="min-w-0">
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Referral Commission</p>
+                              <p className={`text-[11px] font-black uppercase italic tracking-tight leading-tight ${refActive ? 'text-amber-600' : 'text-red-500'}`}>
+                                {refActive ? '● Earning' : '■ Stopped'}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleToggleReferral(u)}
+                              className={`shrink-0 px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest italic border-2 transition-all active:scale-95 ${refActive ? 'bg-white text-red-500 border-red-200 hover:bg-red-500 hover:text-white hover:border-red-500' : 'bg-white text-amber-600 border-amber-200 hover:bg-amber-500 hover:text-white hover:border-amber-500'}`}
+                            >
+                              {refActive ? 'Stop' : 'Resume'}
+                            </button>
+                          </div>
+                        );
+                      })()}
 
                       <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                          <div className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-sm border ${
@@ -3747,6 +3859,8 @@ const AdminDashboard = () => {
                                 { label: 'L4 Commission (%)', name: 'referral_commission_l4', icon: Users, type: 'number', step: '0.01' },
                                 { label: 'L5 Commission (%)', name: 'referral_commission_l5', icon: Users, type: 'number', step: '0.01' },
                                 { label: 'Daily Cashback Rate (%)', name: 'daily_cashback_rate', icon: Percent, type: 'number', step: '0.01' },
+                                { label: 'TDS (%)', name: 'tds_rate', icon: Percent, type: 'number', step: '0.1' },
+                                { label: 'Service / Processing Charges (%)', name: 'service_charge_rate', icon: Percent, type: 'number', step: '0.1' },
                                 { label: 'Minimum Investment (₹)', name: 'min_investment', icon: Award, type: 'number', step: '1' },
                                 { label: 'Minimum Withdrawal (₹)', name: 'min_withdrawal', icon: Wallet, type: 'number', step: '1' },
                                 { label: 'Gold Base Price (₹/g)', name: 'gold_base_price', icon: TrendingUp, type: 'number', step: '1' },

@@ -78,6 +78,38 @@ try {
     // Daily rate from active cycle (default 1%)
     $dailyRate = $activeCycle ? round((float)($activeCycle['daily_payout'] ?? 0) / max((float)($activeCycle['total_value'] ?? 1), 1) * 100, 2) : 1;
 
+    // ── Deduction rates (same source as the yield engine) ──────────────────
+    $rateRows = $db->query("SELECT config_key, config_value FROM platform_settings
+                            WHERE config_key IN ('tds_rate','service_charge_rate','tds_charges_rate')")
+                   ->fetchAll(PDO::FETCH_KEY_PAIR);
+    if (isset($rateRows['tds_rate']) || isset($rateRows['service_charge_rate'])) {
+        $tdsRatePct    = (float)($rateRows['tds_rate'] ?? 0);
+        $chargeRatePct = (float)($rateRows['service_charge_rate'] ?? 0);
+    } else {
+        $tdsRatePct    = (float)($rateRows['tds_charges_rate'] ?? 10);
+        $chargeRatePct = 0.0;
+    }
+    // Expected NET daily payout (gross 1% less TDS + service charges).
+    $dailyTds        = round($totalDailyPayout * $tdsRatePct / 100, 2);
+    $dailyCharges    = round($totalDailyPayout * $chargeRatePct / 100, 2);
+    $dailyDeduction  = round($dailyTds + $dailyCharges, 2);
+    $dailyPayoutNet  = round($totalDailyPayout - $dailyDeduction, 2);
+
+    // ── Realised incentive breakdown (actual credited cashback + referral) ──
+    $incStmt = $db->prepare("
+        SELECT
+            COALESCE(SUM(t.amount), 0)                              AS net,
+            COALESCE(SUM(COALESCE(t.gross_amount, t.amount)), 0)    AS gross,
+            COALESCE(SUM(COALESCE(t.tds_amount, 0)), 0)             AS tds,
+            COALESCE(SUM(COALESCE(t.charges_amount, 0)), 0)         AS charges,
+            COALESCE(SUM(COALESCE(t.deduction, 0)), 0)              AS deduction
+        FROM transactions t
+        JOIN wallets w ON t.wallet_id = w.id
+        WHERE w.user_id = ? AND t.type = 'credit' AND t.category IN ('cashback','referral')
+    ");
+    $incStmt->execute([$userId]);
+    $inc = $incStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
     // 4. Referral Stats (Total 5-Level Network)
     function countNetwork($db, $parentId, $level = 1) {
         if ($level > 5) return 0;
@@ -133,8 +165,14 @@ try {
                 "is_closing_soon"    => $daysRemaining <= 10 && $daysRemaining > 0,
                 "days_completed"     => $daysCompleted,
                 "days_remaining"     => $daysRemaining,
-                "daily_payout"       => $totalDailyPayout,
+                "daily_payout"       => $totalDailyPayout,       // gross expected daily (1%)
+                "daily_payout_net"   => $dailyPayoutNet,         // net after TDS + charges
+                "daily_tds"          => $dailyTds,
+                "daily_charges"      => $dailyCharges,
+                "daily_deduction"    => $dailyDeduction,
                 "daily_rate"         => $dailyRate,
+                "tds_rate"           => $tdsRatePct,
+                "service_charge_rate"=> $chargeRatePct,
                 "active_plans_count" => $activeCyclesCount,
                 "status"             => $activeCycle ? $activeCycle['status'] : 'none',
                 "asset_type"         => $activeCycle['asset_type'] ?? 'gold',
@@ -148,6 +186,13 @@ try {
                 "total_referral_earned" => $totalReferralEarnings,
             ],
             "transactions"      => $transactions,
+            "incentive_breakdown" => [
+                "gross"     => (float)($inc['gross'] ?? 0),
+                "tds"       => (float)($inc['tds'] ?? 0),
+                "charges"   => (float)($inc['charges'] ?? 0),
+                "deduction" => (float)($inc['deduction'] ?? 0),
+                "net"       => (float)($inc['net'] ?? 0),
+            ],
             "referrals_count"   => $referralCount,
             "customer_id"       => $user['customer_id'] ?? null,
             "referral_code"     => $user['referral_code'] ?? null,

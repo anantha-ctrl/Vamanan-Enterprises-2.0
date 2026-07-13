@@ -19,6 +19,7 @@ const imgUrl = (path) => {
 };
 import Sidebar from '../components/Sidebar';
 import CustomerHeader from '../components/CustomerHeader';
+import CashbackApplicationModal from '../components/CashbackApplicationModal';
 
 /* ─── status badge helper ─── */
 const StatusBadge = ({ status }) => {
@@ -45,6 +46,10 @@ const Shop = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm]       = useState({ transaction_id: '', screenshot: null, phone: '' });
+  /* ── cashback application popup (opens after a successful order) ── */
+  const [showCashbackApp, setShowCashbackApp] = useState(false);
+  const [cashbackPrefill, setCashbackPrefill] = useState({});
+  const [pendingWaLink, setPendingWaLink]     = useState('');
 
   /* ── settings ── */
   const [goldPrice, setGoldPrice]           = useState(7250);
@@ -351,15 +356,37 @@ const Shop = () => {
           `🛒 *New Purchase Request!*\n\n👤 *Customer:* ${user.name}\n📞 *Phone:* ${user.phone || 'N/A'}\n💰 *Asset:* ${itemLabel}\n💵 *Amount:* ₹${effectiveAmount.toLocaleString()}\n🆔 *UTR:* ${paymentForm.transaction_id}\n🚚 *Delivery:* Within 7 working days\n💸 *Payout starts:* Within 48 hours of approval\n\n_Please verify screenshot in admin panel._`
         );
         const waLink = `https://wa.me/${supportPhone}?text=${msg}`;
-        setStatus({ type: 'success', message: `${res.data.message} 🚚 Product delivered within 7 working days · Payout starts within 48 hours. Redirecting to WhatsApp...` });
+        // Skip the fullscreen status popup on success — the cashback application
+        // modal (below) is the immediate next step and would otherwise be hidden by it.
+        setStatus({ type: '', message: '' });
         setShowPaymentModal(false);
         if (checkoutMode === 'cart') setCart([]);
         setPaymentForm({ transaction_id: '', screenshot: null, phone: '' });
-        setTimeout(() => { window.open(waLink, '_blank'); navigate('/dashboard'); }, 3000);
+
+        // Open the cashback application popup, prefilled with this purchase.
+        // The customer completes it manually; on submit/skip we proceed to WhatsApp + dashboard.
+        setCashbackPrefill({
+          purchase_amount: String(effectiveAmount.toFixed(2)),
+          purchased_product: itemLabel || '',
+          product_details: invoiceItems.map(i => `${i.name}${i.qty > 1 ? ` x${i.qty}` : ''}`).join(', '),
+          purchase_date: new Date().toISOString().split('T')[0],
+        });
+        setPendingWaLink(waLink);
+        setShowCashbackApp(true);
       }
     } catch (err) {
       setStatus({ type: 'error', message: err.response?.data?.message || 'Transaction failed. Try again.' });
     } finally { setBuying(false); }
+  };
+
+  /* Called after the cashback application modal is submitted or skipped:
+     notify support on WhatsApp, then head to the dashboard. */
+  const finishAfterOrder = () => {
+    const link = pendingWaLink;
+    setPendingWaLink('');
+    setCashbackPrefill({});
+    if (link) window.open(link, '_blank');
+    navigate('/dashboard');
   };
 
   /* ──────────── loading screen ──────────── */
@@ -1097,6 +1124,15 @@ const Shop = () => {
             </motion.div>
           </div>
         )}
+
+        {/* Cashback Application popup — opens right after a successful order */}
+        <CashbackApplicationModal
+          open={showCashbackApp}
+          user={user}
+          prefill={cashbackPrefill}
+          onClose={() => { setShowCashbackApp(false); finishAfterOrder(); }}
+          onSubmitted={() => { setShowCashbackApp(false); finishAfterOrder(); }}
+        />
 
         {/* Status popup */}
         {status.message && (

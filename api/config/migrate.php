@@ -15,6 +15,8 @@ function runMigrations($db) {
         "ALTER TABLE users ADD COLUMN account_no VARCHAR(50) AFTER bank_name",
         "ALTER TABLE users ADD COLUMN ifsc_code VARCHAR(20) AFTER account_no",
         "ALTER TABLE users ADD COLUMN branch_name VARCHAR(100) AFTER ifsc_code",
+        // Admin switch to stop/resume a member's referral commissions (1 = earns, 0 = stopped).
+        "ALTER TABLE users ADD COLUMN referral_active TINYINT(1) NOT NULL DEFAULT 1 AFTER referral_code",
         "ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'manager', 'staff', 'advocate', 'customer') DEFAULT 'customer'"
     ];
 

@@ -23,13 +23,18 @@ try {
     switch ($type) {
         case 'cashback':
             // Summary
-            $stmt = $db->query("SELECT 
-                COUNT(*) as total_count, 
+            $stmt = $db->query("SELECT
+                COUNT(*) as total_count,
                 SUM(amount) as total_amount,
                 SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as success_amount,
                 SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_amount,
                 SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN amount ELSE 0 END) as daily_amount,
-                SUM(CASE WHEN MONTH(created_at) = MONTH(CURRENT_DATE) AND YEAR(created_at) = YEAR(CURRENT_DATE) THEN amount ELSE 0 END) as monthly_amount
+                SUM(CASE WHEN MONTH(created_at) = MONTH(CURRENT_DATE) AND YEAR(created_at) = YEAR(CURRENT_DATE) THEN amount ELSE 0 END) as monthly_amount,
+                SUM(COALESCE(gross_amount, amount)) as gross_amount,
+                SUM(COALESCE(tds_amount, 0)) as tds_amount,
+                SUM(COALESCE(charges_amount, 0)) as charges_amount,
+                SUM(COALESCE(deduction, 0)) as total_deduction,
+                SUM(amount) as net_amount
                 FROM transactions WHERE category = 'cashback'");
             $data['summary'] = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -103,10 +108,15 @@ try {
 
         case 'referral':
             // Summary Stats
-            $stmt = $db->query("SELECT 
-                COUNT(*) as count, 
-                SUM(amount) as total,
-                COUNT(DISTINCT w.user_id) as unique_earners
+            $stmt = $db->query("SELECT
+                COUNT(*) as count,
+                SUM(t.amount) as total,
+                COUNT(DISTINCT w.user_id) as unique_earners,
+                SUM(COALESCE(t.gross_amount, t.amount)) as gross_amount,
+                SUM(COALESCE(t.tds_amount, 0)) as tds_amount,
+                SUM(COALESCE(t.charges_amount, 0)) as charges_amount,
+                SUM(COALESCE(t.deduction, 0)) as total_deduction,
+                SUM(t.amount) as net_amount
                 FROM transactions t JOIN wallets w ON t.wallet_id = w.id WHERE t.category = 'referral'");
             $data['summary'] = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -21,15 +21,15 @@ class Wallet {
         return $data;
     }
 
-    public function credit($userId, $amount, $category, $description) {
-        return $this->addTransaction($userId, 'credit', $category, $amount, $description);
+    public function credit($userId, $amount, $category, $description, $grossAmount = null, $deduction = null, $tdsAmount = null, $chargesAmount = null) {
+        return $this->addTransaction($userId, 'credit', $category, $amount, $description, $grossAmount, $deduction, $tdsAmount, $chargesAmount);
     }
 
     public function debit($userId, $amount, $category, $description) {
         return $this->addTransaction($userId, 'debit', $category, $amount, $description);
     }
 
-    public function addTransaction($userId, $type, $category, $amount, $description) {
+    public function addTransaction($userId, $type, $category, $amount, $description, $grossAmount = null, $deduction = null, $tdsAmount = null, $chargesAmount = null) {
         try {
             $inTransaction = $this->conn->inTransaction();
             if (!$inTransaction) $this->conn->beginTransaction();
@@ -51,15 +51,19 @@ class Wallet {
             $stmt = $this->conn->prepare($query);
             $stmt->execute(['amount' => $amount, 'wallet_id' => $walletId]);
 
-            // Record Transaction
-            $logQuery = "INSERT INTO transactions (wallet_id, type, category, amount, description, status) 
-                         VALUES (:wallet_id, :type, :category, :amount, :description, 'completed')";
+            // Record Transaction (with optional TDS + charges breakdown)
+            $logQuery = "INSERT INTO transactions (wallet_id, type, category, amount, gross_amount, tds_amount, charges_amount, deduction, description, status)
+                         VALUES (:wallet_id, :type, :category, :amount, :gross_amount, :tds_amount, :charges_amount, :deduction, :description, 'completed')";
             $stmt = $this->conn->prepare($logQuery);
             $stmt->execute([
                 'wallet_id' => $walletId,
                 'type' => $type,
                 'category' => $category,
                 'amount' => $amount,
+                'gross_amount' => $grossAmount,
+                'tds_amount' => $tdsAmount,
+                'charges_amount' => $chargesAmount,
+                'deduction' => $deduction,
                 'description' => $description
             ]);
 

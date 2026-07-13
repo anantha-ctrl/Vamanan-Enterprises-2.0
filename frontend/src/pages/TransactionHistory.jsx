@@ -179,6 +179,13 @@ const TransactionHistory = () => {
                         }`}>
                           {t.type === 'credit' ? '+' : '-'} ₹{parseFloat(t.amount).toLocaleString()}
                         </span>
+                        {parseFloat(t.deduction || 0) > 0 && (
+                          <div className="mt-1 text-[8px] font-black uppercase tracking-widest text-slate-400 leading-relaxed">
+                            <span>gross ₹{parseFloat(t.gross_amount || 0).toLocaleString()}</span>
+                            <span className="text-red-400"> · TDS −₹{parseFloat(t.tds_amount || 0).toLocaleString()}</span>
+                            <span className="text-red-400"> · chg −₹{parseFloat(t.charges_amount || 0).toLocaleString()}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-8 py-6">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase italic tracking-widest ${

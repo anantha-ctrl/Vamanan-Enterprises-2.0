@@ -14,6 +14,55 @@ import Header from '../components/Header';
 import API_BASE_URL from '../config';
 import { humanAssetType, humanRole, humanStatus } from '../utils/humanLabels';
 
+const inr = (v) => `₹${parseFloat(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+/**
+ * Real-time TDS + service-charge deduction breakdown for a report summary.
+ * Reads the aggregate columns served by api/admin/reports.php (gross, tds,
+ * charges, total deduction, net) — all computed automatically by the yield engine.
+ */
+const DeductionBreakdown = ({ summary = {} }) => {
+  const gross = parseFloat(summary.gross_amount || 0);
+  const tds = parseFloat(summary.tds_amount || 0);
+  const charges = parseFloat(summary.charges_amount || 0);
+  const deduction = parseFloat(summary.total_deduction || (tds + charges));
+  const net = parseFloat(summary.net_amount != null ? summary.net_amount : summary.total_amount || 0);
+  const pct = (part) => (gross > 0 ? ((part / gross) * 100).toFixed(1) : '0.0');
+
+  const tiles = [
+    { label: 'Gross Incentive', value: gross, sub: 'Before deductions', tone: 'text-blue-900', bar: 'bg-blue-900' },
+    { label: 'TDS Withheld', value: tds, sub: `${pct(tds)}% of gross`, tone: 'text-red-500', bar: 'bg-red-500' },
+    { label: 'Service Charges', value: charges, sub: `${pct(charges)}% of gross`, tone: 'text-red-500', bar: 'bg-red-400' },
+    { label: 'Total Deduction', value: deduction, sub: `${pct(deduction)}% withheld`, tone: 'text-red-600', bar: 'bg-red-600' },
+    { label: 'Net Credited', value: net, sub: 'Paid to wallets', tone: 'text-amber-600', bar: 'bg-amber-500' },
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+      className="bg-white border border-slate-200 rounded-[3rem] p-8 md:p-10 shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h3 className="text-lg md:text-xl font-black text-blue-900 uppercase italic tracking-tighter">Deduction Breakdown</h3>
+          <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Auto-computed TDS + service charges · live from ledger</p>
+        </div>
+        <div className="w-11 h-11 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 border border-red-100 shrink-0"><TrendingDown size={22} /></div>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {tiles.map((t, i) => (
+          <div key={i} className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">{t.label}</p>
+            <p className={`text-lg md:text-xl font-black italic tracking-tighter mt-2 break-words ${t.tone}`}>{inr(t.value)}</p>
+            <div className="mt-3 h-1 w-full bg-white rounded-full overflow-hidden border border-slate-100">
+              <div className={`h-full ${t.bar}`} style={{ width: `${gross > 0 ? Math.min(100, (t.value / gross) * 100) : 0}%` }} />
+            </div>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-2 italic">{t.sub}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
 const AdminReports = () => {
   const { type } = useParams();
   const navigate = useNavigate();
@@ -409,6 +458,9 @@ const AdminReports = () => {
                  ))}
               </div>
 
+              {/* TDS + Service Charge Deduction Breakdown (real-time from ledger) */}
+              <DeductionBreakdown summary={data.summary} />
+
               {/* Secondary Cashback Matrix (Active/Completed Cycles) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                  <div className="bg-white border border-slate-200 rounded-[3rem] p-10 shadow-sm relative overflow-hidden group">
@@ -783,6 +835,9 @@ const AdminReports = () => {
             </div>
           )}
 
+          {/* Referral deduction breakdown (real-time from ledger) */}
+          {type === 'referral' && <DeductionBreakdown summary={data.summary} />}
+
           {/* Specialized Referral Analytics */}
           {type === 'referral' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -937,6 +992,13 @@ const AdminReports = () => {
                                       <p className="text-lg font-black text-blue-900 italic tracking-tighter">₹{parseFloat(row.amount || row.total_value || 0).toLocaleString()}</p>
                                       {activeTab === 'cycles' && (
                                          <p className="text-[9px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">Daily: ₹{parseFloat(row.daily_payout).toLocaleString()}</p>
+                                      )}
+                                      {activeTab !== 'cycles' && parseFloat(row.deduction || 0) > 0 && (
+                                         <p className="text-[8px] font-black text-slate-400 mt-0.5 uppercase tracking-widest">
+                                            gross ₹{parseFloat(row.gross_amount || 0).toLocaleString()}
+                                            <span className="text-red-400"> · TDS −₹{parseFloat(row.tds_amount || 0).toLocaleString()}</span>
+                                            <span className="text-red-400"> · chg −₹{parseFloat(row.charges_amount || 0).toLocaleString()}</span>
+                                         </p>
                                       )}
                                    </div>
                                 </td>

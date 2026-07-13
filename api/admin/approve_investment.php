@@ -50,6 +50,15 @@ try {
        ->execute(['status' => $status, 'id' => $cycleId]);
 
     if ($status === 'active') {
+        // Ensure the stored gross daily payout is correct on activation (1% of the ex-GST
+        // base). Guards against legacy/pending cycles that were saved with daily_payout = 0.
+        $rateStmt = $database->prepare("SELECT config_value FROM platform_settings WHERE config_key = 'daily_cashback_rate'");
+        $rateStmt->execute();
+        $dailyRate = (float)($rateStmt->fetchColumn() ?: 1);
+        $dailyPayout = round(((float)$cycle['cashback_eligible_amount']) * ($dailyRate / 100), 2);
+        $database->prepare("UPDATE cashback_cycles SET daily_payout = :dp WHERE id = :id")
+           ->execute(['dp' => $dailyPayout, 'id' => $cycleId]);
+
         // APPROVE: activate agreement + complete transaction
         $database->prepare("UPDATE agreements SET status = 'active', agreement_date = NOW() WHERE user_id = :uid AND status = 'pending' ORDER BY id DESC LIMIT 1")
            ->execute(['uid' => $userId]);

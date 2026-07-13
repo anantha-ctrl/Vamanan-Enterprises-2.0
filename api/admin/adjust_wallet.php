@@ -28,10 +28,18 @@ try {
         $db->beginTransaction();
 
         $userId = $data->user_id;
-        $amount = (float)$data->amount;
-        $type   = $data->type; 
+        $amount = (float)$data->amount;              // NET amount actually credited/debited to the wallet
+        $type   = $data->type;
         $reason = $data->reason ?? 'System adjustment';
         $category = $data->category ?? 'purchase';
+
+        // Optional deduction breakdown (sent when applying a net daily payout, so the
+        // ledger records gross / TDS / charges just like the automated yield engine).
+        $grossAmount   = isset($data->gross_amount)   ? (float)$data->gross_amount   : null;
+        $tdsAmount     = isset($data->tds_amount)     ? (float)$data->tds_amount     : null;
+        $chargesAmount = isset($data->charges_amount) ? (float)$data->charges_amount : null;
+        $deduction     = isset($data->deduction)      ? (float)$data->deduction
+                          : (($tdsAmount !== null || $chargesAmount !== null) ? (float)$tdsAmount + (float)$chargesAmount : null);
 
         // 1. Get Wallet ID
         $stmt = $db->prepare("SELECT id FROM wallets WHERE user_id = ?");
@@ -53,11 +61,17 @@ try {
             $cycle = $cStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($cycle) {
-                $newDays = (int)$cycle['days_completed'] + 1;
-                $newEarned = (float)$cycle['total_earned'] + $amount;
-                $newStatus = ($newEarned >= (float)$cycle['total_value'] || $newDays >= 100) ? 'completed' : 'active';
+                // Cycle accrues the GROSS amount (matches the yield engine's cap math);
+                // fall back to the credited amount when no gross breakdown was supplied.
+                $cycleAccrual = ($grossAmount !== null) ? $grossAmount : $amount;
+                $cap = (float)($cycle['cashback_eligible_amount'] ?? 0);
+                if ($cap <= 0) $cap = (float)$cycle['total_value'];
 
-                $upStmt = $db->prepare("UPDATE cashback_cycles SET days_completed = ?, total_earned = ?, status = ?, updated_at = NOW() WHERE id = ?");
+                $newDays = (int)$cycle['days_paid'] + 1;
+                $newEarned = (float)$cycle['paid_amount'] + $cycleAccrual;
+                $newStatus = ($newEarned >= $cap || $newDays >= 100) ? 'completed' : 'active';
+
+                $upStmt = $db->prepare("UPDATE cashback_cycles SET days_paid = ?, paid_amount = ?, status = ?, last_paid_at = CURDATE() WHERE id = ?");
                 $upStmt->execute([$newDays, $newEarned, $newStatus, $cycle['id']]);
             }
         }
@@ -69,9 +83,10 @@ try {
         $db->prepare("UPDATE wallets SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?")
            ->execute([$adjustmentAmount, $earnedIncrement, $wallet['id']]);
 
-        // 4. Log Transaction
-        $db->prepare("INSERT INTO transactions (wallet_id, type, category, amount, description, status) VALUES (?, ?, ?, ?, ?, 'completed')")
-           ->execute([$wallet['id'], $type, $category, $amount, "MANUAL: " . $reason]);
+        // 4. Log Transaction (with optional gross / TDS / charges breakdown)
+        $db->prepare("INSERT INTO transactions (wallet_id, type, category, amount, gross_amount, tds_amount, charges_amount, deduction, description, status)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed')")
+           ->execute([$wallet['id'], $type, $category, $amount, $grossAmount, $tdsAmount, $chargesAmount, $deduction, "MANUAL: " . $reason]);
 
         $db->commit();
         echo json_encode(["status" => "success", "message" => "Adjustment completed successfully"]);

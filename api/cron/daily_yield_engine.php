@@ -37,8 +37,25 @@ if (!function_exists('run_daily_yield')) {
 
         $cashbackRate = isset($settings['daily_cashback_rate']) ? (float)$settings['daily_cashback_rate'] / 100 : 0.01;
 
+        // TDS + processing/service charges withheld from every incentive credit
+        // (cashback & referral). Both rates are independently admin-configurable.
+        // Customer's cycle still accrues the GROSS amount (so the 1%/day, 100% cap
+        // semantics are untouched); only the wallet is credited the NET after these cuts.
+        // Falls back to the legacy combined `tds_charges_rate` if the split keys are absent.
+        if (isset($settings['tds_rate']) || isset($settings['service_charge_rate'])) {
+            $tdsRatePct     = isset($settings['tds_rate']) ? (float)$settings['tds_rate'] : 0.0;
+            $chargeRatePct  = isset($settings['service_charge_rate']) ? (float)$settings['service_charge_rate'] : 0.0;
+        } else {
+            // Legacy: single combined rate, treated entirely as TDS.
+            $tdsRatePct     = isset($settings['tds_charges_rate']) ? (float)$settings['tds_charges_rate'] : 10.0;
+            $chargeRatePct  = 0.0;
+        }
+        $tdsRate       = $tdsRatePct / 100;
+        $chargeRate    = $chargeRatePct / 100;
+        $totalDedPct   = $tdsRatePct + $chargeRatePct;
+
         $commRates = [
-            1 => isset($settings['referral_commission_l1']) ? (float)$settings['referral_commission_l1'] / 100 : 0.002,
+            1 => isset($settings['referral_commission_l1']) ? (float)$settings['referral_commission_l1'] / 100 : 0.01,
             2 => isset($settings['referral_commission_l2']) ? (float)$settings['referral_commission_l2'] / 100 : 0.001,
             3 => isset($settings['referral_commission_l3']) ? (float)$settings['referral_commission_l3'] / 100 : 0.001,
             4 => isset($settings['referral_commission_l4']) ? (float)$settings['referral_commission_l4'] / 100 : 0.0005,
@@ -66,13 +83,27 @@ if (!function_exists('run_daily_yield')) {
                 // GST-exclusive: cashback is computed on the product subtotal only.
                 $eligible = (float)($cycle['cashback_eligible_amount'] ?? 0);
                 if ($eligible <= 0) $eligible = (float)$cycle['total_value']; // legacy rows (GST was 0)
+
+                // Re-read LIVE progress: referral commissions credited earlier in THIS pass
+                // (when this user is an upline of an already-processed buyer) may have advanced
+                // paid_amount. Using the stale bulk-fetched row would let cashback + referral
+                // together exceed the principal. The cap is on the COMBINED total.
+                $freshStmt = $db->prepare("SELECT paid_amount, days_paid, status FROM cashback_cycles WHERE id = ?");
+                $freshStmt->execute([$cycle['id']]);
+                $fresh = $freshStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$fresh || $fresh['status'] !== 'active') {
+                    continue; // principal already reached (via referral) — stop, even before 100 days
+                }
+                $currentPaid = (float)$fresh['paid_amount'];
+                $currentDays = (int)$fresh['days_paid'];
+
                 $dailyCashback = $eligible * $cashbackRate;
 
-                $newDaysCompleted = $cycle['days_paid'] + 1;
-                $newTotalEarned   = $cycle['paid_amount'] + $dailyCashback;
+                $newDaysCompleted = $currentDays + 1;
+                $newTotalEarned   = $currentPaid + $dailyCashback;
                 $newStatus = ($newTotalEarned >= $eligible || $newDaysCompleted >= 100) ? 'completed' : 'active';
 
-                // Cap cashback at 100% of the GST-excluded base.
+                // Cap the COMBINED (cashback + referral) earnings at 100% of the GST-excluded base.
                 if ($newTotalEarned > $eligible) {
                     $dailyCashback -= ($newTotalEarned - $eligible);
                     $newTotalEarned = $eligible;
@@ -80,10 +111,25 @@ if (!function_exists('run_daily_yield')) {
                 }
 
                 if ($dailyCashback > 0) {
+                    // GROSS accrues to the cycle; NET (post TDS + charges) hits the wallet.
+                    $grossCashback = round($dailyCashback, 2);
+                    $tds           = round($grossCashback * $tdsRate, 2);
+                    $charges       = round($grossCashback * $chargeRate, 2);
+                    $deduction     = round($tds + $charges, 2);
+                    $netCashback   = round($grossCashback - $deduction, 2);
                     $db->prepare("UPDATE cashback_cycles SET days_paid = ?, paid_amount = ?, status = ?, last_paid_at = CURDATE() WHERE id = ?")
                        ->execute([$newDaysCompleted, $newTotalEarned, $newStatus, $cycle['id']]);
-                    $walletModel->credit($userId, $dailyCashback, 'cashback', "Daily " . ($cashbackRate * 100) . "% cashback on ₹" . number_format($eligible, 2) . " product value (excl. GST) — Cycle #{$cycle['id']}");
-                    $logs[] = "Node #{$userId}: Cycle #{$cycle['id']} yielded ₹{$dailyCashback}";
+                    $walletModel->credit(
+                        $userId,
+                        $netCashback,
+                        'cashback',
+                        "Daily " . ($cashbackRate * 100) . "% cashback on ₹" . number_format($eligible, 2) . " (excl. GST) — gross ₹" . number_format($grossCashback, 2) . " less TDS {$tdsRatePct}% ₹" . number_format($tds, 2) . " + charges {$chargeRatePct}% ₹" . number_format($charges, 2) . " = net ₹" . number_format($netCashback, 2) . " — Cycle #{$cycle['id']}",
+                        $grossCashback,
+                        $deduction,
+                        $tds,
+                        $charges
+                    );
+                    $logs[] = "Node #{$userId}: Cycle #{$cycle['id']} gross ₹{$grossCashback}, TDS ₹{$tds}, charges ₹{$charges}, net ₹{$netCashback}";
                 }
 
                 // Referral commissions up the tree (5 levels), first-10-lines limit.
@@ -100,7 +146,12 @@ if (!function_exists('run_daily_yield')) {
                     $eligibilityStmt->execute([$referrerId, $childInPath]);
                     $rank = (int)$eligibilityStmt->fetchColumn();
 
-                    if ($rank <= 10) {
+                    // Admin can stop a member's referral commissions — skip if disabled.
+                    $refActiveStmt = $db->prepare("SELECT COALESCE(referral_active, 1) FROM users WHERE id = ?");
+                    $refActiveStmt->execute([$referrerId]);
+                    $referralActive = (int)$refActiveStmt->fetchColumn();
+
+                    if ($rank <= 10 && $referralActive === 1) {
                         $commAmount = $eligible * $commRates[$level];
                         if ($getUserInvestment($referrerId) > 0) {
                             $refCycleStmt = $db->prepare("SELECT * FROM cashback_cycles WHERE user_id = ? AND status = 'active' ORDER BY created_at ASC LIMIT 1");
@@ -117,10 +168,25 @@ if (!function_exists('run_daily_yield')) {
                                     }
                                     $newRefEarned = $refTotalEarned + $actualComm;
                                     $newRefStatus = ($newRefEarned >= $refTotalValue) ? 'completed' : 'active';
+                                    // GROSS commission accrues to the referrer's cycle; NET (post TDS + charges) is credited.
+                                    $grossComm = round($actualComm, 2);
+                                    $commTds = round($grossComm * $tdsRate, 2);
+                                    $commCharges = round($grossComm * $chargeRate, 2);
+                                    $commDeduction = round($commTds + $commCharges, 2);
+                                    $netComm = round($grossComm - $commDeduction, 2);
                                     $db->prepare("UPDATE cashback_cycles SET paid_amount = ?, status = ? WHERE id = ?")
                                        ->execute([$newRefEarned, $newRefStatus, $refCycle['id']]);
-                                    $walletModel->credit($referrerId, $actualComm, 'referral', "Level {$level} Referral Commission from User #{$userId} (Line: User #{$childInPath})");
-                                    $logs[] = "   -> Referrer #{$referrerId} earned Level {$level} commission: ₹{$actualComm}";
+                                    $walletModel->credit(
+                                        $referrerId,
+                                        $netComm,
+                                        'referral',
+                                        "Level {$level} Referral Commission from User #{$userId} (Line: User #{$childInPath}) — gross ₹" . number_format($grossComm, 2) . " less TDS {$tdsRatePct}% ₹" . number_format($commTds, 2) . " + charges {$chargeRatePct}% ₹" . number_format($commCharges, 2) . " = net ₹" . number_format($netComm, 2),
+                                        $grossComm,
+                                        $commDeduction,
+                                        $commTds,
+                                        $commCharges
+                                    );
+                                    $logs[] = "   -> Referrer #{$referrerId} Level {$level}: gross ₹{$grossComm}, TDS ₹{$commTds}, charges ₹{$commCharges}, net ₹{$netComm}";
                                 }
                             }
                         }

@@ -200,13 +200,17 @@ try {
 
     // 5. Create Cashback Cycle (Pending)
     $daily_rate_setting = isset($settings['daily_cashback_rate']) ? (float)$settings['daily_cashback_rate'] : 1;
-    $daily = 0; // Cashback/daily payout removed — purchases no longer accrue daily cashback
 
     // GST-exclusive cashback breakdown:
     //  customer pays $total_price (incl. GST) but ALL incentives use $base_amount (ex-GST) only.
     $product_amount           = $base_amount;            // subtotal before GST
     $total_amount             = $total_price;            // product + GST (what is actually paid)
     $cashback_eligible_amount = $base_amount;            // GST excluded — the only cashback base
+
+    // Gross daily payout = daily_cashback_rate % of the ex-GST base (matches the yield engine,
+    // which credits this less TDS + service charges). Stored so dashboards/reports show the
+    // real 1% yield instead of ₹0.
+    $daily = round($cashback_eligible_amount * ($daily_rate_setting / 100), 2);
 
     $cStmt = $db->prepare(
         "INSERT INTO cashback_cycles (user_id, total_value, product_amount, gst_amount, total_amount, cashback_eligible_amount, ledger_txn_id, daily_payout, transaction_id, payment_method, payment_screenshot, asset_type, weight, product_id, product_name, status)

@@ -36,7 +36,7 @@ const Header = ({
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></div>
                 <span className="text-amber-600 truncate">{humanize(activeTab)}</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black capitalize tracking-tighter text-blue-900 leading-none truncate">
+              <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black capitalize tracking-tighter text-blue-900 leading-[1.1] pb-1 truncate">
                 {tabLabel}
               </h2>
             </div>

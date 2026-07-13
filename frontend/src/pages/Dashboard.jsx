@@ -179,8 +179,14 @@ const Dashboard = () => {
                   ₹{parseFloat(data?.active_cycle?.today_earning || 0).toLocaleString()}
                 </h3>
                 <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-3 italic">
-                   Today's Earnings
+                   Today's Earnings (Net)
                 </p>
+                {parseFloat(data?.active_cycle?.daily_payout || 0) > 0 && (
+                  <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mt-1.5 italic">
+                    Est. net daily ₹{parseFloat(data?.active_cycle?.daily_payout_net || 0).toLocaleString()}
+                    <span className="text-slate-300"> · gross ₹{parseFloat(data?.active_cycle?.daily_payout || 0).toLocaleString()}</span>
+                  </p>
+                )}
               </motion.div>
 
               {/* Tile 4 — Referral Earnings */}
@@ -266,6 +272,56 @@ const Dashboard = () => {
               </motion.div>
 
            </div>
+
+           {/* Earnings Cap — combined cashback + referral, stops at 100% of principal */}
+           {parseFloat(data?.active_cycle?.product_amount || 0) > 0 && (() => {
+             const principal = parseFloat(data?.active_cycle?.product_amount || 0);      // ex-GST base
+             const earned    = parseFloat(data?.active_cycle?.total_earned || 0);        // cashback + referral (combined)
+             const remaining = parseFloat(data?.active_cycle?.remaining_value ?? Math.max(0, principal - earned));
+             const pct       = principal > 0 ? Math.min(100, (earned / principal) * 100) : 0;
+             const isDone    = data?.active_cycle?.status === 'completed' || earned >= principal;
+             return (
+               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                 className={`p-6 sm:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border shadow-sm ${isDone ? 'bg-blue-900 border-blue-900 text-white' : 'bg-white border-slate-200/60'}`}>
+                 <div className="flex items-center justify-between mb-6 md:mb-8">
+                   <div>
+                     <h3 className={`text-lg md:text-xl font-black uppercase italic tracking-tighter ${isDone ? 'text-white' : 'text-blue-900'}`}>Earnings Cap</h3>
+                     <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 italic ${isDone ? 'text-blue-200' : 'text-slate-400'}`}>
+                       Cashback + Referral combined · stops at 100% of principal
+                     </p>
+                   </div>
+                   <span className={`shrink-0 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border ${isDone ? 'bg-amber-500 text-blue-900 border-amber-400' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                     {isDone ? '✓ Completed' : `${pct.toFixed(1)}% Reached`}
+                   </span>
+                 </div>
+
+                 <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+                   <div className={`p-4 rounded-2xl border ${isDone ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+                     <p className={`text-[8px] font-black uppercase tracking-widest italic ${isDone ? 'text-blue-200' : 'text-slate-400'}`}>Earned (CB + Ref)</p>
+                     <p className={`text-lg md:text-xl font-black italic tracking-tighter mt-1.5 break-words ${isDone ? 'text-amber-400' : 'text-amber-600'}`}>₹{earned.toLocaleString()}</p>
+                   </div>
+                   <div className={`p-4 rounded-2xl border ${isDone ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+                     <p className={`text-[8px] font-black uppercase tracking-widest italic ${isDone ? 'text-blue-200' : 'text-slate-400'}`}>Principal Cap</p>
+                     <p className={`text-lg md:text-xl font-black italic tracking-tighter mt-1.5 break-words ${isDone ? 'text-white' : 'text-blue-900'}`}>₹{principal.toLocaleString()}</p>
+                   </div>
+                   <div className={`p-4 rounded-2xl border ${isDone ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+                     <p className={`text-[8px] font-black uppercase tracking-widest italic ${isDone ? 'text-blue-200' : 'text-slate-400'}`}>Remaining</p>
+                     <p className={`text-lg md:text-xl font-black italic tracking-tighter mt-1.5 break-words ${isDone ? 'text-white' : 'text-blue-900'}`}>₹{remaining.toLocaleString()}</p>
+                   </div>
+                 </div>
+
+                 <div className={`w-full h-3 rounded-full overflow-hidden border p-0.5 ${isDone ? 'bg-white/10 border-white/10' : 'bg-slate-100 border-slate-100'}`}>
+                   <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2, ease: 'easeOut' }}
+                     className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full" />
+                 </div>
+                 <p className={`text-[8px] font-black uppercase tracking-widest mt-3 italic leading-relaxed ${isDone ? 'text-blue-200' : 'text-slate-400'}`}>
+                   {isDone
+                     ? 'Your plan is complete — combined earnings reached 100% of your principal. Payouts have stopped.'
+                     : 'Once your combined cashback + referral earnings reach 100% of your principal, payouts stop automatically — even before 100 days.'}
+                 </p>
+               </motion.div>
+             );
+           })()}
 
 
            {/* Institutional Analytics Section */}
@@ -356,8 +412,11 @@ const Dashboard = () => {
                        <div className="flex items-center gap-3 md:gap-4">
                           <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-amber-600 shadow-sm shrink-0"><Zap size={18} /></div>
                           <div>
-                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Daily Payout</p>
-                             <p className="text-xs md:text-sm font-black text-amber-600 italic">₹{parseFloat(data?.active_cycle?.daily_payout || 0).toLocaleString()}</p>
+                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Daily Payout (Net)</p>
+                             <p className="text-xs md:text-sm font-black text-amber-600 italic">₹{parseFloat(data?.active_cycle?.daily_payout_net ?? data?.active_cycle?.daily_payout ?? 0).toLocaleString()}</p>
+                             {parseFloat(data?.active_cycle?.daily_deduction || 0) > 0 && (
+                               <p className="text-[7px] font-black text-slate-300 uppercase tracking-widest italic mt-0.5">gross ₹{parseFloat(data?.active_cycle?.daily_payout || 0).toLocaleString()} · −TDS/chg</p>
+                             )}
                           </div>
                        </div>
                        <div className="flex items-center gap-3 md:gap-4">
