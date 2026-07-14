@@ -124,6 +124,10 @@ try {
         'purity'      => "VARCHAR(100) DEFAULT '24K' AFTER weight",
         'image'       => "VARCHAR(255) AFTER price",
         'is_active'   => "TINYINT(1) DEFAULT 1 AFTER description",
+        // Per-product GST override (%). NULL/empty → fall back to category default (gold_gst / general_gst).
+        'gst_rate'    => "DECIMAL(5,2) NULL AFTER price",
+        // Opening stock captured directly on the product form.
+        'stock_quantity' => "INT DEFAULT 0 AFTER gst_rate",
     ];
     foreach ($prodCols as $col => $definition) {
         try { $pdo->exec("ALTER TABLE products ADD COLUMN $col $definition"); } catch (PDOException $e) {}

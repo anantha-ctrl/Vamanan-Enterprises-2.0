@@ -58,8 +58,8 @@ try {
     $seq = (int)$db->query("SELECT COALESCE(MAX(CAST(SUBSTRING(product_code, 5) AS UNSIGNED)), 0) FROM products WHERE product_code LIKE 'VEVP%'")->fetchColumn();
 
     $insert = $db->prepare("INSERT INTO products
-        (product_code, name, category, slug, weight, purity, price, description, is_active, created_at, updated_at)
-        VALUES (?,?,?,?,?,?,?,?,?,NOW(),NOW())");
+        (product_code, name, category, slug, weight, purity, price, gst_rate, stock_quantity, description, is_active, created_at, updated_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())");
 
     $inserted = 0;
     $errors = [];
@@ -84,12 +84,17 @@ try {
         $description = $get($row, 'description');
         $isActiveRaw = strtolower($get($row, 'is_active'));
         $isActive    = in_array($isActiveRaw, ['0', 'no', 'false', 'inactive'], true) ? 0 : 1;
+        // GST rate: blank → NULL (fall back to category default at checkout). Stock: blank → 0.
+        $gstRaw      = $get($row, 'gst_rate');
+        $gstRate     = ($gstRaw !== '' && is_numeric($gstRaw)) ? (float)$gstRaw : null;
+        $stockRaw    = $get($row, 'stock_quantity');
+        $stockQty    = ($stockRaw !== '' && is_numeric($stockRaw)) ? (int)$stockRaw : 0;
 
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name))) . '-' . uniqid();
         $code = 'VEVP' . str_pad(++$seq, 3, '0', STR_PAD_LEFT);
 
         try {
-            $insert->execute([$code, $name, $category, $slug, $weight, $purity, (float)$price, $description, $isActive]);
+            $insert->execute([$code, $name, $category, $slug, $weight, $purity, (float)$price, $gstRate, $stockQty, $description, $isActive]);
             $inserted++;
         } catch (PDOException $e) {
             $seq--; // free the code for the next row since this insert failed

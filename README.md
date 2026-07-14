@@ -23,6 +23,7 @@ The platform features a **Cinematic Landing Interface**, a **Command-Grade Admin
   - **Withdrawal Registry**: Secure liquidity bridge with status monitoring (Pending/Approved/Failed) and real-time alert nodes.
   - **Payout Analytics**: Institutional disbursement ledger with bank-grade artifact tracking (IFSC, A/C No) and daily velocity charts.
 - **GST-Exclusive Cashback & Tax Engine**: Category-based GST (admin-configurable Gold/Silver vs. general-product rates) applied at checkout with automatic **CGST + SGST** split. Customers pay the full GST-inclusive invoice, but **every incentive — daily cashback, 5-tier referral, and commission — is calculated strictly on the ex-GST product value**; GST never contributes to any reward. Each order auto-generates a printable **Tax Invoice** (with CGST/SGST breakdown, viewable from the customer dashboard) plus a linked cashback application, and a dedicated **GST Filing** console surfaces a real-time, rate-wise (GSTR-1 style) and invoice-wise summary with CSV export.
+- **Inventory & Asset Provisioning**: The admin **Provision New Asset** form creates precious-metal or general products with a **per-product GST rate override** (blank ⇒ falls back to the category default, `gold_gst` / `general_gst`) and an **opening stock quantity**, both persisted to the `products` table and honoured live at checkout (`purchase.php` prefers a product's `gst_rate` when set). The same two fields are supported in **Bulk Product Upload** (CSV columns `gst_rate`, `stock_quantity`, header-mapped so older templates still import), and a dedicated stock console tracks movements, low-stock thresholds, and out-of-stock alerts — every product auto-assigned a sequential `VEVP###` code.
 - **Bulk User Provisioning**: One-shot creation of multiple customers/staff via an inline multi-row form or **CSV upload** (with downloadable template) — each new account is auto-assigned a sequential VEV ID, referral code, and initialized wallet.
 - **Multi-Role Staff Onboarding & Permission Matrix**: Granular role-based access control (RBAC). The Add-Staff (Recruitment) node provisions **Staff, Manager, or Advocate** accounts from a single role selector — each created live in the MySQL `users` table with an auto-initialized wallet, then surfaced instantly in the access list. The `admin` role is intentionally blocked from this form. Module access is assigned **manually in Settings → Access Control**; staff then operate a permission-filtered admin dashboard showing only their granted tabs.
 - **Account Approval Gate**: Self-registered customers are created with a `pending` status and **cannot log in until an admin grants access** — login is blocked with a clear "pending admin approval" message for pending accounts and a suspension notice for suspended ones. The admin's **Investor Calibration** panel exposes **Grant Access** (→ active), **Suspend ID**, and credential reset, flipping the live `users.status` flag that the login node enforces.
@@ -192,6 +193,8 @@ erDiagram
         string name
         string category
         decimal price
+        decimal gst_rate "per-product override, NULL = category default"
+        int stock_quantity
         tinyint is_active
     }
 

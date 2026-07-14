@@ -96,6 +96,13 @@ try {
         $c = strtolower((string)$category);
         return (strpos($c, 'gold') !== false || strpos($c, 'silver') !== false) ? $gold_gst : $general_gst;
     };
+    // Effective GST for a product row: per-product `gst_rate` override wins; else category default.
+    $gstRateForProduct = function ($prod) use ($gstRateFor) {
+        if (isset($prod['gst_rate']) && $prod['gst_rate'] !== null && $prod['gst_rate'] !== '') {
+            return (float)$prod['gst_rate'];
+        }
+        return $gstRateFor($prod['category'] ?? '');
+    };
 
     $asset_type = isset($data->asset_type) ? strtolower($data->asset_type) : 'gold';
     $payment_method = (isset($data->payment_mode) && strtolower($data->payment_mode) === 'upi') ? 'UPI Scan' : 'Bank Transfer';
@@ -112,14 +119,14 @@ try {
         $product_names = [];
         $valid_product_id = null;
         foreach ($items as $item) {
-            $pStmt = $db->prepare("SELECT id, name, price, category FROM products WHERE id = ? AND is_active = 1");
+            $pStmt = $db->prepare("SELECT id, name, price, category, gst_rate FROM products WHERE id = ? AND is_active = 1");
             $pStmt->execute([(int)$item['product_id']]);
             $prod = $pStmt->fetch(PDO::FETCH_ASSOC);
             if ($prod) {
                 $qty = max(1, (int)($item['quantity'] ?? 1));
                 $line_base = (float)$prod['price'] * $qty;
                 $base_amount += $line_base;
-                $gst_amount  += $line_base * ($gstRateFor($prod['category']) / 100);
+                $gst_amount  += $line_base * ($gstRateForProduct($prod) / 100);
                 $product_names[] = $qty . 'x ' . $prod['name'];
                 if (!$valid_product_id) $valid_product_id = $prod['id'];
             }
@@ -130,7 +137,7 @@ try {
         $asset_type = 'product';
     } elseif ($asset_type === 'product' && !empty($data->product_id)) {
         // Single product purchase
-        $pStmt = $db->prepare("SELECT id, name, price, category FROM products WHERE id = ? AND is_active = 1");
+        $pStmt = $db->prepare("SELECT id, name, price, category, gst_rate FROM products WHERE id = ? AND is_active = 1");
         $pStmt->execute([(int)$data->product_id]);
         $productRow = $pStmt->fetch(PDO::FETCH_ASSOC);
         if (!$productRow) {
@@ -139,7 +146,7 @@ try {
         $base_price = (float)$productRow['price'];
         $weight = 1;
         $base_amount = $base_price;
-        $gst_amount = $base_amount * ($gstRateFor($productRow['category']) / 100);
+        $gst_amount = $base_amount * ($gstRateForProduct($productRow) / 100);
         $total_price = $base_amount + $gst_amount;
         $product_name = $productRow['name'];
         $valid_product_id = $productRow['id'];

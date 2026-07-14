@@ -72,7 +72,7 @@ const Inventory = () => {
 
   // product modal
   const [showProductModal, setShowProductModal] = useState(false);
-  const [productForm, setProductForm] = useState({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+  const [productForm, setProductForm] = useState({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', gst_rate: '', stock_quantity: '', description: '', image: '', is_active: 1 });
   const [productType, setProductType] = useState('precious_metal');
   const [categorySearch, setCategorySearch] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -221,11 +221,11 @@ const Inventory = () => {
 
   // ── Bulk Upload ────────────────────────────────────────────────────────────
   const downloadTemplate = () => {
-    const header = 'name,category,weight,purity,price,description,is_active';
+    const header = 'name,category,weight,purity,price,gst_rate,stock_quantity,description,is_active';
     const sample = [
-      '22K Gold Coin (5g),Gold,5,22K,39255,Pure 22K gold coin with BIS hallmark,1',
-      'Aashirvaad Atta (10kg),Groceries,0,,540,Whole wheat flour,1',
-      'boAt Rockerz 450,Electronics,0,,1499,Bluetooth headphone,1',
+      '22K Gold Coin (5g),Gold,5,22K,39255,3,100,Pure 22K gold coin with BIS hallmark,1',
+      'Aashirvaad Atta (10kg),Groceries,0,,540,18,250,Whole wheat flour,1',
+      'boAt Rockerz 450,Electronics,0,,1499,,50,Bluetooth headphone (blank gst = category default),1',
     ];
     const csv = [header, ...sample].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -343,7 +343,7 @@ const Inventory = () => {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const resetProductForm = () => {
-    setProductForm({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+    setProductForm({ id: null, name: '', category: 'Gold', weight: '', purity: '24K', price: '', gst_rate: '', stock_quantity: '', description: '', image: '', is_active: 1 });
     setProductType('precious_metal');
     setCategorySearch('');
     setShowCategoryDropdown(false);
@@ -351,7 +351,7 @@ const Inventory = () => {
 
   const openAddModal = () => {
     const defaultCat = adminCategories[0]?.name || 'Gold';
-    setProductForm({ id: null, name: '', category: defaultCat, weight: '', purity: '24K', price: '', description: '', image: '', is_active: 1 });
+    setProductForm({ id: null, name: '', category: defaultCat, weight: '', purity: '24K', price: '', gst_rate: '', stock_quantity: '', description: '', image: '', is_active: 1 });
     setProductType('precious_metal');
     setCategorySearch('');
     setShowCategoryDropdown(false);
@@ -360,7 +360,7 @@ const Inventory = () => {
 
   const openEditModal = (p) => {
     const isPrecious = /^(22K|24K|18K|999)$/.test(p.purity || '') || parseFloat(p.weight || 0) > 0;
-    setProductForm({ id: p.id, name: p.name || '', category: p.category || 'Gold', weight: p.weight || '', purity: p.purity || (isPrecious ? '24K' : ''), price: p.price || '', description: p.description || '', image: p.image || '', is_active: p.is_active });
+    setProductForm({ id: p.id, name: p.name || '', category: p.category || 'Gold', weight: p.weight || '', purity: p.purity || (isPrecious ? '24K' : ''), price: p.price || '', gst_rate: (p.gst_rate ?? '') === null ? '' : (p.gst_rate ?? ''), stock_quantity: (p.stock_quantity ?? '') === null ? '' : (p.stock_quantity ?? ''), description: p.description || '', image: p.image || '', is_active: p.is_active });
     setProductType(isPrecious ? 'precious_metal' : 'general');
     setCategorySearch('');
     setShowCategoryDropdown(false);
@@ -652,7 +652,7 @@ const Inventory = () => {
                     className="w-full bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest italic flex items-center justify-center gap-2 hover:border-amber-500 hover:text-amber-600 transition-all active:scale-95">
                     <Download size={14} /> Download CSV Template
                   </button>
-                  <p className="text-[8px] font-bold text-slate-400 mt-3 leading-relaxed">Columns: <span className="text-slate-600">name*</span>, category, weight, purity, <span className="text-slate-600">price*</span>, description, is_active. (* required)</p>
+                  <p className="text-[8px] font-bold text-slate-400 mt-3 leading-relaxed">Columns: <span className="text-slate-600">name*</span>, category, weight, purity, <span className="text-slate-600">price*</span>, gst_rate, stock_quantity, description, is_active. (* required · blank gst_rate = category default)</p>
                 </div>
 
                 {/* Step 2 — choose file */}
@@ -842,6 +842,29 @@ const Inventory = () => {
                         value={productForm.price}
                         onChange={e => setProductForm({ ...productForm, price: e.target.value })}
                         className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-6 text-xl font-black text-amber-600 italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                    </div>
+                  </div>
+
+                  {/* GST + Quantity */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-3 italic">GST Rate (%)</label>
+                      <div className="relative">
+                        <input type="number" min="0" step="0.1" placeholder={productType === 'precious_metal' ? 'Default (Gold/Silver)' : 'Default (General)'}
+                          value={productForm.gst_rate}
+                          onChange={e => setProductForm({ ...productForm, gst_rate: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-6 pr-10 text-lg font-black text-blue-900 italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-lg font-black text-slate-300">%</span>
+                      </div>
+                      <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest ml-3 italic">Blank = use category default</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-3 italic">Quantity (Stock)</label>
+                      <input type="number" min="0" step="1" placeholder="0"
+                        value={productForm.stock_quantity}
+                        onChange={e => setProductForm({ ...productForm, stock_quantity: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 text-lg font-black text-blue-900 italic outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                      <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest ml-3 italic">Units available in stock</p>
                     </div>
                   </div>
 
