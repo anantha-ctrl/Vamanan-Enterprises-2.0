@@ -105,6 +105,131 @@ flowchart TD
 
 ---
 
+## 🗄️ Data Model (ER Diagram)
+
+Core entities of the `makkal_gold` schema and their relationships. Every incentive credit (`cashback` / `referral`) carries the full deduction breakdown, and a member's combined earnings are capped against `cashback_cycles.cashback_eligible_amount` (the ex-GST principal).
+
+```mermaid
+erDiagram
+    USERS ||--|| WALLETS : "has (1:1)"
+    USERS ||--o{ USERS : "refers (referrer_id)"
+    USERS ||--o{ CASHBACK_CYCLES : "owns"
+    USERS ||--o{ CASHBACK_APPLICATIONS : "submits"
+    USERS ||--o{ WITHDRAWALS : "requests"
+    USERS ||--o{ AGREEMENTS : "signs"
+    USERS ||--o{ FEEDBACKS : "sends"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    WALLETS ||--o{ TRANSACTIONS : "records"
+    PRODUCTS ||--o{ CASHBACK_CYCLES : "purchased as"
+    CASHBACK_CYCLES }o--|| TRANSACTIONS : "ledger_txn_id"
+    CASHBACK_CYCLES ||--o{ CASHBACK_APPLICATIONS : "claimed via"
+
+    USERS {
+        int id PK
+        string customer_id "VEV###"
+        string name
+        string email
+        string role "admin|manager|staff|advocate|customer"
+        string status "active|pending|suspended"
+        string referral_code "VEV+5"
+        int referrer_id FK "self → USERS.id"
+        tinyint referral_active "1=earning, 0=stopped"
+        string kyc_status
+    }
+
+    WALLETS {
+        int id PK
+        int user_id FK
+        decimal balance
+        decimal total_earned
+        decimal total_withdrawn
+    }
+
+    TRANSACTIONS {
+        int id PK
+        int wallet_id FK
+        decimal amount "NET credited"
+        decimal gross_amount "pre-deduction"
+        decimal tds_amount
+        decimal charges_amount
+        decimal deduction "tds + charges"
+        string type "credit|debit"
+        string category "cashback|referral|purchase|withdrawal|payout|..."
+        string status
+        datetime created_at
+    }
+
+    CASHBACK_CYCLES {
+        int id PK
+        int user_id FK
+        int product_id FK "nullable"
+        decimal product_amount "ex-GST subtotal"
+        decimal gst_amount
+        decimal total_amount "GST-inclusive paid"
+        decimal cashback_eligible_amount "principal / cap base"
+        decimal daily_payout "1% of ex-GST base"
+        decimal paid_amount "combined cashback+referral toward cap"
+        int days_paid
+        string status "pending|active|completed|..."
+        date last_paid_at
+        int ledger_txn_id FK
+    }
+
+    CASHBACK_APPLICATIONS {
+        int id PK
+        int user_id FK
+        int cycle_id FK
+        decimal purchase_amount
+        string purchased_product
+        string account_no
+        string ifsc_code
+        string status "pending|approved|rejected"
+    }
+
+    PRODUCTS {
+        int id PK
+        string product_code "VEVP###"
+        string name
+        string category
+        decimal price
+        tinyint is_active
+    }
+
+    WITHDRAWALS {
+        int id PK
+        int user_id FK
+        decimal amount
+        string status
+    }
+
+    AGREEMENTS {
+        int id PK
+        int user_id FK
+        int product_id FK
+        string status
+    }
+
+    FEEDBACKS {
+        int id PK
+        int from_user_id FK
+        int to_user_id FK "NULL = to company"
+        string direction "customer_to_admin|admin_to_customer"
+        int rating
+        tinyint is_read
+    }
+
+    NOTIFICATIONS {
+        int id PK
+        int user_id FK "NULL = broadcast"
+        string title
+        string message
+    }
+```
+
+> **Config tables** (`platform_settings`, `tally_settings`, `categories`) are standalone key/value or reference stores and are intentionally omitted from the relationship graph above. `platform_settings` holds the tunable rates the engine reads live — `daily_cashback_rate`, `tds_rate`, `service_charge_rate`, `referral_commission_l1…l5`, and the landing `marketing_*_offset` values.
+
+---
+
 ## 🛠️ Technology Stack
 
 ### Frontend (Institutional Interface)
